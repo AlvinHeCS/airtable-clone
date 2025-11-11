@@ -41,7 +41,7 @@ export default function UserIdPage() {
                     )
                 })}
             </div>
-            <button onClick={() => { void handleCreateBase().catch(console.error) }}>create bases</button>
+            <button onClick={() => void handleCreateBase()}>create bases</button>
             </>
     )
 };
