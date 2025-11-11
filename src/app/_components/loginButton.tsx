@@ -10,6 +10,8 @@ export default function LoginButton() {
     const session = useSession();
 
     useEffect(() => {
+        console.log("status:", session.status);
+        console.log("data:", session.data);
         if (session.data?.user) {
             router.push(`/${session.data?.user.id}`)
         }

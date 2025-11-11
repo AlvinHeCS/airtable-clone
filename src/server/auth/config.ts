@@ -16,6 +16,7 @@ declare module "next-auth" {
 }
 
 export const authConfig = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
@@ -38,18 +39,5 @@ export const authConfig = {
         id: user.id,
       },
     }),
-  },
-  // Add this section for production-safe cookies
-  useSecureCookies: process.env.NODE_ENV === "production",
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "lax", // or "none" if needed
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
   },
 } satisfies NextAuthConfig;
