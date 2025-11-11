@@ -36,8 +36,6 @@ export default function UserIdPage() {
                     </div>
                 ))}
             </div>
-
-            {/* eslint-disable-next-line @typescript-eslint/no-floating-promises */}
             <button onClick={() => void handleCreateBase()}>
                 create bases
             </button>
