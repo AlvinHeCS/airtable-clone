@@ -166,6 +166,35 @@ exports.Prisma.VerificationTokenScalarFieldEnum = {
   expires: 'expires'
 };
 
+exports.Prisma.BaseScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  tableAmount: 'tableAmount',
+  userId: 'userId'
+};
+
+exports.Prisma.TableScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  creationDate: 'creationDate',
+  baseId: 'baseId',
+  headers: 'headers'
+};
+
+exports.Prisma.RowScalarFieldEnum = {
+  id: 'id',
+  rowNum: 'rowNum',
+  tableId: 'tableId'
+};
+
+exports.Prisma.CellScalarFieldEnum = {
+  id: 'id',
+  colNum: 'colNum',
+  valInt: 'valInt',
+  valStr: 'valStr',
+  rowId: 'rowId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -187,7 +216,11 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   Session: 'Session',
   User: 'User',
-  VerificationToken: 'VerificationToken'
+  VerificationToken: 'VerificationToken',
+  Base: 'Base',
+  Table: 'Table',
+  Row: 'Row',
+  Cell: 'Cell'
 };
 
 /**

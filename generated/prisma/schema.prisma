@@ -64,6 +64,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   posts         Post[]
+  bases         Base[]
 }
 
 model VerificationToken {
@@ -72,4 +73,40 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Base {
+  id          String  @id @default(cuid())
+  name        String  @default("Untitled Base")
+  tables      Table[]
+  tableAmount Int     @default(0)
+  userId      String
+  user        User    @relation(fields: [userId], references: [id])
+}
+
+model Table {
+  id           String   @id @default(cuid())
+  name         String
+  creationDate DateTime @default(now())
+  rows         Row[]
+  baseId       String
+  base         Base     @relation(fields: [baseId], references: [id])
+  headers      String[]
+}
+
+model Row {
+  id      String @id @default(cuid())
+  rowNum  Int
+  cells   Cell[]
+  tableId String
+  table   Table  @relation(fields: [tableId], references: [id])
+}
+
+model Cell {
+  id     String  @id @default(cuid())
+  colNum Int
+  valInt Int?
+  valStr String?
+  rowId  String
+  row    Row     @relation(fields: [rowId], references: [id])
 }

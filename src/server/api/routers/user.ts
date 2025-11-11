@@ -12,7 +12,28 @@ export const userRouter = createTRPCRouter({
     }),
     pingDB: publicProcedure.query(async ({ ctx }) => {
       const users = await ctx.db.user.findMany();
-      console.log("server-side users fetched:", users); // <-- check this in Vercel logs
+      console.log("server-side users fetched:", users); 
       return users;    
+    }),
+
+    getBases: protectedProcedure.query(async ({ ctx }) => {
+      const userId = ctx.session.user.id;
+      return await ctx.db.base.findMany({
+        where: {
+          userId: userId,
+        }
+      })
+    }),
+    addBase: protectedProcedure
+    .mutation(async ({ctx}) => {
+      const userId = ctx.session.user.id;
+      const newBase = await ctx.db.base.create({
+        data: {
+          user: { connect: { id: userId } }
+        },
+      });
+  
+      return newBase;
+  
     })
 })
