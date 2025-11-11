@@ -1,12 +1,17 @@
 "use client"
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react"
+import { useSession } from "next-auth/react";
+
 
 export default function BasePage() {
+    const router = useRouter();
+    const { data: session } = useSession();
     const utils = api.useUtils();
     const params = useParams();
     const baseId = params.baseId;
+    const userId = session?.user.id;
     const {data, isLoading} = api.user.getBaseTables.useQuery({ baseId: String(baseId) });
     const { mutateAsync } = api.user.addTables.useMutation({
         onSuccess: () => {
@@ -16,6 +21,11 @@ export default function BasePage() {
     function addTable() {
         mutateAsync({ baseId: String(baseId) })
     }
+
+    function goBack() {
+        router.push(`/${userId}`)
+    }
+    
     if (isLoading) {
         return (
             <>
@@ -43,6 +53,7 @@ export default function BasePage() {
             )}
             </span>
             <button onClick={addTable}>add new table</button>
+            <button onClick={goBack}>return to homePage</button>
         </>
     )
 }
