@@ -10,16 +10,14 @@ export default function LoginButton() {
     const session = useSession();
     const { data, isLoading, error } = api.user.pingDB.useQuery();
     useEffect(() => {
-        if (error) {
-            console.error("TRPC query error:", error);
-        }
-        console.log("this is users data number", data);
-        console.log("status:", session.status);
-        console.log("data:", session.data);
         if (session.data?.user) {
             router.push(`/${session.data?.user.id}`)
         }
     }, [session])
+
+    useEffect(() => {
+        console.log("loading:", isLoading, "data:", data, "error:", error);
+      }, [isLoading, data, error]);
 
     return (
         <>

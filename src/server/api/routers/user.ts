@@ -11,6 +11,8 @@ export const userRouter = createTRPCRouter({
         return await ctx.db.user.findMany()
     }),
     pingDB: publicProcedure.query(async ({ ctx }) => {
-      return await ctx.db.user.count(); // should return a number
+      const users = await ctx.db.user.findMany();
+      console.log("server-side users fetched:", users); // <-- check this in Vercel logs
+      return users;    
     })
 })
