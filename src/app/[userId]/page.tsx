@@ -13,7 +13,13 @@ export default function UserIdPage() {
             utils.user.getBases.invalidate();
         }
     })
-
+    const handleCreateBase = async () => {
+        try {
+          await mutateAsync();
+        } catch (err) {
+          console.error(err);
+        }
+      };
     if (isLoading) {
         return (
             <>
@@ -35,19 +41,7 @@ export default function UserIdPage() {
                     )
                 })}
             </div>
-            <button
-  onClick={() => {
-    void (async () => {
-      try {
-        await mutateAsync();
-      } catch (err) {
-        console.error(err);
-      }
-    })();
-  }}
->
-  create bases
-</button>
+            <button onClick={() => void handleCreateBase()}>create bases</button>
         </>
     )
 };
