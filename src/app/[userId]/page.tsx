@@ -8,18 +8,12 @@ import Base from "~/app/_components/base"
 export default function UserIdPage() {
     const utils = api.useUtils();
     const { data, isLoading } = api.user.getBases.useQuery();
-    const { mutateAsync } = api.user.addBase.useMutation({
+    const { mutate } = api.user.addBase.useMutation({
         onSuccess: () => {
             utils.user.getBases.invalidate();
         }
     })
-    const handleCreateBase = async () => {
-        try {
-          await mutateAsync();
-        } catch (err) {
-          console.error(err);
-        }
-      };
+
     if (isLoading) {
         return (
             <>
@@ -41,7 +35,7 @@ export default function UserIdPage() {
                     )
                 })}
             </div>
-            <button onClick={() => void handleCreateBase()}>create bases</button>
+            <button onClick={() => mutate()}>create bases</button>
         </>
     )
 };
