@@ -35,7 +35,7 @@ export default function UserIdPage() {
                     )
                 })}
             </div>
-            <button onClick={async () => await mutateAsync()}>create bases</button>
+            <button onClick={() => void mutateAsync()}>create bases</button>
         </>
     )
 };
