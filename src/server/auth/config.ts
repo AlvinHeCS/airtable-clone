@@ -4,9 +4,6 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { db } from "~/server/db";
 
-console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
-console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET);
-
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
@@ -16,7 +13,7 @@ declare module "next-auth" {
 }
 
 export const authConfig = {
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID!,
