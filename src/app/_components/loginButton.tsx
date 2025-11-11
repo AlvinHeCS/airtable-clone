@@ -8,12 +8,12 @@ import { api } from "~/trpc/react";
 export default function LoginButton() {
     const router = useRouter();
     const session = useSession();
-    const { data, isLoading, error } = api.user.getUsers.useQuery();
+    const { data, isLoading, error } = api.user.pingDB.useQuery();
     useEffect(() => {
         if (error) {
             console.error("TRPC query error:", error);
         }
-        console.log("this is users data", data);
+        console.log("this is users data number", data);
         console.log("status:", session.status);
         console.log("data:", session.data);
         if (session.data?.user) {
