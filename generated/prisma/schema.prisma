@@ -79,7 +79,7 @@ model Base {
   id          String  @id @default(cuid())
   name        String  @default("Untitled Base")
   tables      Table[]
-  tableAmount Int     @default(0)
+  tableAmount Int     @default(1)
   userId      String
   user        User    @relation(fields: [userId], references: [id])
 }
