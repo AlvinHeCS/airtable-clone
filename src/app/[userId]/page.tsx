@@ -4,7 +4,6 @@ import LogoutButton from "../_components/logoutButton"
 import { api } from "~/trpc/react"
 import Base from "~/app/_components/base"
 
-
 export default function UserIdPage() {
     const utils = api.useUtils();
     const { data, isLoading } = api.user.getBases.useQuery();
@@ -12,36 +11,36 @@ export default function UserIdPage() {
         onSuccess: () => {
             utils.user.getBases.invalidate();
         }
-    })
+    });
+
     const handleCreateBase = async () => {
         try {
-          await mutateAsync();
+            await mutateAsync();
         } catch (err) {
-          console.error(err);
+            console.error(err);
         }
     };
+
     if (isLoading) {
-        return (
-            <>
-                <span>Loading bases...</span>
-            </>
-        )
+        return <span>Loading bases...</span>;
     }
 
-    return(
+    return (
         <>
             <span>Hello you are logged in now</span>
-            <LogoutButton/>
+            <LogoutButton />
             <div>
-                {data?.map((base) => {
-                    return(
-                        <div key={base.id}>
+                {data?.map((base) => (
+                    <div key={base.id}>
                         <Base base={base} />
                     </div>
-                    )
-                })}
+                ))}
             </div>
-            <button onClick={() => void handleCreateBase()}>create bases</button>
-            </>
-    )
-};
+
+            {/* eslint-disable-next-line @typescript-eslint/no-floating-promises */}
+            <button onClick={() => void handleCreateBase()}>
+                create bases
+            </button>
+        </>
+    );
+}
