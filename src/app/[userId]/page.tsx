@@ -19,7 +19,7 @@ export default function UserIdPage() {
         } catch (err) {
           console.error(err);
         }
-      };
+    };
     if (isLoading) {
         return (
             <>
@@ -41,7 +41,7 @@ export default function UserIdPage() {
                     )
                 })}
             </div>
-            <button onClick={handleCreateBase}>create bases</button>
-        </>
+            <button onClick={() => { void handleCreateBase(); }}>create bases</button>
+            </>
     )
 };
