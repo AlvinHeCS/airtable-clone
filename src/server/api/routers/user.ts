@@ -25,15 +25,39 @@ export const userRouter = createTRPCRouter({
       })
     }),
     addBase: protectedProcedure
-    .mutation(async ({ctx}) => {
+    .mutation(async ({ ctx }) => {
       const userId = ctx.session.user.id;
+  
       const newBase = await ctx.db.base.create({
         data: {
-          user: { connect: { id: userId } }
+          user: { connect: { id: userId } },
+          name: "Untitled Base",
+          tableAmount: 1,             
+          tables: {
+            create: [
+              {
+                name: "Table 1",
+                rows: {
+                  create: [
+                    {
+                      rowNum: 1,
+                      cells: {
+                        create: [
+                          { colNum: 1, valStr: "" },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+        include: {
+          tables: true,
         },
       });
-  
+
       return newBase;
-  
     })
 })
