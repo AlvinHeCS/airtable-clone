@@ -178,7 +178,9 @@ exports.Prisma.TableScalarFieldEnum = {
   name: 'name',
   creationDate: 'creationDate',
   baseId: 'baseId',
-  headers: 'headers'
+  headers: 'headers',
+  headerTypes: 'headerTypes',
+  numRows: 'numRows'
 };
 
 exports.Prisma.RowScalarFieldEnum = {

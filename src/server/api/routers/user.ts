@@ -37,14 +37,19 @@ export const userRouter = createTRPCRouter({
             create: [
               {
                 name: "Table 1",
-                headers: ["A Name"],
+                headers: ["A Name", "Assignee", "Status", "Attachments"],
+                headerTypes: [0, 0, 1, 1],
+                numRows: 1,
                 rows: {
                   create: [
                     {
-                      rowNum: 1,
+                      rowNum: 0,
                       cells: {
                         create: [
-                          { colNum: 1, valStr: "" },
+                          { colNum: 0, valStr: "Alvin" },
+                          { colNum: 1, valStr: "Joanna" },
+                          { colNum: 2, valInt: 1 },
+                          { colNum: 3, valInt: 67 }
                         ],
                       },
                     },
@@ -67,7 +72,17 @@ export const userRouter = createTRPCRouter({
       const base = await ctx.db.base.findUnique(
         {
           where: {id: input.baseId},
-          include: { tables: true }
+          include: { 
+            tables: {
+              include: {
+                rows: {
+                  include: {
+                    cells: true
+                  }
+                }
+              }
+            }
+           },
         }
       )
       return base?.tables || []
@@ -89,18 +104,36 @@ export const userRouter = createTRPCRouter({
 
       await ctx.db.table.create({
         data: {
-          name: `Table ${tableAmount + 1}`,   // or something more meaningful
-          headers: ["New Column"],       // default header
+          name: `Table ${tableAmount + 1}`,   
+          headers: ["A Name", "Assignee", "Status", "Attachments"],       
+          headerTypes: [0, 0, 1, 1],
+          numRows: 1,
           base: {
             connect: { id: input.baseId },
           },
           rows: {
             create: [
               {
+                rowNum: 0,
+                cells: {
+                  create: [
+                    { colNum: 0, valStr: "Alvin" },
+                    { colNum: 1, valStr: "Joanna" },
+                    { colNum: 2, valInt: 1 },
+                    { colNum: 3, valInt: 67 }
+                  ],
+                },
+              },
+              {
                 rowNum: 1,
                 cells: {
-                  create: [{ colNum: 1, valStr: "" }],
-                },
+                  create: [
+                    { colNum: 0, valStr: "" },
+                    { colNum: 1, valStr: "" },
+                    { colNum: 2 },
+                    { colNum: 3 }
+                  ]
+                }
               },
             ],
           },
@@ -115,5 +148,40 @@ export const userRouter = createTRPCRouter({
           },
         },
       });
+    }),
+  addRow: protectedProcedure
+  .input(z.object({tableId: z.string()}))
+  .mutation(async ({ ctx, input }) => {
+
+    const table = await ctx.db.table.findUnique({
+      where: {id: input.tableId},
+      include: { rows: {include: {cells: true} }}
     })
+    
+    const headers = table?.headers || [];
+    const headerTypes = table?.headerTypes || [];
+    const numRows = table?.numRows || 0
+
+    const cells = headers.map((_, i) => {
+      if (headerTypes[i] === 0) {
+        return { colNum: i, valStr: "" };
+      } else {
+        return { colNum: i };
+      }
+    });
+
+    return ctx.db.table.update({
+      where: { id: input.tableId },
+      data: {
+        rows: {
+          create: [{
+            rowNum: numRows,
+            cells: {
+              create: cells
+            },
+        }],
+        },
+      },
+    })
+  })
 })

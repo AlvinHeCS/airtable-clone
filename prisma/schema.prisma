@@ -93,6 +93,8 @@ model Table {
     baseId        String
     base          Base      @relation(fields: [baseId], references: [id])
     headers       String[]
+    headerTypes   Int[]
+    numRows       Int
 }
 
 model Row {

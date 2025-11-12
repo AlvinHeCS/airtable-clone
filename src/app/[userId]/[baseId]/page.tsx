@@ -3,7 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import { api } from "~/trpc/react"
 import { useSession } from "next-auth/react";
-
+import Table from "~/app/_components/table"
 
 export default function BasePage() {
     const router = useRouter();
@@ -25,7 +25,7 @@ export default function BasePage() {
     function goBack() {
         router.push(`/${userId}`)
     }
-    
+
     if (isLoading) {
         return (
             <>
@@ -40,14 +40,10 @@ export default function BasePage() {
             <span>This is base id {baseId}</span>
             <span>This is data</span>
             <span>{data?.map((table) => {
-                return(
-                    <>
-                        <div key={table.id}>
-                            newtable: 
-                            {table.id},
-                            {table.name}
-                        </div>
-                    </>
+                return(  
+                    <div key={table.id}>
+                        <Table tableData={table}/>
+                    </div> 
                 );
                 }
             )}
