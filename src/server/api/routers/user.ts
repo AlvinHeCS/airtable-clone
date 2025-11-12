@@ -1,3 +1,4 @@
+import { RowSelection } from "@tanstack/react-table";
 import { z } from "zod";
 
 import {
@@ -39,7 +40,7 @@ export const userRouter = createTRPCRouter({
                 name: "Table 1",
                 headers: ["A Name", "Assignee", "Status", "Attachments"],
                 headerTypes: [0, 0, 1, 1],
-                numRows: 1,
+                numRows: 2,
                 rows: {
                   create: [
                     {
@@ -52,6 +53,17 @@ export const userRouter = createTRPCRouter({
                           { colNum: 3, valInt: 67 }
                         ],
                       },
+                    }, 
+                    {
+                      rowNum: 1,
+                      cells: {
+                        create: [
+                          { colNum: 0, valStr: "" },
+                          { colNum: 1, valStr: "" },
+                          { colNum: 2, valInt: 0 },
+                          { colNum: 3, valInt: 0 }
+                        ]
+                      }
                     },
                   ],
                 },
@@ -107,7 +119,7 @@ export const userRouter = createTRPCRouter({
           name: `Table ${tableAmount + 1}`,   
           headers: ["A Name", "Assignee", "Status", "Attachments"],       
           headerTypes: [0, 0, 1, 1],
-          numRows: 1,
+          numRows: 2,
           base: {
             connect: { id: input.baseId },
           },
@@ -130,8 +142,8 @@ export const userRouter = createTRPCRouter({
                   create: [
                     { colNum: 0, valStr: "" },
                     { colNum: 1, valStr: "" },
-                    { colNum: 2 },
-                    { colNum: 3 }
+                    { colNum: 2, valInt: 0 },
+                    { colNum: 3, valInt: 0 }
                   ]
                 }
               },
@@ -160,7 +172,7 @@ export const userRouter = createTRPCRouter({
     
     const headers = table?.headers || [];
     const headerTypes = table?.headerTypes || [];
-    const numRows = table?.numRows || 0
+    const numRows = table?.numRows || -1
 
     const cells = headers.map((_, i) => {
       if (headerTypes[i] === 0) {
@@ -170,9 +182,11 @@ export const userRouter = createTRPCRouter({
       }
     });
 
+
     return ctx.db.table.update({
       where: { id: input.tableId },
       data: {
+        numRows: numRows + 1,
         rows: {
           create: [{
             rowNum: numRows,
@@ -182,6 +196,45 @@ export const userRouter = createTRPCRouter({
         }],
         },
       },
+    })
+  }),
+  addCol: protectedProcedure
+  .input(z.object({tableId: z.string(), type: z.number(), header: z.string()}))
+  .mutation(async ({ ctx, input }) => {
+    const table = await ctx.db.table.findUnique({
+      where: {id: input.tableId},
+      include: {rows: {include: {cells: true}}}
+    })
+    // need to update headers
+    const headers = table?.headers || [];
+    headers.push(input.header);
+    const headerTypes = table?.headerTypes || [];
+    headerTypes.push(input.type);
+    const newColIndex = headers.length - 1;
+  
+
+    const rowUpdates = await table?.rows.map(row => ({
+      where: { id: row.id },
+      data: {
+        cells: {
+          create: [
+            input.type === 0
+              ? { colNum: newColIndex, valStr: "" } 
+              : { colNum: newColIndex }            
+          ]
+        }
+      }
+    }));
+
+    await ctx.db.table.update({
+      where: {id: input.tableId},
+      data: {
+        headers: headers,
+        headerTypes: headerTypes,
+        rows: {
+          update: rowUpdates
+        }
+      }
     })
   })
 })

@@ -21,7 +21,6 @@ export default function Base({ base }: BaseProps) {
             <button
   onClick={() => {
     router.push(`${pathname}/${base.id}`);
-    console.log("button was clicked");
   }}
 >
   go to base

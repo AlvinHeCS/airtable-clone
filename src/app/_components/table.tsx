@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react"
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import { api } from "~/trpc/react"
+import NewColModal from "./newColModal";
 
 interface TableProp {
     tableData: {
@@ -33,18 +34,19 @@ type Cell = {
 export default function Table(prop: TableProp) {
     const utils = api.useUtils();
     const table = prop.tableData;
-    const { mutateAsync } = api.user.addRow.useMutation({
+    const { mutateAsync: mutateAsyncRow } = api.user.addRow.useMutation({
       onSuccess: () => {
         utils.user.getBaseTables.invalidate();
     }
     });
     const [data, setData] = useState<Record<string, string | number | null>[]>([]);
-    
+    const [showModal, setShowModal] = useState<boolean>(false);
     function addRow() {
-      mutateAsync({tableId: table.id})
+      mutateAsyncRow({tableId: table.id})
     }
+
+
     useEffect(() => {
-      // compute mapped data when table changes
       const mappedData = table.rows.map((row) => {
         const rowData: Record<string, string | number | null> = {};
   
@@ -77,34 +79,34 @@ export default function Table(prop: TableProp) {
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-
-  console.log("This is data:", data)
-  console.log("this is columns", columns)
     return(
         <div>
-        <h2>{table.name}</h2>
-        <table>
-            <thead>
-            {tanTable.getHeaderGroups().map(headerGroup => (
-                <tr key={headerGroup.id}>
-                {headerGroup.headers.map(header => (
-                    <th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>
-                ))}
-                </tr>
-            ))}
-            </thead>
-            <tbody>
-            {tanTable.getRowModel().rows.map(row => (
-                <tr key={row.id}>
-                {row.getVisibleCells().map(cell => {
-                    console.log("this is cell: ", cell);
-                    return(<td key={cell.id} style={{border: "solid black 1px", height: "40px", width: "80px"}}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)
-                    })}
-                </tr>
-            ))}
-            </tbody>
-        </table>
-        <button onClick={addRow}>Add new row</button>
+          {showModal && (
+            <NewColModal tableId={{ id: table.id, setModal: setShowModal }} />
+          )}        
+          <h2>{table.name}</h2>
+          <table>
+              <thead>
+              {tanTable.getHeaderGroups().map(headerGroup => (
+                  <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                      <th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>
+                  ))}
+                  </tr>
+              ))}
+              </thead>
+              <tbody>
+              {tanTable.getRowModel().rows.map(row => (
+                  <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => {
+                      return(<td key={cell.id} style={{border: "solid black 1px", height: "40px", width: "80px"}}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)
+                      })}
+                  </tr>
+              ))}
+              </tbody>
+          </table>
+          <button onClick={addRow}>Add new row</button>
+          <button onClick={() => setShowModal(true)}>Add new col</button>
         </div>
     )
 }
