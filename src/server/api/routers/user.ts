@@ -178,7 +178,7 @@ export const userRouter = createTRPCRouter({
       if (headerTypes[i] === 0) {
         return { colNum: i, valStr: "" };
       } else {
-        return { colNum: i };
+        return { colNum: i, valInt: null };
       }
     });
 
@@ -220,7 +220,7 @@ export const userRouter = createTRPCRouter({
           create: [
             input.type === 0
               ? { colNum: newColIndex, valStr: "" } 
-              : { colNum: newColIndex }            
+              : { colNum: newColIndex, valInt: null }            
           ]
         }
       }
@@ -236,5 +236,26 @@ export const userRouter = createTRPCRouter({
         }
       }
     })
+  }),
+  // edit string cell
+  editStringCell: protectedProcedure
+  .input(z.object({cellId: z.string(), newVal: z.string()}))
+  .mutation(async ({ctx, input}) => {
+    await ctx.db.cell.update({
+      where: {id: input.cellId},
+      data: {
+        valStr: input.newVal
+      }
+    });
+  }),
+  editNumCell: protectedProcedure
+  .input(z.object({cellId: z.string(), newVal: z.number().nullable()}))
+  .mutation(async ({ctx, input}) => {
+    await ctx.db.cell.update({
+      where: {id: input.cellId},
+      data: {
+        valInt: input.newVal
+      }
+    });
   })
 })

@@ -5,6 +5,8 @@ import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-tabl
 import type { ColumnDef } from "@tanstack/react-table";
 import { api } from "~/trpc/react"
 import NewColModal from "./newColModal";
+import NumCell from "./numCell";
+import StringCell from "./stringCell";
 
 interface TableProp {
     tableData: {
@@ -12,6 +14,8 @@ interface TableProp {
         baseId: string;
         creationDate: Date;
         headers: string[];
+        headerTypes: number[];
+        numRows: number;
         rows: Row[];
         name: string;
     }
@@ -39,38 +43,55 @@ export default function Table(prop: TableProp) {
         utils.user.getBaseTables.invalidate();
     }
     });
-    const [data, setData] = useState<Record<string, string | number | null>[]>([]);
+
+    type TableCell = { 
+      value: string | number | null; 
+      cellId: string | null 
+    };
+    // data is an array containing objects 
+    // {string: TableCell}
+    const [data, setData] = useState<Record<string, TableCell>[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
     function addRow() {
       mutateAsyncRow({tableId: table.id})
     }
 
+    // table.rows is an obect containing
+
 
     useEffect(() => {
       const mappedData = table.rows.map((row) => {
-        const rowData: Record<string, string | number | null> = {};
-  
+        const rowData: Record<string, { value: string | number | null; cellId: string | null }> = {};
+    
         for (let i = 0; i < table.headers.length; i++) {
-          let header = table.headers[i] || "";
+          const header = table.headers[i] || "";
           const cell = row.cells.find((c) => c.colNum === i);
-          const value = cell?.valStr ?? cell?.valInt ?? null;
-          rowData[header] = value;
+    
+          rowData[header] = {
+            value: cell?.valStr ?? cell?.valInt ?? null,
+            cellId: cell?.id ?? null,
+          };
         }
-  
+    
         return rowData;
       });
+    
       setData(mappedData);
-    }, [table]);    
+    }, [table]);
 
   // create columns dynamically
-  const columns = useMemo<ColumnDef<Record<string, string | number | null>>[]>(() => 
-    table.headers.map((header) => ({
+  const columns = useMemo<ColumnDef<Record<string, TableCell>>[]>(() =>
+    table.headers.map((header, i) => ({
       accessorKey: header, 
       header: header,      
-      cell: info => {
-        const value = info.getValue() as string | number | null;
-        return <span>{value}</span>;
-      }    })), [table.headers]
+      cell: (info) => {
+        if (table.headerTypes[i] === 0) {
+          return (<StringCell info={info}/>)
+        } else {
+          return (<NumCell info={info}/>)
+        }
+      }
+        })), [table.headers]
   );
 
   // create TanStack table instance
