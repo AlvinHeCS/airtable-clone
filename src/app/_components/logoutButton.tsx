@@ -17,10 +17,13 @@ export default function LogoutButton() {
     return (
         <>
             {session.data?.user && (
-                <button onClick={() => signOut({ callbackUrl: "/" })}>
-                    Sign Out
+                <button style={{display: "flex", alignItems: "center", gap: "10px"}}onClick={() => signOut({ callbackUrl: "/" })}>
+                    <img src="/exit.svg" style={{width: "15px", height: "15px"}}></img>
+                    Log Out
                 </button>
             )}
         </>
     )    
+
+
 }
