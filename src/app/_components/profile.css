@@ -16,6 +16,7 @@ button {
     height: 30px;
     width: 100%;
     font-size: 13px;
+    box-shadow: none !important;
 }
 
 button:hover {
