@@ -176,7 +176,6 @@ exports.Prisma.BaseScalarFieldEnum = {
 exports.Prisma.TableScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  creationDate: 'creationDate',
   baseId: 'baseId',
   headers: 'headers',
   headerTypes: 'headerTypes',
@@ -186,15 +185,8 @@ exports.Prisma.TableScalarFieldEnum = {
 exports.Prisma.RowScalarFieldEnum = {
   id: 'id',
   rowNum: 'rowNum',
+  cells: 'cells',
   tableId: 'tableId'
-};
-
-exports.Prisma.CellScalarFieldEnum = {
-  id: 'id',
-  colNum: 'colNum',
-  valInt: 'valInt',
-  valStr: 'valStr',
-  rowId: 'rowId'
 };
 
 exports.Prisma.SortOrder = {
@@ -221,8 +213,7 @@ exports.Prisma.ModelName = {
   VerificationToken: 'VerificationToken',
   Base: 'Base',
   Table: 'Table',
-  Row: 'Row',
-  Cell: 'Cell'
+  Row: 'Row'
 };
 
 /**

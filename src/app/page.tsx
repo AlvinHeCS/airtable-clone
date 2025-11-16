@@ -34,7 +34,7 @@ export default async function Home() {
             </div>
             <span style={{fontSize: "13.5px", color: "grey"}}>New to Airtable? <a style={{color: "blue", textDecoration: "underline", cursor: "pointer"}}>Create an account</a> instead</span>
           </div>
-          <div style={{width: "30vw", height: "70vh", display: "flex", justifyContent: "center"}}>
+          <div style={{width: "25vw", height: "60vh", display: "flex", justifyContent: "center"}}>
             <img src="/homePageDeco.png" style={{borderRadius: "20px"}}></img>
           </div>
         </div>

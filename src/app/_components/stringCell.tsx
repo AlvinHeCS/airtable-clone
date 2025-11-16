@@ -4,31 +4,39 @@ import type { CellContext } from "@tanstack/react-table"
 import { useState } from "react" 
 import { api } from "~/trpc/react"
 
-interface CellProp<TData, TValue> {
-    info: CellContext<TData, TValue>;
+type TableRow = Record<string, string> & { rowId: string };
+
+interface CellProp {
+  info: CellContext<TableRow, string>;
 }
 
+export default function StringCell({ info }: CellProp) {
+  const utils = api.useUtils();
+  const colIndex = (info.column.columnDef.meta as { colIndex: number }).colIndex;
 
-export default function StringCell<TData, TValue>({ info }: CellProp<TData, TValue>) {
-    type TableCell = { value: string | number | null; cellId: string | null };
+  const [cellValue, setCellValue] = useState<string>(info.getValue());
 
-    const cellData = (info.getValue() as TableCell) ?? { value: "", cellId: null };
-    const { value, cellId } = cellData;  
-    const [cellValue, setCellValue] = useState<string>(String(value))
-    const { mutateAsync } = api.user.editStringCell.useMutation();
+  const { mutateAsync } = api.table.editCell.useMutation({
+    onSuccess: () => {
+        utils.base.getTableFromName.invalidate();
+    }
+  });
 
-    const handleChange = (newVal: string, cellId: string | null) => {
-        setCellValue(newVal);
-        if (cellId) {
-          mutateAsync({ cellId, newVal }).catch(console.error);
-        } else {
-          console.error("No cellId provided");
-        }
-    };
+  const handleChange = (newVal: string) => {
+      setCellValue(newVal);
+      mutateAsync({ 
+        rowId: info.row.original.rowId, 
+        col: colIndex, 
+        newVal 
+      }).catch(console.error);
+  };
 
-    return (
-    <>
-        <input type="text" value={cellValue} onChange={(e) => setCellValue(e.target.value)} onBlur={(e) => handleChange(e.target.value, cellId)}></input>
-    </>
-    )
+  return (
+      <input 
+          type="text" 
+          value={cellValue} 
+          onChange={(e) => setCellValue(e.target.value)} 
+          onBlur={(e) => handleChange(e.target.value)}
+      />
+  );
 }

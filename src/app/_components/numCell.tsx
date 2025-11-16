@@ -4,40 +4,45 @@ import type { CellContext } from "@tanstack/react-table"
 import { useState } from "react" 
 import { api } from "~/trpc/react"
 
-interface CellProp<TData, TValue> {
-    info: CellContext<TData, TValue>;
-  }
+type TableRow = Record<string, string> & { rowId: string };
 
-export default function NumCell<TData, TValue>({ info }: CellProp<TData, TValue>) {
-    type TableCell = { value: string | number | null; cellId: string | null };
+interface CellProp {
+  info: CellContext<TableRow, string>;
+}
 
-    const cellData = (info.getValue() as TableCell) ?? { value: null, cellId: null };
-    const { value, cellId } = cellData;    
-    const [cellValue, setCellValue] = useState<string>(String(value))
-    const { mutateAsync } = api.user.editNumCell.useMutation();
-    
-    function handleChange(newVal: string, cellId: string | null) {
-        if (!cellId) {
-            console.error("No cellId provided");
-            return;
-          }
-          if (newVal === "") {
-            setCellValue("");
-            mutateAsync({ cellId, newVal: null }).catch(console.error);
-          } else {
-            const numVal = Number(newVal);
-            setCellValue(newVal);
-            mutateAsync({ cellId, newVal: numVal }).catch(console.error);
-          }
+export default function StringCell({ info }: CellProp) {
+  const utils = api.useUtils();
+  const colIndex = (info.column.columnDef.meta as { colIndex: number }).colIndex;
+
+  const [cellValue, setCellValue] = useState<string>(info.getValue() ?? "");
+
+  const { mutateAsync } = api.table.editCell.useMutation({
+    onSuccess: () => {
+        utils.base.getTableFromName.invalidate();
     }
+  });
 
-    return (
-    <>
-        <input type="number" value={cellValue} onChange={(e) => {
-            const val = e.target.value;
-            setCellValue(e.target.value);
-            }} onBlur={(e) => handleChange((e.target.value), cellId)}>
-        </input>
-    </>
-    )
+  const handleChange = (newVal: string) => {
+      setCellValue(newVal);
+      mutateAsync({ 
+        rowId: info.row.original.rowId, 
+        col: colIndex, 
+        newVal 
+      }).catch(console.error);
+  };
+
+  return (
+      <input 
+          type="number" 
+          value={cellValue} 
+          onChange={(e) => setCellValue(e.target.value)} 
+          onBlur={(e) => handleChange(e.target.value)}
+          onKeyDown={(e) => {
+              if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {
+                e.preventDefault();
+              }
+            }
+          }
+      />
+  );
 }

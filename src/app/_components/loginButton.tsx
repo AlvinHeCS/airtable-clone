@@ -9,16 +9,11 @@ import "./loginButton.css";
 export default function LoginButton() {
     const router = useRouter();
     const session = useSession();
-    const { data, isLoading, error } = api.user.pingDB.useQuery();
     useEffect(() => {
         if (session.data?.user) {
             router.push(`/${session.data?.user.id}`)
         }
     }, [session])
-
-    useEffect(() => {
-        console.log("loading:", isLoading, "data:", data, "error:", error);
-      }, [isLoading, data, error]);
 
     return (
         <>

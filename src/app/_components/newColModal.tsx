@@ -15,17 +15,14 @@ export default function NewColModal(NewColModalProp: prop) {
     const [newHeaderType, setNewHeaderType] = useState<string>("0");
     const utils = api.useUtils();
     const tableId = NewColModalProp.tableId
-    const { mutateAsync: mutateAsyncCol } = api.user.addCol.useMutation({
+    const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation({
         onSuccess: () => {
-          utils.user.getBaseTables.invalidate();
+          utils.base.getTableFromName.invalidate();
       }
     });
 
     function addCol() {
-        console.log("this is newHeaderVal: ", newHeaderVal);
-        console.log("this is type: ", newHeaderType);
         if (newHeaderVal !== "" && newHeaderType !== "") {
-            console.log("val and type fields where filled")
             let type;
             if (newHeaderType === "0") {
                 type = 0;
