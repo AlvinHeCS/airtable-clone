@@ -10980,17 +10980,17 @@ export namespace Prisma {
 
   export type TableWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    name?: string
     AND?: TableWhereInput | TableWhereInput[]
     OR?: TableWhereInput[]
     NOT?: TableWhereInput | TableWhereInput[]
+    name?: StringFilter<"Table"> | string
     baseId?: StringFilter<"Table"> | string
     headers?: StringNullableListFilter<"Table">
     headerTypes?: IntNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
     rows?: RowListRelationFilter
     base?: XOR<BaseScalarRelationFilter, BaseWhereInput>
-  }, "id" | "name">
+  }, "id">
 
   export type TableOrderByWithAggregationInput = {
     id?: SortOrder

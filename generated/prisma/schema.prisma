@@ -86,7 +86,7 @@ model Base {
 
 model Table {
   id          String   @id @default(cuid())
-  name        String   @unique
+  name        String
   rows        Row[]
   baseId      String
   base        Base     @relation(fields: [baseId], references: [id])

@@ -9,7 +9,8 @@ import NumCell from "./numCell";
 import StringCell from "./stringCell";
 
 interface TableProp {
-    name: string
+    name: string;
+    baseId: string;
 }
 
 type Table = {
@@ -34,9 +35,7 @@ type TableRow = Record<string, string> & { rowId: string };
 
 export default function Table(prop: TableProp) {
     const utils = api.useUtils();
-    const tableName = prop.name;
-
-    const { data: table, isLoading: tableLoading } = api.base.getTableFromName.useQuery({tableName: tableName})
+    const { data: table, isLoading: tableLoading } = api.base.getTableFromName.useQuery({tableName: prop.name, baseId: prop.baseId})
     const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; colIndex: number } | null>(null);
     const [data, setData] = useState<TableRow[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);

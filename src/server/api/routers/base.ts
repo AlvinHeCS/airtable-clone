@@ -60,10 +60,13 @@ export const baseRouter = createTRPCRouter({
       return base?.tableAmount || 0
     }),
     getTableFromName: protectedProcedure
-    .input(z.object({tableName: z.string()}))
+    .input(z.object({tableName: z.string(), baseId: z.string()}))
     .query(({ctx, input}) => {
-      return ctx.db.table.findUnique({
-        where: {name: input.tableName},
+      return ctx.db.table.findFirst({
+        where: {
+          baseId: input.baseId,     
+          name: input.tableName 
+        },
         include: { rows: {orderBy: { rowNum: "asc" }} }
       }) 
     })

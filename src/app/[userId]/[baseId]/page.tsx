@@ -50,7 +50,7 @@ export default function BasePage() {
                     <button style={{width: "200px", textAlign: "left"}}onClick={addTable}>add new table</button>
                 </div>
                 <div>
-                    {<Table key={selectedTableName} name={selectedTableName}/>}
+                    {<Table key={selectedTableName} name={selectedTableName} baseId={String(baseId)}/>}
                 </div>
             </div>
         </div>
