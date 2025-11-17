@@ -8,6 +8,7 @@ import BaseHeader from "~/app/_components/baseHeader"
 import GridBar from "~/app/_components/gridBar"
 import { useState } from "react"
 import "./page.css"
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function BasePage() {
   const [selectedTableName, setSelectedTableName] = useState<string>("Table 1")
@@ -28,7 +29,11 @@ export default function BasePage() {
     addTableMutate({ baseId })
   }
 
-  if (loadingTableAmount) return <>loading table amount</>
+  if (loadingTableAmount) {
+    return(
+        <div style={{display: "flex", width: "100%", height: "80vh", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading Bases <CircularProgress size="20px"/></div>
+    )
+  }
 
   return (
     <div style={{ display: "flex", width: "100%", height: "100vh" }}>
@@ -37,7 +42,6 @@ export default function BasePage() {
       <div style={{ display: "flex", flexDirection: "column", width: "100vw" }}>
         <BaseHeader />
 
-        {/* Top table tabs */}
         <div
           style={{
             display: "flex",
@@ -120,8 +124,6 @@ export default function BasePage() {
             <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
           </button>
         </div>
-
-        {/* Toolbar */}
         <div
           style={{
             height: "50px",
@@ -137,7 +139,6 @@ export default function BasePage() {
             zIndex: 9
           }}
         >
-          {/* Left side */}
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <button
               onClick={() => setShowGridView(!showGridView)}
@@ -171,8 +172,6 @@ export default function BasePage() {
               <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
             </button>
           </div>
-
-          {/* Right side buttons */}
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             {[
               { src: "/hide.svg", label: "Hide fields", width: "100px" },
@@ -207,13 +206,10 @@ export default function BasePage() {
             ))}
           </div>
         </div>
-
-        {/* Table / Grid view */}
         <div
           style={{
             display: "flex",
             height: "calc(100vh - 138.5px)",
-            border: "solid red 1px",
             width: "95vw"
           }}
         >

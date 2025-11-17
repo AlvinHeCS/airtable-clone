@@ -7,6 +7,7 @@ import { api } from "~/trpc/react"
 import NewColModal from "./newColModal";
 import NumCell from "./numCell";
 import StringCell from "./stringCell";
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface TableProp {
     name: string;
@@ -74,13 +75,19 @@ export default function Table(prop: TableProp) {
 
     const rowNumberCol: ColumnDef<TableRow, string> = {
       id: "rowNumber",
-      header: "#",
+      header: () => {
+        return(
+          <div style={{ textAlign: "left", padding: "5px"}}>
+            <img style={{width: "15px", height: "15px"}} src="/checkBox.svg"></img>
+          </div>
+        )
+      },
       cell: (info) => (
-        <div style={{ textAlign: "center", padding: "5px" }}>
+        <div style={{ textAlign: "left", padding: "5px"}}>
           {info.row.index + 1}
         </div>
       ),
-      meta: { colIndex: -1 },
+      meta: { colIndex: -1, width: "50px", first: true },
       size: 40,
     };
 
@@ -111,7 +118,7 @@ export default function Table(prop: TableProp) {
           );
         }
       },
-      meta: { colIndex: i } as { colIndex: number },
+      meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number, second: boolean },
       cell: (info: CellContext<TableRow, string>) => {
         if (table.headerTypes[i] === 0) return <StringCell info={info} />;
         else return <NumCell info={info} />;
@@ -174,7 +181,7 @@ export default function Table(prop: TableProp) {
 
     if (tableLoading) {
       return (
-        <>loading table</>
+        <div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading table <CircularProgress size="20px"/></div>
       )
     }
 
@@ -185,79 +192,78 @@ export default function Table(prop: TableProp) {
           )}
           <div style={{display: "flex"}}>        
           <table style={{ minWidth: "max-content", borderCollapse: "collapse" }}>
-  {/* Header with Add Column Button */}
-  <thead>
-    {tanTable.getHeaderGroups().map(headerGroup => (
-      <tr key={headerGroup.id}>
-        {headerGroup.headers.map(header => (
-          <th
-            style={{ border: "solid rgb(208, 208, 208) 1px", height: "30px", width: "300px", fontSize: "12px" }}
-            key={header.id}
-          >
-            {flexRender(header.column.columnDef.header, header.getContext())}
-          </th>
-        ))}
-        {/* Add Column Button */}
-        <th style={{ width: "110px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
-          <button
-            onClick={() => setShowModal(true)}
-            style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
-          >
-            <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
-          </button>
-        </th>
-      </tr>
-    ))}
-  </thead>
+            <thead>
+              {tanTable.getHeaderGroups().map(headerGroup => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    // header cells for data
+                    <th
+                      style={{ borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (header.column.columnDef.meta as { width?: number })?.width ?? 200, fontSize: "12px",  }}
+                      key={header.id}
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                  {/* this header cell is for the add col one */}
+                  <th style={{ width: "200px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
+                    <button
+                      onClick={() => setShowModal(true)}
+                      style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
+                    >
+                      <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+                    </button>
+                  </th>
+                </tr>
+              ))}
+            </thead>
 
-  {/* Table Body */}
-  <tbody>
-    {tanTable.getRowModel().rows.map(row => (
-      <tr key={row.id}>
-        {row.getVisibleCells().map(cell => (
-          <td
-            key={cell.id}
-            data-row={row.index}
-            data-col={(cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0}
-            tabIndex={0}
-            style={{ border: "solid rgb(208, 208, 208) 1px", height: "30px", width: "300px", fontSize: "12px", padding: "5px" }}
-            onClick={() =>
-              setSelectedCell({
-                rowIndex: row.index,
-                colIndex: (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0,
-              })
-            }
-            onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
-          >
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-          </td>
-        ))}
-      </tr>
-    ))}
-  </tbody>
-
-  {/* Footer with Add Row Buttons */}
-  <tfoot>
-    <tr>
-      <td colSpan={table ? table.headers.length + 1 : 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
-        <div style={{ display: "flex", gap: "4px" }}>
-          <button
-            onClick={addRow}
-            style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center", border: "solid rgb(208,208,208) 1px" }}
-          >
-            <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
-          </button>
-          <button
-            onClick={add100kRow}
-            style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center", border: "solid rgb(208,208,208) 1px" }}
-          >
-            100k
-          </button>
-        </div>
-      </td>
-    </tr>
-  </tfoot>
-</table>
+            <tbody>
+              {tanTable.getRowModel().rows.map(row => (
+                <tr key={row.id}>
+                  {row.getVisibleCells().map(cell => (
+                    // body cells for data
+                    <td
+                      key={cell.id}
+                      data-row={row.index}
+                      data-col={(cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0}
+                      tabIndex={0}
+                      style={{ borderLeft: (cell.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (cell.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (cell.column.columnDef.meta as { width?: number })?.width ?? 200, fontSize: "12px", padding: "5px" }}
+                      onClick={() =>
+                        setSelectedCell({
+                          rowIndex: row.index,
+                          colIndex: (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0,
+                        })
+                      }
+                      onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+            {/* add row and 100k row */}
+            <tfoot>
+              <tr>
+                <td colSpan={table ? table.headers.length + 1 : 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    <button
+                      onClick={addRow}
+                      style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center", border: "solid rgb(208,208,208) 1px" }}
+                    >
+                      <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+                    </button>
+                    <button
+                      onClick={add100kRow}
+                      style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center", border: "solid rgb(208,208,208) 1px" }}
+                    >
+                      100k
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
           </div>
         </div>
     )
