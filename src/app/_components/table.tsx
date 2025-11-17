@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, CellContext } from "@tanstack/react-table";
 import { api } from "~/trpc/react"
 import NewColModal from "./newColModal";
 import NumCell from "./numCell";
@@ -69,18 +69,55 @@ export default function Table(prop: TableProp) {
     
 
   // create columns dynamically
-  const columns = useMemo<ColumnDef<TableRow, any>[]>(() => {
+  const columns = useMemo<ColumnDef<TableRow, string>[]>(() => {
     if (!table) return [];
-    
-    return table.headers.map((header, i) => ({
+
+    const rowNumberCol: ColumnDef<TableRow, string> = {
+      id: "rowNumber",
+      header: "#",
+      cell: (info) => (
+        <div style={{ textAlign: "center", padding: "5px" }}>
+          {info.row.index + 1}
+        </div>
+      ),
+      meta: { colIndex: -1 },
+      size: 40,
+    };
+
+    const dataCols = table.headers.map((header, i) => ({
       accessorKey: header,
-      header: header,
+      header: () => {
+        if (table.headerTypes[i] === 0) {
+          return (
+            <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px" }}>
+              <img 
+                src="/letter.svg" 
+                alt="icon" 
+                style={{ width: "14px", height: "14px" }} 
+              />
+              <span>{header}</span>
+            </div>
+          );
+        } else {
+          return (
+            <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px" }}>
+              <img 
+                src="/hashtag.svg" 
+                alt="icon" 
+                style={{ width: "14px", height: "14px" }} 
+              />
+              <span>{header}</span>
+            </div>
+          );
+        }
+      },
       meta: { colIndex: i } as { colIndex: number },
-      cell: (info) => {
+      cell: (info: CellContext<TableRow, string>) => {
         if (table.headerTypes[i] === 0) return <StringCell info={info} />;
         else return <NumCell info={info} />;
       },
     }));
+    return [rowNumberCol, ...dataCols];
   }, [table?.headers, table?.headerTypes]);
 
   // create TanStack table instance
@@ -142,47 +179,86 @@ export default function Table(prop: TableProp) {
     }
 
     return(
-        <div>
+        <div style={{display: "flex", flexDirection: "column", overflow: "auto"}}>
           {showModal && table && (
             <NewColModal tableId={{ id: table.id, setModal: setShowModal }} />
-          )}        
-          <table>
-              <thead>
-              {tanTable.getHeaderGroups().map(headerGroup => (
-                  <tr key={headerGroup.id}>
-                  {headerGroup.headers.map(header => (
-                      <th key={header.id}>{flexRender(header.column.columnDef.header, header.getContext())}</th>
-                  ))}
-                  </tr>
-              ))}
-              </thead>
-              <tbody>
-              {tanTable.getRowModel().rows.map(row => (
-                  <tr key={row.id}>
-                  {row.getVisibleCells().map(cell => {
-                      return(
-                      <td key={cell.id} 
-                        data-row={row.index}
-                        data-col={(cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0}
-                        tabIndex={0} 
-                        style={{border: "solid black 1px", height: "40px", width: "80px"}}
-                        onClick={() =>   setSelectedCell({
-                          rowIndex: row.index,
-                          colIndex: (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0
-                        })
-                        }
-                        onKeyDown={(e) => {navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                      )
-                  })}
-                  </tr>
-              ))}
-              </tbody>
-          </table>
-          <button onClick={addRow}>Add new row</button>
-          <button onClick={add100kRow}>Add 100k rows</button>
-          <button onClick={() => setShowModal(true)}>Add new col</button>
+          )}
+          <div style={{display: "flex"}}>        
+          <table style={{ minWidth: "max-content", borderCollapse: "collapse" }}>
+  {/* Header with Add Column Button */}
+  <thead>
+    {tanTable.getHeaderGroups().map(headerGroup => (
+      <tr key={headerGroup.id}>
+        {headerGroup.headers.map(header => (
+          <th
+            style={{ border: "solid rgb(208, 208, 208) 1px", height: "30px", width: "300px", fontSize: "12px" }}
+            key={header.id}
+          >
+            {flexRender(header.column.columnDef.header, header.getContext())}
+          </th>
+        ))}
+        {/* Add Column Button */}
+        <th style={{ width: "110px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
+          <button
+            onClick={() => setShowModal(true)}
+            style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
+          >
+            <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+          </button>
+        </th>
+      </tr>
+    ))}
+  </thead>
+
+  {/* Table Body */}
+  <tbody>
+    {tanTable.getRowModel().rows.map(row => (
+      <tr key={row.id}>
+        {row.getVisibleCells().map(cell => (
+          <td
+            key={cell.id}
+            data-row={row.index}
+            data-col={(cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0}
+            tabIndex={0}
+            style={{ border: "solid rgb(208, 208, 208) 1px", height: "30px", width: "300px", fontSize: "12px", padding: "5px" }}
+            onClick={() =>
+              setSelectedCell({
+                rowIndex: row.index,
+                colIndex: (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0,
+              })
+            }
+            onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
+          >
+            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          </td>
+        ))}
+      </tr>
+    ))}
+  </tbody>
+
+  {/* Footer with Add Row Buttons */}
+  <tfoot>
+    <tr>
+      <td colSpan={table ? table.headers.length + 1 : 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
+        <div style={{ display: "flex", gap: "4px" }}>
+          <button
+            onClick={addRow}
+            style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center", border: "solid rgb(208,208,208) 1px" }}
+          >
+            <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+          </button>
+          <button
+            onClick={add100kRow}
+            style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center", border: "solid rgb(208,208,208) 1px" }}
+          >
+            100k
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tfoot>
+</table>
+          </div>
         </div>
     )
 }

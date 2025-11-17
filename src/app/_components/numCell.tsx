@@ -3,6 +3,8 @@
 import type { CellContext } from "@tanstack/react-table"
 import { useState } from "react" 
 import { api } from "~/trpc/react"
+import "./numCell.css";
+
 
 type TableRow = Record<string, string> & { rowId: string };
 

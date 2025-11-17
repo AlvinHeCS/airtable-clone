@@ -1,0 +1,22 @@
+.add {
+    color: grey
+}
+
+.add:hover {
+    color: black;
+}
+
+button {
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+  
+
+button:hover {
+  cursor: pointer;
+  
+}
+
+
+.bell:hover {
+    background-color: rgb(209, 209, 209) !important;
+}

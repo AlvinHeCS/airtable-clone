@@ -14,7 +14,7 @@ export default function StringCell({ info }: CellProp) {
   const utils = api.useUtils();
   const colIndex = (info.column.columnDef.meta as { colIndex: number }).colIndex;
 
-  const [cellValue, setCellValue] = useState<string>(info.getValue());
+  const [cellValue, setCellValue] = useState<string>(info.getValue() ?? "");
 
   const { mutateAsync } = api.table.editCell.useMutation({
     onSuccess: () => {
