@@ -67,7 +67,23 @@ export const baseRouter = createTRPCRouter({
           baseId: input.baseId,     
           name: input.tableName 
         },
-        include: { rows: {orderBy: { rowNum: "asc" }} }
       }) 
-    })
+    }),
+    getTableRowsAhead: protectedProcedure
+    .input(z.object({ tableName: z.string(), baseId: z.string(), cursor: z.number().optional() }))
+    .query(async ({ ctx, input }) => {
+      const table = await ctx.db.table.findFirst({
+        where: { baseId: input.baseId, name: input.tableName }
+      })
+  
+      const rows = await ctx.db.row.findMany({
+        where: { tableId: table?.id, rowNum: { gte: input.cursor ?? 0 } },
+        orderBy: { rowNum: "asc" },
+        take: 50,
+      })
+  
+      const newCursor = rows.length > 0 ? rows[rows.length - 1]?.rowNum : input.cursor ?? 0
+      const hasMore = rows.length === 50
+      return { rows, newCursor, hasMore }
+    }),
 })

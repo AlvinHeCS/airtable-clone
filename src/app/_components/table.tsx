@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useReactTable, getCoreRowModel, flexRender } from "@tanstack/react-table";
 import type { ColumnDef, CellContext } from "@tanstack/react-table";
 import { api } from "~/trpc/react"
@@ -8,10 +8,12 @@ import NewColModal from "./newColModal";
 import NumCell from "./numCell";
 import StringCell from "./stringCell";
 import CircularProgress from '@mui/material/CircularProgress';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 interface TableProp {
     name: string;
     baseId: string;
+    scrollingRef: React.RefObject<HTMLDivElement | null>;
 }
 
 type Table = {
@@ -31,47 +33,82 @@ type Row = {
     cells: string[];
     tableId: string;
 }
+
 type TableRow = Record<string, string> & { rowId: string };
 
 
 export default function Table(prop: TableProp) {
+
+// rather then rendering on table.headers and table?.headers its gonna be we fetch initally table, and from that we set the localHeaders and localHeaderTypes similar to data
+
+
     const utils = api.useUtils();
-    const { data: table, isLoading: tableLoading } = api.base.getTableFromName.useQuery({tableName: prop.name, baseId: prop.baseId})
+    const { data: table, isLoading: tableLoading, isFetching: tableFetching } = api.base.getTableFromName.useQuery({tableName: prop.name, baseId: prop.baseId})
+    
+    const [localHeaders, setLocalHeaders] = useState<string[]>([]);
+    const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
+
     const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; colIndex: number } | null>(null);
     const [data, setData] = useState<TableRow[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
-    const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation({
-      onSuccess: () => {
-        utils.base.getTableFromName.invalidate();
-    }
+    
+    const { data: infiniteData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, } = api.base.getTableRowsAhead.useInfiniteQuery( { tableName: prop.name, baseId: prop.baseId },
+       { getNextPageParam: (lastPage) => lastPage.hasMore ? lastPage.newCursor : undefined, } )
+    const allRows = useMemo(() => {
+      return infiniteData?.pages.flatMap(page => page.rows) ?? [];
+    }, [infiniteData]);
+
+    // set up virtualizer with how many rows have been rendered, scroll element which is the container containg the table, and estimate size of each row
+    // virtualizer keeps tracking of scrolling
+    const virtualizer = useVirtualizer({
+      count: allRows.length,
+      getScrollElement: () => prop.scrollingRef?.current ?? null,
+      estimateSize: () => 40,
     });
+
+    // how many rows is expected to be rendered on the page
+    const virtualRows = virtualizer.getVirtualItems();
+
+    // if you are within 10 rows of the last row then render new rows in 
+    useEffect(() => {
+      const lastRow = virtualRows[virtualRows.length - 1];
+      if (!lastRow) return;
+      if (lastRow.index >= allRows.length - 10 && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    }, [virtualRows]);
+    
+    
+    const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
     const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
       onSuccess: () => {
         utils.base.getTableFromName.invalidate();
     }
     });
 
+    // check if table is cached if so then just use the cached variable else build the table from backend Data
+    // this should only trigger when switching between table or entering a base
+    // now it relised on allRows therefore I need it to wait for allRows to render first 
+
     useEffect(() => {
-      if (!table) {
-        setData([]);
-      } else {
-        const mappedData: TableRow[] = table.rows.map((row) => {
-          const rowData: TableRow = { rowId: row.id };
-          for (let i = 0; i < table.headers.length; i++) {
-            const header = table.headers[i] || "";
-            const cell = row.cells[i] || "";
-            rowData[header] = cell;
-          }
-          return rowData;
-        });
-        setData(mappedData);
-      }
-    }, [table]);
-    
+        if (table) {
+          const newData: TableRow[]=  allRows.map(row => {
+            const rowData: TableRow = { rowId: row.id };
+            table.headers.forEach((header, i) => {
+              rowData[header] = row.cells[i] ?? "";
+            });
+            return rowData;
+          })
+          setData(newData);
+          setLocalHeaders(table.headers);
+          setLocalHeadersTypes(table.headerTypes);
+        }
+    }, [prop.name, prop.baseId, table, allRows]);
+
 
   // create columns dynamically
   const columns = useMemo<ColumnDef<TableRow, string>[]>(() => {
-    if (!table) return [];
+    if (localHeaderTypes.length === 0 || localHeaderTypes.length === 0) return [];
 
     const rowNumberCol: ColumnDef<TableRow, string> = {
       id: "rowNumber",
@@ -91,10 +128,10 @@ export default function Table(prop: TableProp) {
       size: 40,
     };
 
-    const dataCols = table.headers.map((header, i) => ({
+    const dataCols = localHeaders.map((header, i) => ({
       accessorKey: header,
       header: () => {
-        if (table.headerTypes[i] === 0) {
+        if (localHeaderTypes[i] === 0) {
           return (
             <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px" }}>
               <img 
@@ -120,12 +157,12 @@ export default function Table(prop: TableProp) {
       },
       meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number, second: boolean },
       cell: (info: CellContext<TableRow, string>) => {
-        if (table.headerTypes[i] === 0) return <StringCell info={info} />;
+        if (localHeaderTypes[i] === 0) return <StringCell info={info} />;
         else return <NumCell info={info} />;
       },
     }));
     return [rowNumberCol, ...dataCols];
-  }, [table?.headers, table?.headerTypes]);
+  }, [localHeaders, localHeaderTypes]);
 
   // create TanStack table instance
   const tanTable = useReactTable({
@@ -165,11 +202,17 @@ export default function Table(prop: TableProp) {
     cellElement?.focus();
   }
 
-  function addRow() {
+  async function addRow() {
     if (!table) {
       return
     }
-    mutateAsyncRow({tableId: table.id})
+    const newRow = await mutateAsyncRow({tableId: table.id});
+    const rowData: TableRow = { rowId: newRow.id };
+    for (let i = 0; i < table.headers.length; i++) {
+      const header = table.headers[i] ?? '';
+      rowData[header] = newRow.cells[i] ?? '';
+    }
+    setData((prevData) => [...prevData, rowData]);
   }
 
    const add100kRow = () => {
@@ -179,7 +222,7 @@ export default function Table(prop: TableProp) {
     mutateAsyncRow100k({tableId: table.id});
   }
 
-    if (tableLoading) {
+    if (tableLoading || tableFetching || !allRows) {
       return (
         <div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading table <CircularProgress size="20px"/></div>
       )
@@ -188,7 +231,7 @@ export default function Table(prop: TableProp) {
     return(
         <div style={{display: "flex", flexDirection: "column", overflow: "auto"}}>
           {showModal && table && (
-            <NewColModal tableId={{ id: table.id, setModal: setShowModal }} />
+            <NewColModal tableId={{ id: table.id, setModal: setShowModal, setData: setData, setLocalHeaders: setLocalHeaders, setLocalHeaderTypes: setLocalHeadersTypes}} />
           )}
           <div style={{display: "flex"}}>        
           <table style={{ minWidth: "max-content", borderCollapse: "collapse" }}>

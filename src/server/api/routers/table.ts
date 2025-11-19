@@ -15,13 +15,13 @@ export const tableRouter = createTRPCRouter({
   
       const table = await ctx.db.table.findUnique({
         where: {id: input.tableId},
-        include: { rows: true}
       })
       
       const headers = table?.headers || [];
       const headerTypes = table?.headerTypes || [];
       const numRows = table?.numRows || -1
       const cells = []
+
       for (let i = 0; i < headers.length; i++) {
         if (headerTypes[i] === 0) {
           cells.push(faker.person.fullName());
@@ -30,54 +30,40 @@ export const tableRouter = createTRPCRouter({
         }
       }
   
-      return ctx.db.table.update({
-        where: { id: input.tableId },
+    const newRow = await ctx.db.row.create({
         data: {
-          numRows: numRows + 1,
-          rows: {
-            create: [{
-              rowNum: numRows,
-              cells: cells
-          }],
-          },
+          rowNum: numRows,
+          cells: cells,
+          tableId: input.tableId,
         },
-      })
+      });
+
+      await ctx.db.table.update({
+        where: { id: input.tableId },
+        data: { numRows: numRows + 1 },
+      });
+
+      return newRow;
     }),
   
     addCol: protectedProcedure
     .input(z.object({tableId: z.string(), type: z.number(), header: z.string()}))
     .mutation(async ({ ctx, input }) => {
-      const table = await ctx.db.table.findUnique({
-        where: {id: input.tableId},
-        include: {rows: true}
-      })
-  
-      if (!table) {
-        throw new Error("table not found")
-      }
-      
-      const headers = [...table.headers, input.header];
-      const headerTypes = [...table.headerTypes, input.type];
-  
-      const rowUpdates = table?.rows.map(row => ({
-        where: { id: row.id },
+      await ctx.db.row.updateMany({
+        where: { tableId: input.tableId },
         data: {
           cells: {
-            set: [...row.cells, ""]
+            push: ""  
           }
         }
-      }));
-  
+      });
       await ctx.db.table.update({
-        where: {id: input.tableId},
+        where: { id: input.tableId },
         data: {
-          headers: headers,
-          headerTypes: headerTypes,
-          rows: {
-            update: rowUpdates
-          }
+          headers: { push: input.header },
+          headerTypes: { push: input.type }
         }
-      })
+      });
     }),
     
     editCell: protectedProcedure

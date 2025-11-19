@@ -6,14 +6,14 @@ import Table from "~/app/_components/table"
 import BaseSideBar from "~/app/_components/baseSideBar"
 import BaseHeader from "~/app/_components/baseHeader"
 import GridBar from "~/app/_components/gridBar"
-import { useState } from "react"
+import { useState, useRef } from "react"
 import "./page.css"
 import CircularProgress from '@mui/material/CircularProgress';
 
 export default function BasePage() {
   const [selectedTableName, setSelectedTableName] = useState<string>("Table 1")
   const [showGridView, setShowGridView] = useState<boolean>(false)
-
+  const scrollingRef = useRef<HTMLDivElement>(null);
   const utils = api.useUtils()
   const params = useParams()
   const baseId = String(params.baseId)
@@ -215,9 +215,9 @@ export default function BasePage() {
         >
           {showGridView && <GridBar />}
 
-          <div style={{ flex: 1, overflow: "auto" }}>
+          <div ref={scrollingRef} style={{ flex: 1, overflow: "auto" }}>
             <div style={{ minWidth: "max-content" }}>
-              <Table key={selectedTableName} name={selectedTableName} baseId={baseId} />
+              <Table key={selectedTableName} name={selectedTableName} baseId={baseId} scrollingRef={scrollingRef}/>
             </div>
           </div>
         </div>
