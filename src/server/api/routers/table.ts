@@ -47,23 +47,18 @@ export const tableRouter = createTRPCRouter({
     }),
   
     addCol: protectedProcedure
-    .input(z.object({tableId: z.string(), type: z.number(), header: z.string()}))
+    .input(z.object({ tableId: z.string(), type: z.number(), header: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.row.updateMany({
-        where: { tableId: input.tableId },
-        data: {
-          cells: {
-            push: ""  
-          }
-        }
-      });
-      await ctx.db.table.update({
-        where: { id: input.tableId },
-        data: {
-          headers: { push: input.header },
-          headerTypes: { push: input.type }
-        }
-      });
+      await ctx.db.$transaction([
+        ctx.db.row.updateMany({
+          where: { tableId: input.tableId },
+          data: { cells: { push: "" } },
+        }),
+        ctx.db.table.update({
+          where: { id: input.tableId },
+          data: { headers: { push: input.header }, headerTypes: { push: input.type } },
+        }),
+      ]);
     }),
     
     editCell: protectedProcedure
@@ -85,7 +80,6 @@ export const tableRouter = createTRPCRouter({
         }
       });
     }),
-
     add100kRow: protectedProcedure
     .input(z.object({ tableId: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -129,6 +123,34 @@ export const tableRouter = createTRPCRouter({
       return await ctx.db.table.update({
         where: { id: input.tableId },
         data: { numRows: numRows + NUM_TO_ADD }
+      });
+    }),
+    addFilter: protectedProcedure
+    .input(
+      z.object({
+        tableId: z.string(),
+        colNum: z.number(),
+        filterVal: z.string().optional(),
+        filterType: z.enum([
+          "contains",
+          "not_contains",
+          "eq",
+          "gt",
+          "lt",
+          "empty",
+          "not_empty",
+        ]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // store filter in a Filters table (you'll need a Filters model in Prisma)
+      return ctx.db.filter.create({
+        data: {
+          tableId: input.tableId,
+          columnIndex: input.colNum,
+          type: input.filterType,
+          value: input.filterVal ?? "",
+        },
       });
     })
 })

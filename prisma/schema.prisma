@@ -94,6 +94,8 @@ model Table {
     headers       String[]
     headerTypes   Int[]
     numRows       Int
+    filters       Filter[] 
+    sorts         Sort[]    
 }
 
 model Row {
@@ -102,4 +104,24 @@ model Row {
     cells         String[]    
     tableId       String
     table         Table     @relation(fields: [tableId], references: [id])
+
+    @@index([tableId], name: "row_tableid_idx")
+    @@index([tableId, rowNum], name: "row_table_rownum_idx")
+}
+
+model Filter {
+    id            String    @id @default(cuid())
+    tableId      String
+    table        Table      @relation(fields: [tableId], references: [id])
+    columnIndex  Int
+    type         String
+    value        String
+}
+
+model Sort {
+    id            String    @id @default(cuid())
+    tableId      String
+    table        Table      @relation(fields: [tableId], references: [id])
+    columnIndex  Int
+    type         String
 }

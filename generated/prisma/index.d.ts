@@ -53,6 +53,16 @@ export type Table = $Result.DefaultSelection<Prisma.$TablePayload>
  * 
  */
 export type Row = $Result.DefaultSelection<Prisma.$RowPayload>
+/**
+ * Model Filter
+ * 
+ */
+export type Filter = $Result.DefaultSelection<Prisma.$FilterPayload>
+/**
+ * Model Sort
+ * 
+ */
+export type Sort = $Result.DefaultSelection<Prisma.$SortPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -251,6 +261,26 @@ export class PrismaClient<
     * ```
     */
   get row(): Prisma.RowDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.filter`: Exposes CRUD operations for the **Filter** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Filters
+    * const filters = await prisma.filter.findMany()
+    * ```
+    */
+  get filter(): Prisma.FilterDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.sort`: Exposes CRUD operations for the **Sort** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Sorts
+    * const sorts = await prisma.sort.findMany()
+    * ```
+    */
+  get sort(): Prisma.SortDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -699,7 +729,9 @@ export namespace Prisma {
     VerificationToken: 'VerificationToken',
     Base: 'Base',
     Table: 'Table',
-    Row: 'Row'
+    Row: 'Row',
+    Filter: 'Filter',
+    Sort: 'Sort'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -718,7 +750,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "base" | "table" | "row"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "base" | "table" | "row" | "filter" | "sort"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1314,6 +1346,154 @@ export namespace Prisma {
           }
         }
       }
+      Filter: {
+        payload: Prisma.$FilterPayload<ExtArgs>
+        fields: Prisma.FilterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.FilterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FilterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>
+          }
+          findFirst: {
+            args: Prisma.FilterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FilterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>
+          }
+          findMany: {
+            args: Prisma.FilterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>[]
+          }
+          create: {
+            args: Prisma.FilterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>
+          }
+          createMany: {
+            args: Prisma.FilterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.FilterCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>[]
+          }
+          delete: {
+            args: Prisma.FilterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>
+          }
+          update: {
+            args: Prisma.FilterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>
+          }
+          deleteMany: {
+            args: Prisma.FilterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FilterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.FilterUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>[]
+          }
+          upsert: {
+            args: Prisma.FilterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$FilterPayload>
+          }
+          aggregate: {
+            args: Prisma.FilterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateFilter>
+          }
+          groupBy: {
+            args: Prisma.FilterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<FilterGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FilterCountArgs<ExtArgs>
+            result: $Utils.Optional<FilterCountAggregateOutputType> | number
+          }
+        }
+      }
+      Sort: {
+        payload: Prisma.$SortPayload<ExtArgs>
+        fields: Prisma.SortFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SortFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SortFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>
+          }
+          findFirst: {
+            args: Prisma.SortFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SortFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>
+          }
+          findMany: {
+            args: Prisma.SortFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>[]
+          }
+          create: {
+            args: Prisma.SortCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>
+          }
+          createMany: {
+            args: Prisma.SortCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SortCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>[]
+          }
+          delete: {
+            args: Prisma.SortDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>
+          }
+          update: {
+            args: Prisma.SortUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>
+          }
+          deleteMany: {
+            args: Prisma.SortDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SortUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.SortUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>[]
+          }
+          upsert: {
+            args: Prisma.SortUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SortPayload>
+          }
+          aggregate: {
+            args: Prisma.SortAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSort>
+          }
+          groupBy: {
+            args: Prisma.SortGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SortGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SortCountArgs<ExtArgs>
+            result: $Utils.Optional<SortCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1418,6 +1598,8 @@ export namespace Prisma {
     base?: BaseOmit
     table?: TableOmit
     row?: RowOmit
+    filter?: FilterOmit
+    sort?: SortOmit
   }
 
   /* Types for Logging */
@@ -1588,10 +1770,14 @@ export namespace Prisma {
 
   export type TableCountOutputType = {
     rows: number
+    filters: number
+    sorts: number
   }
 
   export type TableCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rows?: boolean | TableCountOutputTypeCountRowsArgs
+    filters?: boolean | TableCountOutputTypeCountFiltersArgs
+    sorts?: boolean | TableCountOutputTypeCountSortsArgs
   }
 
   // Custom InputTypes
@@ -1610,6 +1796,20 @@ export namespace Prisma {
    */
   export type TableCountOutputTypeCountRowsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RowWhereInput
+  }
+
+  /**
+   * TableCountOutputType without action
+   */
+  export type TableCountOutputTypeCountFiltersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FilterWhereInput
+  }
+
+  /**
+   * TableCountOutputType without action
+   */
+  export type TableCountOutputTypeCountSortsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SortWhereInput
   }
 
 
@@ -8390,6 +8590,8 @@ export namespace Prisma {
     numRows?: boolean
     rows?: boolean | Table$rowsArgs<ExtArgs>
     base?: boolean | BaseDefaultArgs<ExtArgs>
+    filters?: boolean | Table$filtersArgs<ExtArgs>
+    sorts?: boolean | Table$sortsArgs<ExtArgs>
     _count?: boolean | TableCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["table"]>
 
@@ -8426,6 +8628,8 @@ export namespace Prisma {
   export type TableInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rows?: boolean | Table$rowsArgs<ExtArgs>
     base?: boolean | BaseDefaultArgs<ExtArgs>
+    filters?: boolean | Table$filtersArgs<ExtArgs>
+    sorts?: boolean | Table$sortsArgs<ExtArgs>
     _count?: boolean | TableCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TableIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8440,6 +8644,8 @@ export namespace Prisma {
     objects: {
       rows: Prisma.$RowPayload<ExtArgs>[]
       base: Prisma.$BasePayload<ExtArgs>
+      filters: Prisma.$FilterPayload<ExtArgs>[]
+      sorts: Prisma.$SortPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8844,6 +9050,8 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     rows<T extends Table$rowsArgs<ExtArgs> = {}>(args?: Subset<T, Table$rowsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     base<T extends BaseDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BaseDefaultArgs<ExtArgs>>): Prisma__BaseClient<$Result.GetResult<Prisma.$BasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    filters<T extends Table$filtersArgs<ExtArgs> = {}>(args?: Subset<T, Table$filtersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    sorts<T extends Table$sortsArgs<ExtArgs> = {}>(args?: Subset<T, Table$sortsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9296,6 +9504,54 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RowScalarFieldEnum | RowScalarFieldEnum[]
+  }
+
+  /**
+   * Table.filters
+   */
+  export type Table$filtersArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    where?: FilterWhereInput
+    orderBy?: FilterOrderByWithRelationInput | FilterOrderByWithRelationInput[]
+    cursor?: FilterWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: FilterScalarFieldEnum | FilterScalarFieldEnum[]
+  }
+
+  /**
+   * Table.sorts
+   */
+  export type Table$sortsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    where?: SortWhereInput
+    orderBy?: SortOrderByWithRelationInput | SortOrderByWithRelationInput[]
+    cursor?: SortWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SortScalarFieldEnum | SortScalarFieldEnum[]
   }
 
   /**
@@ -10393,6 +10649,2177 @@ export namespace Prisma {
 
 
   /**
+   * Model Filter
+   */
+
+  export type AggregateFilter = {
+    _count: FilterCountAggregateOutputType | null
+    _avg: FilterAvgAggregateOutputType | null
+    _sum: FilterSumAggregateOutputType | null
+    _min: FilterMinAggregateOutputType | null
+    _max: FilterMaxAggregateOutputType | null
+  }
+
+  export type FilterAvgAggregateOutputType = {
+    columnIndex: number | null
+  }
+
+  export type FilterSumAggregateOutputType = {
+    columnIndex: number | null
+  }
+
+  export type FilterMinAggregateOutputType = {
+    id: string | null
+    tableId: string | null
+    columnIndex: number | null
+    type: string | null
+    value: string | null
+  }
+
+  export type FilterMaxAggregateOutputType = {
+    id: string | null
+    tableId: string | null
+    columnIndex: number | null
+    type: string | null
+    value: string | null
+  }
+
+  export type FilterCountAggregateOutputType = {
+    id: number
+    tableId: number
+    columnIndex: number
+    type: number
+    value: number
+    _all: number
+  }
+
+
+  export type FilterAvgAggregateInputType = {
+    columnIndex?: true
+  }
+
+  export type FilterSumAggregateInputType = {
+    columnIndex?: true
+  }
+
+  export type FilterMinAggregateInputType = {
+    id?: true
+    tableId?: true
+    columnIndex?: true
+    type?: true
+    value?: true
+  }
+
+  export type FilterMaxAggregateInputType = {
+    id?: true
+    tableId?: true
+    columnIndex?: true
+    type?: true
+    value?: true
+  }
+
+  export type FilterCountAggregateInputType = {
+    id?: true
+    tableId?: true
+    columnIndex?: true
+    type?: true
+    value?: true
+    _all?: true
+  }
+
+  export type FilterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Filter to aggregate.
+     */
+    where?: FilterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Filters to fetch.
+     */
+    orderBy?: FilterOrderByWithRelationInput | FilterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FilterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Filters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Filters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Filters
+    **/
+    _count?: true | FilterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: FilterAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: FilterSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FilterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FilterMaxAggregateInputType
+  }
+
+  export type GetFilterAggregateType<T extends FilterAggregateArgs> = {
+        [P in keyof T & keyof AggregateFilter]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFilter[P]>
+      : GetScalarType<T[P], AggregateFilter[P]>
+  }
+
+
+
+
+  export type FilterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: FilterWhereInput
+    orderBy?: FilterOrderByWithAggregationInput | FilterOrderByWithAggregationInput[]
+    by: FilterScalarFieldEnum[] | FilterScalarFieldEnum
+    having?: FilterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FilterCountAggregateInputType | true
+    _avg?: FilterAvgAggregateInputType
+    _sum?: FilterSumAggregateInputType
+    _min?: FilterMinAggregateInputType
+    _max?: FilterMaxAggregateInputType
+  }
+
+  export type FilterGroupByOutputType = {
+    id: string
+    tableId: string
+    columnIndex: number
+    type: string
+    value: string
+    _count: FilterCountAggregateOutputType | null
+    _avg: FilterAvgAggregateOutputType | null
+    _sum: FilterSumAggregateOutputType | null
+    _min: FilterMinAggregateOutputType | null
+    _max: FilterMaxAggregateOutputType | null
+  }
+
+  type GetFilterGroupByPayload<T extends FilterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<FilterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FilterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FilterGroupByOutputType[P]>
+            : GetScalarType<T[P], FilterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FilterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    value?: boolean
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["filter"]>
+
+  export type FilterSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    value?: boolean
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["filter"]>
+
+  export type FilterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    value?: boolean
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["filter"]>
+
+  export type FilterSelectScalar = {
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    value?: boolean
+  }
+
+  export type FilterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tableId" | "columnIndex" | "type" | "value", ExtArgs["result"]["filter"]>
+  export type FilterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }
+  export type FilterIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }
+  export type FilterIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }
+
+  export type $FilterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Filter"
+    objects: {
+      table: Prisma.$TablePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tableId: string
+      columnIndex: number
+      type: string
+      value: string
+    }, ExtArgs["result"]["filter"]>
+    composites: {}
+  }
+
+  type FilterGetPayload<S extends boolean | null | undefined | FilterDefaultArgs> = $Result.GetResult<Prisma.$FilterPayload, S>
+
+  type FilterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<FilterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: FilterCountAggregateInputType | true
+    }
+
+  export interface FilterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Filter'], meta: { name: 'Filter' } }
+    /**
+     * Find zero or one Filter that matches the filter.
+     * @param {FilterFindUniqueArgs} args - Arguments to find a Filter
+     * @example
+     * // Get one Filter
+     * const filter = await prisma.filter.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends FilterFindUniqueArgs>(args: SelectSubset<T, FilterFindUniqueArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Filter that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {FilterFindUniqueOrThrowArgs} args - Arguments to find a Filter
+     * @example
+     * // Get one Filter
+     * const filter = await prisma.filter.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends FilterFindUniqueOrThrowArgs>(args: SelectSubset<T, FilterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Filter that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterFindFirstArgs} args - Arguments to find a Filter
+     * @example
+     * // Get one Filter
+     * const filter = await prisma.filter.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends FilterFindFirstArgs>(args?: SelectSubset<T, FilterFindFirstArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Filter that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterFindFirstOrThrowArgs} args - Arguments to find a Filter
+     * @example
+     * // Get one Filter
+     * const filter = await prisma.filter.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends FilterFindFirstOrThrowArgs>(args?: SelectSubset<T, FilterFindFirstOrThrowArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Filters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Filters
+     * const filters = await prisma.filter.findMany()
+     * 
+     * // Get first 10 Filters
+     * const filters = await prisma.filter.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const filterWithIdOnly = await prisma.filter.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends FilterFindManyArgs>(args?: SelectSubset<T, FilterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Filter.
+     * @param {FilterCreateArgs} args - Arguments to create a Filter.
+     * @example
+     * // Create one Filter
+     * const Filter = await prisma.filter.create({
+     *   data: {
+     *     // ... data to create a Filter
+     *   }
+     * })
+     * 
+     */
+    create<T extends FilterCreateArgs>(args: SelectSubset<T, FilterCreateArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Filters.
+     * @param {FilterCreateManyArgs} args - Arguments to create many Filters.
+     * @example
+     * // Create many Filters
+     * const filter = await prisma.filter.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends FilterCreateManyArgs>(args?: SelectSubset<T, FilterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Filters and returns the data saved in the database.
+     * @param {FilterCreateManyAndReturnArgs} args - Arguments to create many Filters.
+     * @example
+     * // Create many Filters
+     * const filter = await prisma.filter.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Filters and only return the `id`
+     * const filterWithIdOnly = await prisma.filter.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends FilterCreateManyAndReturnArgs>(args?: SelectSubset<T, FilterCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Filter.
+     * @param {FilterDeleteArgs} args - Arguments to delete one Filter.
+     * @example
+     * // Delete one Filter
+     * const Filter = await prisma.filter.delete({
+     *   where: {
+     *     // ... filter to delete one Filter
+     *   }
+     * })
+     * 
+     */
+    delete<T extends FilterDeleteArgs>(args: SelectSubset<T, FilterDeleteArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Filter.
+     * @param {FilterUpdateArgs} args - Arguments to update one Filter.
+     * @example
+     * // Update one Filter
+     * const filter = await prisma.filter.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends FilterUpdateArgs>(args: SelectSubset<T, FilterUpdateArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Filters.
+     * @param {FilterDeleteManyArgs} args - Arguments to filter Filters to delete.
+     * @example
+     * // Delete a few Filters
+     * const { count } = await prisma.filter.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends FilterDeleteManyArgs>(args?: SelectSubset<T, FilterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Filters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Filters
+     * const filter = await prisma.filter.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends FilterUpdateManyArgs>(args: SelectSubset<T, FilterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Filters and returns the data updated in the database.
+     * @param {FilterUpdateManyAndReturnArgs} args - Arguments to update many Filters.
+     * @example
+     * // Update many Filters
+     * const filter = await prisma.filter.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Filters and only return the `id`
+     * const filterWithIdOnly = await prisma.filter.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends FilterUpdateManyAndReturnArgs>(args: SelectSubset<T, FilterUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Filter.
+     * @param {FilterUpsertArgs} args - Arguments to update or create a Filter.
+     * @example
+     * // Update or create a Filter
+     * const filter = await prisma.filter.upsert({
+     *   create: {
+     *     // ... data to create a Filter
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Filter we want to update
+     *   }
+     * })
+     */
+    upsert<T extends FilterUpsertArgs>(args: SelectSubset<T, FilterUpsertArgs<ExtArgs>>): Prisma__FilterClient<$Result.GetResult<Prisma.$FilterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Filters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterCountArgs} args - Arguments to filter Filters to count.
+     * @example
+     * // Count the number of Filters
+     * const count = await prisma.filter.count({
+     *   where: {
+     *     // ... the filter for the Filters we want to count
+     *   }
+     * })
+    **/
+    count<T extends FilterCountArgs>(
+      args?: Subset<T, FilterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FilterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FilterAggregateArgs>(args: Subset<T, FilterAggregateArgs>): Prisma.PrismaPromise<GetFilterAggregateType<T>>
+
+    /**
+     * Group by Filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FilterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FilterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FilterGroupByArgs['orderBy'] }
+        : { orderBy?: FilterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FilterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFilterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Filter model
+   */
+  readonly fields: FilterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Filter.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__FilterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    table<T extends TableDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TableDefaultArgs<ExtArgs>>): Prisma__TableClient<$Result.GetResult<Prisma.$TablePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Filter model
+   */
+  interface FilterFieldRefs {
+    readonly id: FieldRef<"Filter", 'String'>
+    readonly tableId: FieldRef<"Filter", 'String'>
+    readonly columnIndex: FieldRef<"Filter", 'Int'>
+    readonly type: FieldRef<"Filter", 'String'>
+    readonly value: FieldRef<"Filter", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Filter findUnique
+   */
+  export type FilterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * Filter, which Filter to fetch.
+     */
+    where: FilterWhereUniqueInput
+  }
+
+  /**
+   * Filter findUniqueOrThrow
+   */
+  export type FilterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * Filter, which Filter to fetch.
+     */
+    where: FilterWhereUniqueInput
+  }
+
+  /**
+   * Filter findFirst
+   */
+  export type FilterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * Filter, which Filter to fetch.
+     */
+    where?: FilterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Filters to fetch.
+     */
+    orderBy?: FilterOrderByWithRelationInput | FilterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Filters.
+     */
+    cursor?: FilterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Filters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Filters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Filters.
+     */
+    distinct?: FilterScalarFieldEnum | FilterScalarFieldEnum[]
+  }
+
+  /**
+   * Filter findFirstOrThrow
+   */
+  export type FilterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * Filter, which Filter to fetch.
+     */
+    where?: FilterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Filters to fetch.
+     */
+    orderBy?: FilterOrderByWithRelationInput | FilterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Filters.
+     */
+    cursor?: FilterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Filters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Filters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Filters.
+     */
+    distinct?: FilterScalarFieldEnum | FilterScalarFieldEnum[]
+  }
+
+  /**
+   * Filter findMany
+   */
+  export type FilterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * Filter, which Filters to fetch.
+     */
+    where?: FilterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Filters to fetch.
+     */
+    orderBy?: FilterOrderByWithRelationInput | FilterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Filters.
+     */
+    cursor?: FilterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Filters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Filters.
+     */
+    skip?: number
+    distinct?: FilterScalarFieldEnum | FilterScalarFieldEnum[]
+  }
+
+  /**
+   * Filter create
+   */
+  export type FilterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Filter.
+     */
+    data: XOR<FilterCreateInput, FilterUncheckedCreateInput>
+  }
+
+  /**
+   * Filter createMany
+   */
+  export type FilterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Filters.
+     */
+    data: FilterCreateManyInput | FilterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Filter createManyAndReturn
+   */
+  export type FilterCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * The data used to create many Filters.
+     */
+    data: FilterCreateManyInput | FilterCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Filter update
+   */
+  export type FilterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Filter.
+     */
+    data: XOR<FilterUpdateInput, FilterUncheckedUpdateInput>
+    /**
+     * Choose, which Filter to update.
+     */
+    where: FilterWhereUniqueInput
+  }
+
+  /**
+   * Filter updateMany
+   */
+  export type FilterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Filters.
+     */
+    data: XOR<FilterUpdateManyMutationInput, FilterUncheckedUpdateManyInput>
+    /**
+     * Filter which Filters to update
+     */
+    where?: FilterWhereInput
+    /**
+     * Limit how many Filters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Filter updateManyAndReturn
+   */
+  export type FilterUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * The data used to update Filters.
+     */
+    data: XOR<FilterUpdateManyMutationInput, FilterUncheckedUpdateManyInput>
+    /**
+     * Filter which Filters to update
+     */
+    where?: FilterWhereInput
+    /**
+     * Limit how many Filters to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Filter upsert
+   */
+  export type FilterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Filter to update in case it exists.
+     */
+    where: FilterWhereUniqueInput
+    /**
+     * In case the Filter found by the `where` argument doesn't exist, create a new Filter with this data.
+     */
+    create: XOR<FilterCreateInput, FilterUncheckedCreateInput>
+    /**
+     * In case the Filter was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FilterUpdateInput, FilterUncheckedUpdateInput>
+  }
+
+  /**
+   * Filter delete
+   */
+  export type FilterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+    /**
+     * Filter which Filter to delete.
+     */
+    where: FilterWhereUniqueInput
+  }
+
+  /**
+   * Filter deleteMany
+   */
+  export type FilterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Filters to delete
+     */
+    where?: FilterWhereInput
+    /**
+     * Limit how many Filters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Filter without action
+   */
+  export type FilterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Filter
+     */
+    select?: FilterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Filter
+     */
+    omit?: FilterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: FilterInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Sort
+   */
+
+  export type AggregateSort = {
+    _count: SortCountAggregateOutputType | null
+    _avg: SortAvgAggregateOutputType | null
+    _sum: SortSumAggregateOutputType | null
+    _min: SortMinAggregateOutputType | null
+    _max: SortMaxAggregateOutputType | null
+  }
+
+  export type SortAvgAggregateOutputType = {
+    columnIndex: number | null
+  }
+
+  export type SortSumAggregateOutputType = {
+    columnIndex: number | null
+  }
+
+  export type SortMinAggregateOutputType = {
+    id: string | null
+    tableId: string | null
+    columnIndex: number | null
+    type: string | null
+  }
+
+  export type SortMaxAggregateOutputType = {
+    id: string | null
+    tableId: string | null
+    columnIndex: number | null
+    type: string | null
+  }
+
+  export type SortCountAggregateOutputType = {
+    id: number
+    tableId: number
+    columnIndex: number
+    type: number
+    _all: number
+  }
+
+
+  export type SortAvgAggregateInputType = {
+    columnIndex?: true
+  }
+
+  export type SortSumAggregateInputType = {
+    columnIndex?: true
+  }
+
+  export type SortMinAggregateInputType = {
+    id?: true
+    tableId?: true
+    columnIndex?: true
+    type?: true
+  }
+
+  export type SortMaxAggregateInputType = {
+    id?: true
+    tableId?: true
+    columnIndex?: true
+    type?: true
+  }
+
+  export type SortCountAggregateInputType = {
+    id?: true
+    tableId?: true
+    columnIndex?: true
+    type?: true
+    _all?: true
+  }
+
+  export type SortAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Sort to aggregate.
+     */
+    where?: SortWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sorts to fetch.
+     */
+    orderBy?: SortOrderByWithRelationInput | SortOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SortWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sorts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sorts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Sorts
+    **/
+    _count?: true | SortCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SortAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SortSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SortMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SortMaxAggregateInputType
+  }
+
+  export type GetSortAggregateType<T extends SortAggregateArgs> = {
+        [P in keyof T & keyof AggregateSort]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSort[P]>
+      : GetScalarType<T[P], AggregateSort[P]>
+  }
+
+
+
+
+  export type SortGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SortWhereInput
+    orderBy?: SortOrderByWithAggregationInput | SortOrderByWithAggregationInput[]
+    by: SortScalarFieldEnum[] | SortScalarFieldEnum
+    having?: SortScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SortCountAggregateInputType | true
+    _avg?: SortAvgAggregateInputType
+    _sum?: SortSumAggregateInputType
+    _min?: SortMinAggregateInputType
+    _max?: SortMaxAggregateInputType
+  }
+
+  export type SortGroupByOutputType = {
+    id: string
+    tableId: string
+    columnIndex: number
+    type: string
+    _count: SortCountAggregateOutputType | null
+    _avg: SortAvgAggregateOutputType | null
+    _sum: SortSumAggregateOutputType | null
+    _min: SortMinAggregateOutputType | null
+    _max: SortMaxAggregateOutputType | null
+  }
+
+  type GetSortGroupByPayload<T extends SortGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SortGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SortGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SortGroupByOutputType[P]>
+            : GetScalarType<T[P], SortGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SortSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sort"]>
+
+  export type SortSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sort"]>
+
+  export type SortSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["sort"]>
+
+  export type SortSelectScalar = {
+    id?: boolean
+    tableId?: boolean
+    columnIndex?: boolean
+    type?: boolean
+  }
+
+  export type SortOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tableId" | "columnIndex" | "type", ExtArgs["result"]["sort"]>
+  export type SortInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }
+  export type SortIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }
+  export type SortIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    table?: boolean | TableDefaultArgs<ExtArgs>
+  }
+
+  export type $SortPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Sort"
+    objects: {
+      table: Prisma.$TablePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      tableId: string
+      columnIndex: number
+      type: string
+    }, ExtArgs["result"]["sort"]>
+    composites: {}
+  }
+
+  type SortGetPayload<S extends boolean | null | undefined | SortDefaultArgs> = $Result.GetResult<Prisma.$SortPayload, S>
+
+  type SortCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<SortFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: SortCountAggregateInputType | true
+    }
+
+  export interface SortDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Sort'], meta: { name: 'Sort' } }
+    /**
+     * Find zero or one Sort that matches the filter.
+     * @param {SortFindUniqueArgs} args - Arguments to find a Sort
+     * @example
+     * // Get one Sort
+     * const sort = await prisma.sort.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SortFindUniqueArgs>(args: SelectSubset<T, SortFindUniqueArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Sort that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {SortFindUniqueOrThrowArgs} args - Arguments to find a Sort
+     * @example
+     * // Get one Sort
+     * const sort = await prisma.sort.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SortFindUniqueOrThrowArgs>(args: SelectSubset<T, SortFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Sort that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortFindFirstArgs} args - Arguments to find a Sort
+     * @example
+     * // Get one Sort
+     * const sort = await prisma.sort.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SortFindFirstArgs>(args?: SelectSubset<T, SortFindFirstArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Sort that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortFindFirstOrThrowArgs} args - Arguments to find a Sort
+     * @example
+     * // Get one Sort
+     * const sort = await prisma.sort.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SortFindFirstOrThrowArgs>(args?: SelectSubset<T, SortFindFirstOrThrowArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Sorts that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Sorts
+     * const sorts = await prisma.sort.findMany()
+     * 
+     * // Get first 10 Sorts
+     * const sorts = await prisma.sort.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const sortWithIdOnly = await prisma.sort.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SortFindManyArgs>(args?: SelectSubset<T, SortFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Sort.
+     * @param {SortCreateArgs} args - Arguments to create a Sort.
+     * @example
+     * // Create one Sort
+     * const Sort = await prisma.sort.create({
+     *   data: {
+     *     // ... data to create a Sort
+     *   }
+     * })
+     * 
+     */
+    create<T extends SortCreateArgs>(args: SelectSubset<T, SortCreateArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Sorts.
+     * @param {SortCreateManyArgs} args - Arguments to create many Sorts.
+     * @example
+     * // Create many Sorts
+     * const sort = await prisma.sort.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SortCreateManyArgs>(args?: SelectSubset<T, SortCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Sorts and returns the data saved in the database.
+     * @param {SortCreateManyAndReturnArgs} args - Arguments to create many Sorts.
+     * @example
+     * // Create many Sorts
+     * const sort = await prisma.sort.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Sorts and only return the `id`
+     * const sortWithIdOnly = await prisma.sort.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SortCreateManyAndReturnArgs>(args?: SelectSubset<T, SortCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Sort.
+     * @param {SortDeleteArgs} args - Arguments to delete one Sort.
+     * @example
+     * // Delete one Sort
+     * const Sort = await prisma.sort.delete({
+     *   where: {
+     *     // ... filter to delete one Sort
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SortDeleteArgs>(args: SelectSubset<T, SortDeleteArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Sort.
+     * @param {SortUpdateArgs} args - Arguments to update one Sort.
+     * @example
+     * // Update one Sort
+     * const sort = await prisma.sort.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SortUpdateArgs>(args: SelectSubset<T, SortUpdateArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Sorts.
+     * @param {SortDeleteManyArgs} args - Arguments to filter Sorts to delete.
+     * @example
+     * // Delete a few Sorts
+     * const { count } = await prisma.sort.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SortDeleteManyArgs>(args?: SelectSubset<T, SortDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Sorts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Sorts
+     * const sort = await prisma.sort.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SortUpdateManyArgs>(args: SelectSubset<T, SortUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Sorts and returns the data updated in the database.
+     * @param {SortUpdateManyAndReturnArgs} args - Arguments to update many Sorts.
+     * @example
+     * // Update many Sorts
+     * const sort = await prisma.sort.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Sorts and only return the `id`
+     * const sortWithIdOnly = await prisma.sort.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends SortUpdateManyAndReturnArgs>(args: SelectSubset<T, SortUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Sort.
+     * @param {SortUpsertArgs} args - Arguments to update or create a Sort.
+     * @example
+     * // Update or create a Sort
+     * const sort = await prisma.sort.upsert({
+     *   create: {
+     *     // ... data to create a Sort
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Sort we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SortUpsertArgs>(args: SelectSubset<T, SortUpsertArgs<ExtArgs>>): Prisma__SortClient<$Result.GetResult<Prisma.$SortPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Sorts.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortCountArgs} args - Arguments to filter Sorts to count.
+     * @example
+     * // Count the number of Sorts
+     * const count = await prisma.sort.count({
+     *   where: {
+     *     // ... the filter for the Sorts we want to count
+     *   }
+     * })
+    **/
+    count<T extends SortCountArgs>(
+      args?: Subset<T, SortCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SortCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Sort.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SortAggregateArgs>(args: Subset<T, SortAggregateArgs>): Prisma.PrismaPromise<GetSortAggregateType<T>>
+
+    /**
+     * Group by Sort.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SortGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SortGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SortGroupByArgs['orderBy'] }
+        : { orderBy?: SortGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SortGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSortGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Sort model
+   */
+  readonly fields: SortFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Sort.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SortClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    table<T extends TableDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TableDefaultArgs<ExtArgs>>): Prisma__TableClient<$Result.GetResult<Prisma.$TablePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Sort model
+   */
+  interface SortFieldRefs {
+    readonly id: FieldRef<"Sort", 'String'>
+    readonly tableId: FieldRef<"Sort", 'String'>
+    readonly columnIndex: FieldRef<"Sort", 'Int'>
+    readonly type: FieldRef<"Sort", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Sort findUnique
+   */
+  export type SortFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * Filter, which Sort to fetch.
+     */
+    where: SortWhereUniqueInput
+  }
+
+  /**
+   * Sort findUniqueOrThrow
+   */
+  export type SortFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * Filter, which Sort to fetch.
+     */
+    where: SortWhereUniqueInput
+  }
+
+  /**
+   * Sort findFirst
+   */
+  export type SortFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * Filter, which Sort to fetch.
+     */
+    where?: SortWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sorts to fetch.
+     */
+    orderBy?: SortOrderByWithRelationInput | SortOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Sorts.
+     */
+    cursor?: SortWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sorts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sorts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Sorts.
+     */
+    distinct?: SortScalarFieldEnum | SortScalarFieldEnum[]
+  }
+
+  /**
+   * Sort findFirstOrThrow
+   */
+  export type SortFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * Filter, which Sort to fetch.
+     */
+    where?: SortWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sorts to fetch.
+     */
+    orderBy?: SortOrderByWithRelationInput | SortOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Sorts.
+     */
+    cursor?: SortWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sorts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sorts.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Sorts.
+     */
+    distinct?: SortScalarFieldEnum | SortScalarFieldEnum[]
+  }
+
+  /**
+   * Sort findMany
+   */
+  export type SortFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * Filter, which Sorts to fetch.
+     */
+    where?: SortWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Sorts to fetch.
+     */
+    orderBy?: SortOrderByWithRelationInput | SortOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Sorts.
+     */
+    cursor?: SortWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Sorts from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Sorts.
+     */
+    skip?: number
+    distinct?: SortScalarFieldEnum | SortScalarFieldEnum[]
+  }
+
+  /**
+   * Sort create
+   */
+  export type SortCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Sort.
+     */
+    data: XOR<SortCreateInput, SortUncheckedCreateInput>
+  }
+
+  /**
+   * Sort createMany
+   */
+  export type SortCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Sorts.
+     */
+    data: SortCreateManyInput | SortCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Sort createManyAndReturn
+   */
+  export type SortCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * The data used to create many Sorts.
+     */
+    data: SortCreateManyInput | SortCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Sort update
+   */
+  export type SortUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Sort.
+     */
+    data: XOR<SortUpdateInput, SortUncheckedUpdateInput>
+    /**
+     * Choose, which Sort to update.
+     */
+    where: SortWhereUniqueInput
+  }
+
+  /**
+   * Sort updateMany
+   */
+  export type SortUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Sorts.
+     */
+    data: XOR<SortUpdateManyMutationInput, SortUncheckedUpdateManyInput>
+    /**
+     * Filter which Sorts to update
+     */
+    where?: SortWhereInput
+    /**
+     * Limit how many Sorts to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Sort updateManyAndReturn
+   */
+  export type SortUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * The data used to update Sorts.
+     */
+    data: XOR<SortUpdateManyMutationInput, SortUncheckedUpdateManyInput>
+    /**
+     * Filter which Sorts to update
+     */
+    where?: SortWhereInput
+    /**
+     * Limit how many Sorts to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Sort upsert
+   */
+  export type SortUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Sort to update in case it exists.
+     */
+    where: SortWhereUniqueInput
+    /**
+     * In case the Sort found by the `where` argument doesn't exist, create a new Sort with this data.
+     */
+    create: XOR<SortCreateInput, SortUncheckedCreateInput>
+    /**
+     * In case the Sort was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SortUpdateInput, SortUncheckedUpdateInput>
+  }
+
+  /**
+   * Sort delete
+   */
+  export type SortDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+    /**
+     * Filter which Sort to delete.
+     */
+    where: SortWhereUniqueInput
+  }
+
+  /**
+   * Sort deleteMany
+   */
+  export type SortDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Sorts to delete
+     */
+    where?: SortWhereInput
+    /**
+     * Limit how many Sorts to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Sort without action
+   */
+  export type SortDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Sort
+     */
+    select?: SortSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Sort
+     */
+    omit?: SortOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SortInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -10496,6 +12923,27 @@ export namespace Prisma {
   };
 
   export type RowScalarFieldEnum = (typeof RowScalarFieldEnum)[keyof typeof RowScalarFieldEnum]
+
+
+  export const FilterScalarFieldEnum: {
+    id: 'id',
+    tableId: 'tableId',
+    columnIndex: 'columnIndex',
+    type: 'type',
+    value: 'value'
+  };
+
+  export type FilterScalarFieldEnum = (typeof FilterScalarFieldEnum)[keyof typeof FilterScalarFieldEnum]
+
+
+  export const SortScalarFieldEnum: {
+    id: 'id',
+    tableId: 'tableId',
+    columnIndex: 'columnIndex',
+    type: 'type'
+  };
+
+  export type SortScalarFieldEnum = (typeof SortScalarFieldEnum)[keyof typeof SortScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -10965,6 +13413,8 @@ export namespace Prisma {
     numRows?: IntFilter<"Table"> | number
     rows?: RowListRelationFilter
     base?: XOR<BaseScalarRelationFilter, BaseWhereInput>
+    filters?: FilterListRelationFilter
+    sorts?: SortListRelationFilter
   }
 
   export type TableOrderByWithRelationInput = {
@@ -10976,6 +13426,8 @@ export namespace Prisma {
     numRows?: SortOrder
     rows?: RowOrderByRelationAggregateInput
     base?: BaseOrderByWithRelationInput
+    filters?: FilterOrderByRelationAggregateInput
+    sorts?: SortOrderByRelationAggregateInput
   }
 
   export type TableWhereUniqueInput = Prisma.AtLeast<{
@@ -10990,6 +13442,8 @@ export namespace Prisma {
     numRows?: IntFilter<"Table"> | number
     rows?: RowListRelationFilter
     base?: XOR<BaseScalarRelationFilter, BaseWhereInput>
+    filters?: FilterListRelationFilter
+    sorts?: SortListRelationFilter
   }, "id">
 
   export type TableOrderByWithAggregationInput = {
@@ -11068,6 +13522,115 @@ export namespace Prisma {
     rowNum?: IntWithAggregatesFilter<"Row"> | number
     cells?: StringNullableListFilter<"Row">
     tableId?: StringWithAggregatesFilter<"Row"> | string
+  }
+
+  export type FilterWhereInput = {
+    AND?: FilterWhereInput | FilterWhereInput[]
+    OR?: FilterWhereInput[]
+    NOT?: FilterWhereInput | FilterWhereInput[]
+    id?: StringFilter<"Filter"> | string
+    tableId?: StringFilter<"Filter"> | string
+    columnIndex?: IntFilter<"Filter"> | number
+    type?: StringFilter<"Filter"> | string
+    value?: StringFilter<"Filter"> | string
+    table?: XOR<TableScalarRelationFilter, TableWhereInput>
+  }
+
+  export type FilterOrderByWithRelationInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    table?: TableOrderByWithRelationInput
+  }
+
+  export type FilterWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: FilterWhereInput | FilterWhereInput[]
+    OR?: FilterWhereInput[]
+    NOT?: FilterWhereInput | FilterWhereInput[]
+    tableId?: StringFilter<"Filter"> | string
+    columnIndex?: IntFilter<"Filter"> | number
+    type?: StringFilter<"Filter"> | string
+    value?: StringFilter<"Filter"> | string
+    table?: XOR<TableScalarRelationFilter, TableWhereInput>
+  }, "id">
+
+  export type FilterOrderByWithAggregationInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+    _count?: FilterCountOrderByAggregateInput
+    _avg?: FilterAvgOrderByAggregateInput
+    _max?: FilterMaxOrderByAggregateInput
+    _min?: FilterMinOrderByAggregateInput
+    _sum?: FilterSumOrderByAggregateInput
+  }
+
+  export type FilterScalarWhereWithAggregatesInput = {
+    AND?: FilterScalarWhereWithAggregatesInput | FilterScalarWhereWithAggregatesInput[]
+    OR?: FilterScalarWhereWithAggregatesInput[]
+    NOT?: FilterScalarWhereWithAggregatesInput | FilterScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Filter"> | string
+    tableId?: StringWithAggregatesFilter<"Filter"> | string
+    columnIndex?: IntWithAggregatesFilter<"Filter"> | number
+    type?: StringWithAggregatesFilter<"Filter"> | string
+    value?: StringWithAggregatesFilter<"Filter"> | string
+  }
+
+  export type SortWhereInput = {
+    AND?: SortWhereInput | SortWhereInput[]
+    OR?: SortWhereInput[]
+    NOT?: SortWhereInput | SortWhereInput[]
+    id?: StringFilter<"Sort"> | string
+    tableId?: StringFilter<"Sort"> | string
+    columnIndex?: IntFilter<"Sort"> | number
+    type?: StringFilter<"Sort"> | string
+    table?: XOR<TableScalarRelationFilter, TableWhereInput>
+  }
+
+  export type SortOrderByWithRelationInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    table?: TableOrderByWithRelationInput
+  }
+
+  export type SortWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SortWhereInput | SortWhereInput[]
+    OR?: SortWhereInput[]
+    NOT?: SortWhereInput | SortWhereInput[]
+    tableId?: StringFilter<"Sort"> | string
+    columnIndex?: IntFilter<"Sort"> | number
+    type?: StringFilter<"Sort"> | string
+    table?: XOR<TableScalarRelationFilter, TableWhereInput>
+  }, "id">
+
+  export type SortOrderByWithAggregationInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    _count?: SortCountOrderByAggregateInput
+    _avg?: SortAvgOrderByAggregateInput
+    _max?: SortMaxOrderByAggregateInput
+    _min?: SortMinOrderByAggregateInput
+    _sum?: SortSumOrderByAggregateInput
+  }
+
+  export type SortScalarWhereWithAggregatesInput = {
+    AND?: SortScalarWhereWithAggregatesInput | SortScalarWhereWithAggregatesInput[]
+    OR?: SortScalarWhereWithAggregatesInput[]
+    NOT?: SortScalarWhereWithAggregatesInput | SortScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Sort"> | string
+    tableId?: StringWithAggregatesFilter<"Sort"> | string
+    columnIndex?: IntWithAggregatesFilter<"Sort"> | number
+    type?: StringWithAggregatesFilter<"Sort"> | string
   }
 
   export type PostCreateInput = {
@@ -11455,6 +14018,8 @@ export namespace Prisma {
     numRows: number
     rows?: RowCreateNestedManyWithoutTableInput
     base: BaseCreateNestedOneWithoutTablesInput
+    filters?: FilterCreateNestedManyWithoutTableInput
+    sorts?: SortCreateNestedManyWithoutTableInput
   }
 
   export type TableUncheckedCreateInput = {
@@ -11465,6 +14030,8 @@ export namespace Prisma {
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
     rows?: RowUncheckedCreateNestedManyWithoutTableInput
+    filters?: FilterUncheckedCreateNestedManyWithoutTableInput
+    sorts?: SortUncheckedCreateNestedManyWithoutTableInput
   }
 
   export type TableUpdateInput = {
@@ -11475,6 +14042,8 @@ export namespace Prisma {
     numRows?: IntFieldUpdateOperationsInput | number
     rows?: RowUpdateManyWithoutTableNestedInput
     base?: BaseUpdateOneRequiredWithoutTablesNestedInput
+    filters?: FilterUpdateManyWithoutTableNestedInput
+    sorts?: SortUpdateManyWithoutTableNestedInput
   }
 
   export type TableUncheckedUpdateInput = {
@@ -11485,6 +14054,8 @@ export namespace Prisma {
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
     rows?: RowUncheckedUpdateManyWithoutTableNestedInput
+    filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
+    sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
   }
 
   export type TableCreateManyInput = {
@@ -11559,6 +14130,109 @@ export namespace Prisma {
     rowNum?: IntFieldUpdateOperationsInput | number
     cells?: RowUpdatecellsInput | string[]
     tableId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FilterCreateInput = {
+    id?: string
+    columnIndex: number
+    type: string
+    value: string
+    table: TableCreateNestedOneWithoutFiltersInput
+  }
+
+  export type FilterUncheckedCreateInput = {
+    id?: string
+    tableId: string
+    columnIndex: number
+    type: string
+    value: string
+  }
+
+  export type FilterUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+    table?: TableUpdateOneRequiredWithoutFiltersNestedInput
+  }
+
+  export type FilterUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tableId?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FilterCreateManyInput = {
+    id?: string
+    tableId: string
+    columnIndex: number
+    type: string
+    value: string
+  }
+
+  export type FilterUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FilterUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tableId?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SortCreateInput = {
+    id?: string
+    columnIndex: number
+    type: string
+    table: TableCreateNestedOneWithoutSortsInput
+  }
+
+  export type SortUncheckedCreateInput = {
+    id?: string
+    tableId: string
+    columnIndex: number
+    type: string
+  }
+
+  export type SortUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    table?: TableUpdateOneRequiredWithoutSortsNestedInput
+  }
+
+  export type SortUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tableId?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SortCreateManyInput = {
+    id?: string
+    tableId: string
+    columnIndex: number
+    type: string
+  }
+
+  export type SortUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SortUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tableId?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -12010,7 +14684,27 @@ export namespace Prisma {
     isNot?: BaseWhereInput
   }
 
+  export type FilterListRelationFilter = {
+    every?: FilterWhereInput
+    some?: FilterWhereInput
+    none?: FilterWhereInput
+  }
+
+  export type SortListRelationFilter = {
+    every?: SortWhereInput
+    some?: SortWhereInput
+    none?: SortWhereInput
+  }
+
   export type RowOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FilterOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type SortOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -12077,6 +14771,67 @@ export namespace Prisma {
 
   export type RowSumOrderByAggregateInput = {
     rowNum?: SortOrder
+  }
+
+  export type FilterCountOrderByAggregateInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+  }
+
+  export type FilterAvgOrderByAggregateInput = {
+    columnIndex?: SortOrder
+  }
+
+  export type FilterMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+  }
+
+  export type FilterMinOrderByAggregateInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+    value?: SortOrder
+  }
+
+  export type FilterSumOrderByAggregateInput = {
+    columnIndex?: SortOrder
+  }
+
+  export type SortCountOrderByAggregateInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+  }
+
+  export type SortAvgOrderByAggregateInput = {
+    columnIndex?: SortOrder
+  }
+
+  export type SortMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+  }
+
+  export type SortMinOrderByAggregateInput = {
+    id?: SortOrder
+    tableId?: SortOrder
+    columnIndex?: SortOrder
+    type?: SortOrder
+  }
+
+  export type SortSumOrderByAggregateInput = {
+    columnIndex?: SortOrder
   }
 
   export type UserCreateNestedOneWithoutPostsInput = {
@@ -12398,11 +15153,39 @@ export namespace Prisma {
     connect?: BaseWhereUniqueInput
   }
 
+  export type FilterCreateNestedManyWithoutTableInput = {
+    create?: XOR<FilterCreateWithoutTableInput, FilterUncheckedCreateWithoutTableInput> | FilterCreateWithoutTableInput[] | FilterUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: FilterCreateOrConnectWithoutTableInput | FilterCreateOrConnectWithoutTableInput[]
+    createMany?: FilterCreateManyTableInputEnvelope
+    connect?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+  }
+
+  export type SortCreateNestedManyWithoutTableInput = {
+    create?: XOR<SortCreateWithoutTableInput, SortUncheckedCreateWithoutTableInput> | SortCreateWithoutTableInput[] | SortUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: SortCreateOrConnectWithoutTableInput | SortCreateOrConnectWithoutTableInput[]
+    createMany?: SortCreateManyTableInputEnvelope
+    connect?: SortWhereUniqueInput | SortWhereUniqueInput[]
+  }
+
   export type RowUncheckedCreateNestedManyWithoutTableInput = {
     create?: XOR<RowCreateWithoutTableInput, RowUncheckedCreateWithoutTableInput> | RowCreateWithoutTableInput[] | RowUncheckedCreateWithoutTableInput[]
     connectOrCreate?: RowCreateOrConnectWithoutTableInput | RowCreateOrConnectWithoutTableInput[]
     createMany?: RowCreateManyTableInputEnvelope
     connect?: RowWhereUniqueInput | RowWhereUniqueInput[]
+  }
+
+  export type FilterUncheckedCreateNestedManyWithoutTableInput = {
+    create?: XOR<FilterCreateWithoutTableInput, FilterUncheckedCreateWithoutTableInput> | FilterCreateWithoutTableInput[] | FilterUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: FilterCreateOrConnectWithoutTableInput | FilterCreateOrConnectWithoutTableInput[]
+    createMany?: FilterCreateManyTableInputEnvelope
+    connect?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+  }
+
+  export type SortUncheckedCreateNestedManyWithoutTableInput = {
+    create?: XOR<SortCreateWithoutTableInput, SortUncheckedCreateWithoutTableInput> | SortCreateWithoutTableInput[] | SortUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: SortCreateOrConnectWithoutTableInput | SortCreateOrConnectWithoutTableInput[]
+    createMany?: SortCreateManyTableInputEnvelope
+    connect?: SortWhereUniqueInput | SortWhereUniqueInput[]
   }
 
   export type TableUpdateheadersInput = {
@@ -12437,6 +15220,34 @@ export namespace Prisma {
     update?: XOR<XOR<BaseUpdateToOneWithWhereWithoutTablesInput, BaseUpdateWithoutTablesInput>, BaseUncheckedUpdateWithoutTablesInput>
   }
 
+  export type FilterUpdateManyWithoutTableNestedInput = {
+    create?: XOR<FilterCreateWithoutTableInput, FilterUncheckedCreateWithoutTableInput> | FilterCreateWithoutTableInput[] | FilterUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: FilterCreateOrConnectWithoutTableInput | FilterCreateOrConnectWithoutTableInput[]
+    upsert?: FilterUpsertWithWhereUniqueWithoutTableInput | FilterUpsertWithWhereUniqueWithoutTableInput[]
+    createMany?: FilterCreateManyTableInputEnvelope
+    set?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    disconnect?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    delete?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    connect?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    update?: FilterUpdateWithWhereUniqueWithoutTableInput | FilterUpdateWithWhereUniqueWithoutTableInput[]
+    updateMany?: FilterUpdateManyWithWhereWithoutTableInput | FilterUpdateManyWithWhereWithoutTableInput[]
+    deleteMany?: FilterScalarWhereInput | FilterScalarWhereInput[]
+  }
+
+  export type SortUpdateManyWithoutTableNestedInput = {
+    create?: XOR<SortCreateWithoutTableInput, SortUncheckedCreateWithoutTableInput> | SortCreateWithoutTableInput[] | SortUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: SortCreateOrConnectWithoutTableInput | SortCreateOrConnectWithoutTableInput[]
+    upsert?: SortUpsertWithWhereUniqueWithoutTableInput | SortUpsertWithWhereUniqueWithoutTableInput[]
+    createMany?: SortCreateManyTableInputEnvelope
+    set?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    disconnect?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    delete?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    connect?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    update?: SortUpdateWithWhereUniqueWithoutTableInput | SortUpdateWithWhereUniqueWithoutTableInput[]
+    updateMany?: SortUpdateManyWithWhereWithoutTableInput | SortUpdateManyWithWhereWithoutTableInput[]
+    deleteMany?: SortScalarWhereInput | SortScalarWhereInput[]
+  }
+
   export type RowUncheckedUpdateManyWithoutTableNestedInput = {
     create?: XOR<RowCreateWithoutTableInput, RowUncheckedCreateWithoutTableInput> | RowCreateWithoutTableInput[] | RowUncheckedCreateWithoutTableInput[]
     connectOrCreate?: RowCreateOrConnectWithoutTableInput | RowCreateOrConnectWithoutTableInput[]
@@ -12449,6 +15260,34 @@ export namespace Prisma {
     update?: RowUpdateWithWhereUniqueWithoutTableInput | RowUpdateWithWhereUniqueWithoutTableInput[]
     updateMany?: RowUpdateManyWithWhereWithoutTableInput | RowUpdateManyWithWhereWithoutTableInput[]
     deleteMany?: RowScalarWhereInput | RowScalarWhereInput[]
+  }
+
+  export type FilterUncheckedUpdateManyWithoutTableNestedInput = {
+    create?: XOR<FilterCreateWithoutTableInput, FilterUncheckedCreateWithoutTableInput> | FilterCreateWithoutTableInput[] | FilterUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: FilterCreateOrConnectWithoutTableInput | FilterCreateOrConnectWithoutTableInput[]
+    upsert?: FilterUpsertWithWhereUniqueWithoutTableInput | FilterUpsertWithWhereUniqueWithoutTableInput[]
+    createMany?: FilterCreateManyTableInputEnvelope
+    set?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    disconnect?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    delete?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    connect?: FilterWhereUniqueInput | FilterWhereUniqueInput[]
+    update?: FilterUpdateWithWhereUniqueWithoutTableInput | FilterUpdateWithWhereUniqueWithoutTableInput[]
+    updateMany?: FilterUpdateManyWithWhereWithoutTableInput | FilterUpdateManyWithWhereWithoutTableInput[]
+    deleteMany?: FilterScalarWhereInput | FilterScalarWhereInput[]
+  }
+
+  export type SortUncheckedUpdateManyWithoutTableNestedInput = {
+    create?: XOR<SortCreateWithoutTableInput, SortUncheckedCreateWithoutTableInput> | SortCreateWithoutTableInput[] | SortUncheckedCreateWithoutTableInput[]
+    connectOrCreate?: SortCreateOrConnectWithoutTableInput | SortCreateOrConnectWithoutTableInput[]
+    upsert?: SortUpsertWithWhereUniqueWithoutTableInput | SortUpsertWithWhereUniqueWithoutTableInput[]
+    createMany?: SortCreateManyTableInputEnvelope
+    set?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    disconnect?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    delete?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    connect?: SortWhereUniqueInput | SortWhereUniqueInput[]
+    update?: SortUpdateWithWhereUniqueWithoutTableInput | SortUpdateWithWhereUniqueWithoutTableInput[]
+    updateMany?: SortUpdateManyWithWhereWithoutTableInput | SortUpdateManyWithWhereWithoutTableInput[]
+    deleteMany?: SortScalarWhereInput | SortScalarWhereInput[]
   }
 
   export type RowCreatecellsInput = {
@@ -12472,6 +15311,34 @@ export namespace Prisma {
     upsert?: TableUpsertWithoutRowsInput
     connect?: TableWhereUniqueInput
     update?: XOR<XOR<TableUpdateToOneWithWhereWithoutRowsInput, TableUpdateWithoutRowsInput>, TableUncheckedUpdateWithoutRowsInput>
+  }
+
+  export type TableCreateNestedOneWithoutFiltersInput = {
+    create?: XOR<TableCreateWithoutFiltersInput, TableUncheckedCreateWithoutFiltersInput>
+    connectOrCreate?: TableCreateOrConnectWithoutFiltersInput
+    connect?: TableWhereUniqueInput
+  }
+
+  export type TableUpdateOneRequiredWithoutFiltersNestedInput = {
+    create?: XOR<TableCreateWithoutFiltersInput, TableUncheckedCreateWithoutFiltersInput>
+    connectOrCreate?: TableCreateOrConnectWithoutFiltersInput
+    upsert?: TableUpsertWithoutFiltersInput
+    connect?: TableWhereUniqueInput
+    update?: XOR<XOR<TableUpdateToOneWithWhereWithoutFiltersInput, TableUpdateWithoutFiltersInput>, TableUncheckedUpdateWithoutFiltersInput>
+  }
+
+  export type TableCreateNestedOneWithoutSortsInput = {
+    create?: XOR<TableCreateWithoutSortsInput, TableUncheckedCreateWithoutSortsInput>
+    connectOrCreate?: TableCreateOrConnectWithoutSortsInput
+    connect?: TableWhereUniqueInput
+  }
+
+  export type TableUpdateOneRequiredWithoutSortsNestedInput = {
+    create?: XOR<TableCreateWithoutSortsInput, TableUncheckedCreateWithoutSortsInput>
+    connectOrCreate?: TableCreateOrConnectWithoutSortsInput
+    upsert?: TableUpsertWithoutSortsInput
+    connect?: TableWhereUniqueInput
+    update?: XOR<XOR<TableUpdateToOneWithWhereWithoutSortsInput, TableUpdateWithoutSortsInput>, TableUncheckedUpdateWithoutSortsInput>
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -13072,6 +15939,8 @@ export namespace Prisma {
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
     rows?: RowCreateNestedManyWithoutTableInput
+    filters?: FilterCreateNestedManyWithoutTableInput
+    sorts?: SortCreateNestedManyWithoutTableInput
   }
 
   export type TableUncheckedCreateWithoutBaseInput = {
@@ -13081,6 +15950,8 @@ export namespace Prisma {
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
     rows?: RowUncheckedCreateNestedManyWithoutTableInput
+    filters?: FilterUncheckedCreateNestedManyWithoutTableInput
+    sorts?: SortUncheckedCreateNestedManyWithoutTableInput
   }
 
   export type TableCreateOrConnectWithoutBaseInput = {
@@ -13222,6 +16093,52 @@ export namespace Prisma {
     create: XOR<BaseCreateWithoutTablesInput, BaseUncheckedCreateWithoutTablesInput>
   }
 
+  export type FilterCreateWithoutTableInput = {
+    id?: string
+    columnIndex: number
+    type: string
+    value: string
+  }
+
+  export type FilterUncheckedCreateWithoutTableInput = {
+    id?: string
+    columnIndex: number
+    type: string
+    value: string
+  }
+
+  export type FilterCreateOrConnectWithoutTableInput = {
+    where: FilterWhereUniqueInput
+    create: XOR<FilterCreateWithoutTableInput, FilterUncheckedCreateWithoutTableInput>
+  }
+
+  export type FilterCreateManyTableInputEnvelope = {
+    data: FilterCreateManyTableInput | FilterCreateManyTableInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type SortCreateWithoutTableInput = {
+    id?: string
+    columnIndex: number
+    type: string
+  }
+
+  export type SortUncheckedCreateWithoutTableInput = {
+    id?: string
+    columnIndex: number
+    type: string
+  }
+
+  export type SortCreateOrConnectWithoutTableInput = {
+    where: SortWhereUniqueInput
+    create: XOR<SortCreateWithoutTableInput, SortUncheckedCreateWithoutTableInput>
+  }
+
+  export type SortCreateManyTableInputEnvelope = {
+    data: SortCreateManyTableInput | SortCreateManyTableInput[]
+    skipDuplicates?: boolean
+  }
+
   export type RowUpsertWithWhereUniqueWithoutTableInput = {
     where: RowWhereUniqueInput
     update: XOR<RowUpdateWithoutTableInput, RowUncheckedUpdateWithoutTableInput>
@@ -13273,6 +16190,59 @@ export namespace Prisma {
     userId?: StringFieldUpdateOperationsInput | string
   }
 
+  export type FilterUpsertWithWhereUniqueWithoutTableInput = {
+    where: FilterWhereUniqueInput
+    update: XOR<FilterUpdateWithoutTableInput, FilterUncheckedUpdateWithoutTableInput>
+    create: XOR<FilterCreateWithoutTableInput, FilterUncheckedCreateWithoutTableInput>
+  }
+
+  export type FilterUpdateWithWhereUniqueWithoutTableInput = {
+    where: FilterWhereUniqueInput
+    data: XOR<FilterUpdateWithoutTableInput, FilterUncheckedUpdateWithoutTableInput>
+  }
+
+  export type FilterUpdateManyWithWhereWithoutTableInput = {
+    where: FilterScalarWhereInput
+    data: XOR<FilterUpdateManyMutationInput, FilterUncheckedUpdateManyWithoutTableInput>
+  }
+
+  export type FilterScalarWhereInput = {
+    AND?: FilterScalarWhereInput | FilterScalarWhereInput[]
+    OR?: FilterScalarWhereInput[]
+    NOT?: FilterScalarWhereInput | FilterScalarWhereInput[]
+    id?: StringFilter<"Filter"> | string
+    tableId?: StringFilter<"Filter"> | string
+    columnIndex?: IntFilter<"Filter"> | number
+    type?: StringFilter<"Filter"> | string
+    value?: StringFilter<"Filter"> | string
+  }
+
+  export type SortUpsertWithWhereUniqueWithoutTableInput = {
+    where: SortWhereUniqueInput
+    update: XOR<SortUpdateWithoutTableInput, SortUncheckedUpdateWithoutTableInput>
+    create: XOR<SortCreateWithoutTableInput, SortUncheckedCreateWithoutTableInput>
+  }
+
+  export type SortUpdateWithWhereUniqueWithoutTableInput = {
+    where: SortWhereUniqueInput
+    data: XOR<SortUpdateWithoutTableInput, SortUncheckedUpdateWithoutTableInput>
+  }
+
+  export type SortUpdateManyWithWhereWithoutTableInput = {
+    where: SortScalarWhereInput
+    data: XOR<SortUpdateManyMutationInput, SortUncheckedUpdateManyWithoutTableInput>
+  }
+
+  export type SortScalarWhereInput = {
+    AND?: SortScalarWhereInput | SortScalarWhereInput[]
+    OR?: SortScalarWhereInput[]
+    NOT?: SortScalarWhereInput | SortScalarWhereInput[]
+    id?: StringFilter<"Sort"> | string
+    tableId?: StringFilter<"Sort"> | string
+    columnIndex?: IntFilter<"Sort"> | number
+    type?: StringFilter<"Sort"> | string
+  }
+
   export type TableCreateWithoutRowsInput = {
     id?: string
     name: string
@@ -13280,6 +16250,8 @@ export namespace Prisma {
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
     base: BaseCreateNestedOneWithoutTablesInput
+    filters?: FilterCreateNestedManyWithoutTableInput
+    sorts?: SortCreateNestedManyWithoutTableInput
   }
 
   export type TableUncheckedCreateWithoutRowsInput = {
@@ -13289,6 +16261,8 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    filters?: FilterUncheckedCreateNestedManyWithoutTableInput
+    sorts?: SortUncheckedCreateNestedManyWithoutTableInput
   }
 
   export type TableCreateOrConnectWithoutRowsInput = {
@@ -13314,6 +16288,8 @@ export namespace Prisma {
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
     base?: BaseUpdateOneRequiredWithoutTablesNestedInput
+    filters?: FilterUpdateManyWithoutTableNestedInput
+    sorts?: SortUpdateManyWithoutTableNestedInput
   }
 
   export type TableUncheckedUpdateWithoutRowsInput = {
@@ -13323,6 +16299,128 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
+    sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
+  }
+
+  export type TableCreateWithoutFiltersInput = {
+    id?: string
+    name: string
+    headers?: TableCreateheadersInput | string[]
+    headerTypes?: TableCreateheaderTypesInput | number[]
+    numRows: number
+    rows?: RowCreateNestedManyWithoutTableInput
+    base: BaseCreateNestedOneWithoutTablesInput
+    sorts?: SortCreateNestedManyWithoutTableInput
+  }
+
+  export type TableUncheckedCreateWithoutFiltersInput = {
+    id?: string
+    name: string
+    baseId: string
+    headers?: TableCreateheadersInput | string[]
+    headerTypes?: TableCreateheaderTypesInput | number[]
+    numRows: number
+    rows?: RowUncheckedCreateNestedManyWithoutTableInput
+    sorts?: SortUncheckedCreateNestedManyWithoutTableInput
+  }
+
+  export type TableCreateOrConnectWithoutFiltersInput = {
+    where: TableWhereUniqueInput
+    create: XOR<TableCreateWithoutFiltersInput, TableUncheckedCreateWithoutFiltersInput>
+  }
+
+  export type TableUpsertWithoutFiltersInput = {
+    update: XOR<TableUpdateWithoutFiltersInput, TableUncheckedUpdateWithoutFiltersInput>
+    create: XOR<TableCreateWithoutFiltersInput, TableUncheckedCreateWithoutFiltersInput>
+    where?: TableWhereInput
+  }
+
+  export type TableUpdateToOneWithWhereWithoutFiltersInput = {
+    where?: TableWhereInput
+    data: XOR<TableUpdateWithoutFiltersInput, TableUncheckedUpdateWithoutFiltersInput>
+  }
+
+  export type TableUpdateWithoutFiltersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    headers?: TableUpdateheadersInput | string[]
+    headerTypes?: TableUpdateheaderTypesInput | number[]
+    numRows?: IntFieldUpdateOperationsInput | number
+    rows?: RowUpdateManyWithoutTableNestedInput
+    base?: BaseUpdateOneRequiredWithoutTablesNestedInput
+    sorts?: SortUpdateManyWithoutTableNestedInput
+  }
+
+  export type TableUncheckedUpdateWithoutFiltersInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    baseId?: StringFieldUpdateOperationsInput | string
+    headers?: TableUpdateheadersInput | string[]
+    headerTypes?: TableUpdateheaderTypesInput | number[]
+    numRows?: IntFieldUpdateOperationsInput | number
+    rows?: RowUncheckedUpdateManyWithoutTableNestedInput
+    sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
+  }
+
+  export type TableCreateWithoutSortsInput = {
+    id?: string
+    name: string
+    headers?: TableCreateheadersInput | string[]
+    headerTypes?: TableCreateheaderTypesInput | number[]
+    numRows: number
+    rows?: RowCreateNestedManyWithoutTableInput
+    base: BaseCreateNestedOneWithoutTablesInput
+    filters?: FilterCreateNestedManyWithoutTableInput
+  }
+
+  export type TableUncheckedCreateWithoutSortsInput = {
+    id?: string
+    name: string
+    baseId: string
+    headers?: TableCreateheadersInput | string[]
+    headerTypes?: TableCreateheaderTypesInput | number[]
+    numRows: number
+    rows?: RowUncheckedCreateNestedManyWithoutTableInput
+    filters?: FilterUncheckedCreateNestedManyWithoutTableInput
+  }
+
+  export type TableCreateOrConnectWithoutSortsInput = {
+    where: TableWhereUniqueInput
+    create: XOR<TableCreateWithoutSortsInput, TableUncheckedCreateWithoutSortsInput>
+  }
+
+  export type TableUpsertWithoutSortsInput = {
+    update: XOR<TableUpdateWithoutSortsInput, TableUncheckedUpdateWithoutSortsInput>
+    create: XOR<TableCreateWithoutSortsInput, TableUncheckedCreateWithoutSortsInput>
+    where?: TableWhereInput
+  }
+
+  export type TableUpdateToOneWithWhereWithoutSortsInput = {
+    where?: TableWhereInput
+    data: XOR<TableUpdateWithoutSortsInput, TableUncheckedUpdateWithoutSortsInput>
+  }
+
+  export type TableUpdateWithoutSortsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    headers?: TableUpdateheadersInput | string[]
+    headerTypes?: TableUpdateheaderTypesInput | number[]
+    numRows?: IntFieldUpdateOperationsInput | number
+    rows?: RowUpdateManyWithoutTableNestedInput
+    base?: BaseUpdateOneRequiredWithoutTablesNestedInput
+    filters?: FilterUpdateManyWithoutTableNestedInput
+  }
+
+  export type TableUncheckedUpdateWithoutSortsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    baseId?: StringFieldUpdateOperationsInput | string
+    headers?: TableUpdateheadersInput | string[]
+    headerTypes?: TableUpdateheaderTypesInput | number[]
+    numRows?: IntFieldUpdateOperationsInput | number
+    rows?: RowUncheckedUpdateManyWithoutTableNestedInput
+    filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
   }
 
   export type AccountCreateManyUserInput = {
@@ -13477,6 +16575,8 @@ export namespace Prisma {
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
     rows?: RowUpdateManyWithoutTableNestedInput
+    filters?: FilterUpdateManyWithoutTableNestedInput
+    sorts?: SortUpdateManyWithoutTableNestedInput
   }
 
   export type TableUncheckedUpdateWithoutBaseInput = {
@@ -13486,6 +16586,8 @@ export namespace Prisma {
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
     rows?: RowUncheckedUpdateManyWithoutTableNestedInput
+    filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
+    sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
   }
 
   export type TableUncheckedUpdateManyWithoutBaseInput = {
@@ -13500,6 +16602,19 @@ export namespace Prisma {
     id?: string
     rowNum: number
     cells?: RowCreatecellsInput | string[]
+  }
+
+  export type FilterCreateManyTableInput = {
+    id?: string
+    columnIndex: number
+    type: string
+    value: string
+  }
+
+  export type SortCreateManyTableInput = {
+    id?: string
+    columnIndex: number
+    type: string
   }
 
   export type RowUpdateWithoutTableInput = {
@@ -13518,6 +16633,45 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     cells?: RowUpdatecellsInput | string[]
+  }
+
+  export type FilterUpdateWithoutTableInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FilterUncheckedUpdateWithoutTableInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type FilterUncheckedUpdateManyWithoutTableInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+    value?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SortUpdateWithoutTableInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SortUncheckedUpdateWithoutTableInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SortUncheckedUpdateManyWithoutTableInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    columnIndex?: IntFieldUpdateOperationsInput | number
+    type?: StringFieldUpdateOperationsInput | string
   }
 
 

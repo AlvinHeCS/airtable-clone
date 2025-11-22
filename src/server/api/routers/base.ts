@@ -12,14 +12,12 @@ export const baseRouter = createTRPCRouter({
     addTables: protectedProcedure
     .input(z.object({ baseId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-
       const base = await ctx.db.base.findUnique(
         {
           where: {id: input.baseId},
           include: { tables: true }
         }
       )
-
       const tableAmount = base?.tableAmount || 0
       
       await ctx.db.table.create({
@@ -70,20 +68,17 @@ export const baseRouter = createTRPCRouter({
       }) 
     }),
     getTableRowsAhead: protectedProcedure
-    .input(z.object({ tableName: z.string(), baseId: z.string(), cursor: z.number().optional() }))
+    .input(z.object({ tableId: z.string(), cursor: z.number().optional() }))
     .query(async ({ ctx, input }) => {
-      const table = await ctx.db.table.findFirst({
-        where: { baseId: input.baseId, name: input.tableName }
-      })
-  
-      const rows = await ctx.db.row.findMany({
-        where: { tableId: table?.id, rowNum: { gte: input.cursor ?? 0 } },
-        orderBy: { rowNum: "asc" },
+      
+      let rows = await (ctx.db.row.findMany({
+        where: { tableId: input.tableId, rowNum: { gte: input.cursor ?? 0 } },
         take: 50,
-      })
-  
-      const newCursor = rows.length > 0 ? rows[rows.length - 1]?.rowNum : input.cursor ?? 0
+      })) ?? []
+      
+      const lastRow = rows[rows.length - 1];
+      const nextCursor = lastRow ? lastRow.rowNum + 1 : input.cursor ?? 0;      
       const hasMore = rows.length === 50
-      return { rows, newCursor, hasMore }
+      return { rows, nextCursor, hasMore }
     }),
 })

@@ -13,17 +13,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 export default function BasePage() {
   const [selectedTableName, setSelectedTableName] = useState<string>("Table 1")
   const [showGridView, setShowGridView] = useState<boolean>(false)
-  const scrollingRef = useRef<HTMLDivElement>(null);
   const utils = api.useUtils()
   const params = useParams()
   const baseId = String(params.baseId)
 
-  const { data: tableAmount, isLoading: loadingTableAmount } =
-    api.base.getTableAmount.useQuery({ baseId })
+  const { data: tableAmount, isLoading: loadingTableAmount } = api.base.getTableAmount.useQuery({ baseId })
 
   const { mutateAsync: addTableMutate } = api.base.addTables.useMutation({
     onSuccess: () => utils.base.getTableAmount.invalidate()
   })
+  const { data: table, isLoading: tableLoading, isFetching: tableFetching } = api.base.getTableFromName.useQuery({tableName: selectedTableName, baseId: baseId})
 
   function addTable() {
     addTableMutate({ baseId })
@@ -124,102 +123,8 @@ export default function BasePage() {
             <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
           </button>
         </div>
-        <div
-          style={{
-            height: "50px",
-            borderBottom: "solid grey 0.5px",
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "5px",
-            position: "sticky",
-            top: "88.5px",
-            background: "white",
-            zIndex: 9
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <button
-              onClick={() => setShowGridView(!showGridView)}
-              className="bell"
-              style={{
-                width: "30px",
-                height: "30px",
-                borderRadius: "5px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center"
-              }}
-            >
-              <img style={{ width: "15px", height: "20px" }} src="/hamburger.svg" />
-            </button>
-
-            <button
-              className="bell"
-              style={{
-                height: "30px",
-                borderRadius: "5px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "5px",
-                padding: "5px"
-              }}
-            >
-              <img style={{ width: "18px", height: "15px" }} src="/bTable.png" />
-              <span style={{ fontWeight: "500", fontSize: "13px" }}>Grid view</span>
-              <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
-            </button>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            {[
-              { src: "/hide.svg", label: "Hide fields", width: "100px" },
-              { src: "/filter.svg", label: "Filter" },
-              { src: "/groupStuff.svg", label: "Groups" },
-              { src: "/sort.svg", label: "Sort" },
-              { src: "/color.svg", label: "Color" },
-              { src: "/rowHeight.svg" },
-              { src: "/share.svg", label: "Share and sync", width: "130px" },
-              { src: "/search2.svg" }
-            ].map((btn, i) => (
-              <button
-                key={i}
-                className="bell"
-                style={{
-                  width: btn.width || "80px",
-                  flexShrink: 0,
-                  height: "30px",
-                  borderRadius: "5px",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  gap: "5px",
-                  padding: "5px"
-                }}
-              >
-                <img style={{ width: "20px", height: "20px" }} src={btn.src} />
-                {btn.label && (
-                  <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>{btn.label}</span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            height: "calc(100vh - 138.5px)",
-            width: "95vw"
-          }}
-        >
-          {showGridView && <GridBar />}
-
-          <div ref={scrollingRef} style={{ flex: 1, overflow: "auto" }}>
-            <div style={{ minWidth: "max-content" }}>
-              <Table key={selectedTableName} name={selectedTableName} baseId={baseId} scrollingRef={scrollingRef}/>
-            </div>
-          </div>
+        <div style={{width: "100%", height: "100%"}}>
+          {table ? <Table key={selectedTableName} table={table}/> : null}
         </div>
       </div>
     </div>

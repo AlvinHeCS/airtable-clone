@@ -1,5 +1,6 @@
 "use client"
 
+import { table } from "console";
 import { useState } from "react"
 import { api } from "~/trpc/react"
 
@@ -7,7 +8,9 @@ type TableRow = Record<string, string> & { rowId: string };
 
 interface prop {
     tableId: {
-        id: string
+        id: string;
+        tableName: string;
+        baseId: string;
         setModal: React.Dispatch<React.SetStateAction<boolean>>;
         setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
         setLocalHeaders: React.Dispatch<React.SetStateAction<string[]>>;
@@ -20,8 +23,11 @@ export default function NewColModal(NewColModalProp: prop) {
     const [newHeaderType, setNewHeaderType] = useState<string>("0");
     const utils = api.useUtils();
     const tableId = NewColModalProp.tableId
-    const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
-
+    const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation({
+        onSuccess: () => {
+          utils.base.getTableFromName.invalidate({ tableName: tableId.tableName, baseId: tableId.baseId });
+        },
+      });
     function addCol() {
         if (newHeaderVal !== "" && newHeaderType !== "") {
             let type;
@@ -43,7 +49,7 @@ export default function NewColModal(NewColModalProp: prop) {
     }
 
     return (
-        <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "300px", height: "150px", alignSelf: "flex-end", marginRight: "150px", marginTop: "30px", background: "white", display: "flex", flexDirection: "column", gap: "15px"}}>
+        <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "20vw", height: "150px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", marginLeft: "70vw", marginTop: "260px"}}>
             <input placeholder="field name (optional)" style={{width: "100%", height: "35px", fontSize: "12px", borderRadius: "5px", padding: "5px", border: "solid grey 1px"}} type="text" value={newHeaderVal} onChange={(e) => setNewHeaderVal(e.target.value)}></input>
             <select style={{width: "100%", fontSize: "12px", border: "solid grey 1px", borderRadius: "5px", height: "35px"}} value={newHeaderType} onChange={(e) => setNewHeaderType(e.target.value)}>
                 <option value="0">Single line text</option>
