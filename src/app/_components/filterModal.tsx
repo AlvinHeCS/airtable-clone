@@ -1,182 +1,110 @@
-// import { useState } from "react";
+import { useState, useEffect } from "react";
+import { api } from "~/trpc/react"
 
-// type Filter = {
-//   column: string;
-//   operator: string;
-//   value: string;
-// };
+type TableRow = Record<string, string> & { rowId: string };
 
-// export default function FilterModal() {
-//   const [filters, setFilters] = useState<Filter[]>([
-//     { column: "", operator: "contains", value: "" },
-//   ]);
+const filterTypes = [
+    "contains",
+    "not_contains",
+    "eq",
+    "gt",
+    "lt",
+    "empty",
+    "not_empty",
+] as const;
 
-//   const updateFilter = (index: number, key: keyof Filter, value: string) => {
-//     const newFilters = [...filters];
-//     if (newFilters[index]) {
-//         newFilters[index][key] = value;
-//         setFilters(newFilters);
-//     }
-//   };
+type OperatorType = typeof filterTypes[number];
 
-//   const addFilter = () => {
-//     setFilters([...filters, { column: "", operator: "contains", value: "" }]);
-//   };
+type Filter = {
+    id: string;
+    type: OperatorType;
+    value: string;
+    tableId: string;
+    columnIndex: number;
+};
 
-//   const removeFilter = (index: number) => {
-//     setFilters(filters.filter((_, i) => i !== index));
-//   };
+interface prop {
+    tableFilters: Filter[];
+    tableHeaders: string[];
+    tableId: string;
+    tableName: string;
+    baseId: string;
+    setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
+    setModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-//   return (
-//     <div
-//       style={{
-//         padding: "10px",
-//         border: "solid grey 1px",
-//         position: "fixed",
-//         width: "25vw",
-//         background: "white",
-//         display: "flex",
-//         flexDirection: "column",
-//         gap: "10px",
-//         zIndex: 1000,
-//         top: "20%",
-//         left: "50%",
-//         transform: "translateX(-50%)",
-//         maxHeight: "70vh",
-//         overflowY: "auto",
-//       }}
-//     >
-//       <h3 style={{ margin: 0, fontSize: "14px" }}>Filters</h3>
+export default function FilterModal(FilterModalProps: prop) {
+    const utils = api.useUtils();    
+    const [filters, setFilters] = useState<Filter[]>([]);
+    const [val, setVal] = useState<string>("");
+    const [col, setCol] = useState<number>(0);
+    const [operator, setOperator] = useState<OperatorType>("contains");
+    const { mutateAsync: addFilterAsync } = api.table.addFilter.useMutation({
+        onSuccess: () => {
+            utils.base.getTableFromName.setData(
+                { baseId: FilterModalProps.baseId, tableName: FilterModalProps.tableName }, 
+                undefined 
+              );            
+            utils.base.getTableFromName.invalidate({tableName: FilterModalProps.tableName, baseId: FilterModalProps.baseId});
+          }
+    });
+    const { mutateAsync: deleteFilterAsync } = api.table.removeFilter.useMutation({
+        onSuccess: () => {
+            utils.base.getTableFromName.setData(
+                { baseId: FilterModalProps.baseId, tableName: FilterModalProps.tableName }, 
+                undefined 
+              );            
+            utils.base.getTableFromName.invalidate({tableName: FilterModalProps.tableName, baseId: FilterModalProps.baseId});
+          }
+    });
 
-//       {filters.map((f, i) => (
-//         <div
-//           key={i}
-//           style={{
-//             display: "flex",
-//             gap: "5px",
-//             alignItems: "center",
-//           }}
-//         >
-//           <select
-//             value={f.column}
-//             onChange={(e) => updateFilter(i, "column", e.target.value)}
-//             style={{
-//               flex: 2,
-//               height: "30px",
-//               fontSize: "12px",
-//               borderRadius: "5px",
-//               border: "solid grey 1px",
-//             }}
-//           >
-//             <option value="">Select column</option>
-//             {columnOptions.map((col, idx) => (
-//               <option key={idx} value={col}>
-//                 {col}
-//               </option>
-//             ))}
-//           </select>
+    useEffect(() => {
+        setFilters(FilterModalProps.tableFilters);
+    }, [])    
 
-//           <select
-//             value={f.operator}
-//             onChange={(e) => updateFilter(i, "operator", e.target.value)}
-//             style={{
-//               flex: 2,
-//               height: "30px",
-//               fontSize: "12px",
-//               borderRadius: "5px",
-//               border: "solid grey 1px",
-//             }}
-//           >
-//             {operatorOptions.map((op, idx) => (
-//               <option key={idx} value={op}>
-//                 {op.replace("_", " ")}
-//               </option>
-//             ))}
-//           </select>
+    async function addFilter() {
+        if (operator) {
+            const newFilter = await addFilterAsync({tableId: FilterModalProps.tableId, colNum: col, filterType: operator, filterVal: val});
+            setFilters([...filters, newFilter]);
+        }
+    }
 
-//           {!(f.operator === "empty" || f.operator === "not_empty") && (
-//             <input
-//               type="text"
-//               value={f.value}
-//               onChange={(e) => updateFilter(i, "value", e.target.value)}
-//               placeholder="Value"
-//               style={{
-//                 flex: 3,
-//                 height: "30px",
-//                 fontSize: "12px",
-//                 borderRadius: "5px",
-//                 border: "solid grey 1px",
-//                 padding: "5px",
-//               }}
-//             />
-//           )}
+    async function deleteFilter(filterId: string) {
+        await deleteFilterAsync({filterId});
+        setFilters(filters.filter((filter) => {
+            return filter.id !== filterId;
+        }))
+    }   
 
-//           <button
-//             onClick={() => removeFilter(i)}
-//             style={{
-//               background: "red",
-//               color: "white",
-//               borderRadius: "5px",
-//               border: "none",
-//               height: "30px",
-//               padding: "0 5px",
-//               cursor: "pointer",
-//             }}
-//           >
-//             ✕
-//           </button>
-//         </div>
-//       ))}
-
-//       <button
-//         onClick={addFilter}
-//         style={{
-//           background: "#eee",
-//           border: "solid grey 1px",
-//           borderRadius: "5px",
-//           padding: "5px",
-//           fontSize: "12px",
-//           cursor: "pointer",
-//         }}
-//       >
-//         + Add Filter
-//       </button>
-
-//       <div
-//         style={{
-//           display: "flex",
-//           justifyContent: "space-between",
-//           marginTop: "10px",
-//         }}
-//       >
-//         <button
-//           onClick={onCancel}
-//           style={{
-//             background: "#aaa",
-//             fontWeight: 400,
-//             fontSize: "12px",
-//             width: "100px",
-//             height: "30px",
-//             borderRadius: "5px",
-//           }}
-//         >
-//           Cancel
-//         </button>
-//         <button
-//           onClick={() => onApply(filters)}
-//           style={{
-//             background: "#156FE2",
-//             fontWeight: 600,
-//             fontSize: "12px",
-//             color: "white",
-//             width: "100px",
-//             height: "30px",
-//             borderRadius: "5px",
-//           }}
-//         >
-//           Apply
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
+    return(
+        <div style={{width: "400px", background: "white", border: "solid black 1px"}}>
+            <div>
+                <div>
+                    <select value={col} onChange={(e) => setCol(Number(e.target.value))}>
+                        {FilterModalProps.tableHeaders.map((header, i) => {
+                            return(<option key={i} value={i}>{header}</option>)
+                        })}
+                    </select>
+                    <input type="text" placeholder="value" onChange={(e) => (setVal(e.target.value))}></input>
+                    <select value={operator} onChange={(e) => (setOperator(e.target.value as OperatorType))} >
+                        {filterTypes.map((type, i) => {
+                            return(<option key={i} value={type}>{type}</option>)
+                        })}
+                    </select>
+                </div>
+                <button onClick={addFilter}>AddFilter</button>
+            </div>
+            <div>
+                {filters.map((filter) => {
+                    return(<div key={filter.id}>
+                        <span>Value: {filter.value}</span>
+                        <span>Column: {FilterModalProps.tableHeaders[filter.columnIndex]}</span>
+                        <span>Filter: {filter.type}</span>
+                        <button onClick={() => (deleteFilter(filter.id))}>delete</button>
+                    </div>)
+                })}
+                <button onClick={() => FilterModalProps.setModal(false)}>Exit</button>
+            </div>
+        </div>
+    );
+}

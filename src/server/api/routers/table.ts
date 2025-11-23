@@ -12,35 +12,28 @@ export const tableRouter = createTRPCRouter({
     addRow: protectedProcedure
     .input(z.object({tableId: z.string()}))
     .mutation(async ({ ctx, input }) => {
-  
-      const table = await ctx.db.table.findUnique({
-        where: {id: input.tableId},
-      })
-      
-      const headers = table?.headers || [];
-      const headerTypes = table?.headerTypes || [];
-      const numRows = table?.numRows || -1
-      const cells = []
+      const newRow = await ctx.db.$transaction(async (tx) => {
 
-      for (let i = 0; i < headers.length; i++) {
-        if (headerTypes[i] === 0) {
-          cells.push(faker.person.fullName());
-        } else {
-          cells.push(String(faker.number.int({ min: 1, max: 100 })));
-        }
-      }
-  
-    const newRow = await ctx.db.row.create({
-        data: {
-          rowNum: numRows,
-          cells: cells,
-          tableId: input.tableId,
-        },
-      });
+        const table = await tx.table.update({
+          where: { id: input.tableId },
+          data: { numRows: { increment: 1 } },
+          select: { numRows: true, headers: true, headerTypes: true },
+        });
 
-      await ctx.db.table.update({
-        where: { id: input.tableId },
-        data: { numRows: numRows + 1 },
+        const rowNum = (table.numRows ?? 1) - 1; 
+        const cells = table.headers.map((_, i) =>
+          table.headerTypes[i] === 0
+            ? faker.person.fullName()
+            : String(faker.number.int({ min: 1, max: 100 }))
+        );
+
+        return tx.row.create({
+          data: {
+            rowNum,
+            cells,
+            tableId: input.tableId,
+          },
+        });
       });
 
       return newRow;
@@ -84,7 +77,6 @@ export const tableRouter = createTRPCRouter({
     .input(z.object({ tableId: z.string() }))
     .mutation(async ({ ctx, input }) => {
     
-      // 1. Fetch the table metadata
       const table = await ctx.db.table.findUnique({
         where: { id: input.tableId },
         select: { numRows: true, headers: true, headerTypes: true }
@@ -95,7 +87,6 @@ export const tableRouter = createTRPCRouter({
       const { numRows, headers, headerTypes } = table;
       const NUM_TO_ADD = 100_000;
     
-      // 2. Prepare 100k rows in memory
       const rowsToInsert = Array.from({ length: NUM_TO_ADD }, (_, i) => {
         const cells = headers.map((_, colIndex) => {
           return headerTypes[colIndex] === 0
@@ -110,7 +101,6 @@ export const tableRouter = createTRPCRouter({
         };
       });
     
-      // 3. Insert the rows in batches (Prisma limit = ~10k max per createMany)
       const BATCH_SIZE = 5000;
     
       for (let start = 0; start < rowsToInsert.length; start += BATCH_SIZE) {
@@ -119,7 +109,6 @@ export const tableRouter = createTRPCRouter({
         });
       }
     
-      // 4. Update the table numRows
       return await ctx.db.table.update({
         where: { id: input.tableId },
         data: { numRows: numRows + NUM_TO_ADD }
@@ -143,7 +132,6 @@ export const tableRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // store filter in a Filters table (you'll need a Filters model in Prisma)
       return ctx.db.filter.create({
         data: {
           tableId: input.tableId,
@@ -152,5 +140,13 @@ export const tableRouter = createTRPCRouter({
           value: input.filterVal ?? "",
         },
       });
+    }),
+    removeFilter: protectedProcedure
+    .input(z.object({filterId: z.string()}))
+    .mutation(async ({ctx, input}) => {
+      const deleted = await ctx.db.filter.delete({
+        where: {id: input.filterId}
+      })
+      return deleted;
     })
 })

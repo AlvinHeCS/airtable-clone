@@ -10,11 +10,31 @@ import StringCell from "./stringCell";
 import CircularProgress from '@mui/material/CircularProgress';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import GridBar from "~/app/_components/gridBar"
-// import FilterModal from "./filterModal";
+import FilterModal from "./filterModal";
 
 interface TableProp {
     table: Table;
 }
+
+const filterTypes = [
+  "contains",
+  "not_contains",
+  "eq",
+  "gt",
+  "lt",
+  "empty",
+  "not_empty",
+] as const;
+
+type OperatorType = typeof filterTypes[number];
+
+type Filter = {
+  id: string;
+  type: OperatorType;
+  value: string;
+  tableId: string;
+  columnIndex: number;
+};
 
 type Table = {
   id: string;
@@ -23,41 +43,48 @@ type Table = {
   headerTypes: number[];
   numRows: number;
   name: string;
+  filters: Filter[]
 }
 
 type TableRow = Record<string, string> & { rowId: string };
 
 
 export default function Table(prop: TableProp) {
-
-    const scrollingRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils();    
+  
     const [localHeaders, setLocalHeaders] = useState<string[]>([]);
     const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
+    const [data, setData] = useState<TableRow[]>([]);
 
     const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
-
-    const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; colIndex: number } | null>(null);
-    const [data, setData] = useState<TableRow[]>([]);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
+
+    const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
+    const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
+      onSuccess: () => {
+        utils.base.getTableRowsAhead.invalidate({ tableId: prop.table.id})
+        utils.base.getTableRowsAhead.setData(
+          { tableId: prop.table.id },
+          () => undefined 
+        );
+      }
+    });
+    
+
     const { data: infiniteData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, } = api.base.getTableRowsAhead.useInfiniteQuery( { tableId: prop.table.id },
        { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined } )
     const allRows = useMemo(() => {
       return infiniteData?.pages.flatMap(page => page.rows) ?? [];
     }, [infiniteData]);
-
-    // set up virtualizer with how many rows have been rendered, scroll element which is the container containg the table, and estimate size of each row
-    // virtualizer keeps tracking of scrolling
+    const scrollingRef = useRef<HTMLDivElement>(null);
     const virtualizer = useVirtualizer({
       count: allRows.length,
       getScrollElement: () => scrollingRef.current ?? null,
       estimateSize: () => 40,
     });
-
-    // how many rows is expected to be rendered on the page
     const virtualRows = virtualizer.getVirtualItems();
 
-    // if you are within 10 rows of the last row then render new rows in 
+    // get rows
     useEffect(() => {
       const lastRow = virtualRows[virtualRows.length - 1];
       if (!lastRow) return;
@@ -66,9 +93,6 @@ export default function Table(prop: TableProp) {
       }
     }, [virtualRows]);
     
-    
-    const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
-
     // set local table information
     useEffect(() => {
       const newData: TableRow[]=  allRows.map(row => {
@@ -136,7 +160,7 @@ export default function Table(prop: TableProp) {
       },
       meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number, second: boolean },
       cell: (info: CellContext<TableRow, string>) => {
-        if (localHeaderTypes[i] === 0) return <StringCell info={info} />;
+        if (localHeaderTypes[i] === 0) return <StringCell info={info} tableId={prop.table.id} tableName={prop.table.name} baseId={prop.table.baseId}/>;
         else return <NumCell info={info} />;
       },
     }));
@@ -150,15 +174,6 @@ export default function Table(prop: TableProp) {
     getCoreRowModel: getCoreRowModel(),
   });
   
-  const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
-    onSuccess: () => {
-      utils.base.getTableFromName.invalidate();
-    }
-  });
-  const add100kRow = () => {
-    mutateAsyncRow100k({tableId: prop.table.id});
-
-  }
 
   const navigateBetweenCells = (key: string, rowIndex: number, colIndex: number) => {
     let newRow = rowIndex;
@@ -180,7 +195,6 @@ export default function Table(prop: TableProp) {
       default:
         return;
     }  
-    setSelectedCell({ rowIndex: newRow, colIndex: newCol });
   
     const cellElement = document.querySelector(
       `td[data-row='${newRow}'][data-col='${newCol}']`
@@ -196,6 +210,9 @@ export default function Table(prop: TableProp) {
       rowData[header] = newRow.cells[i] ?? '';
     }
     setData((prevData) => [...prevData, rowData]);
+  }
+  const add100kRow = () => {
+    mutateAsyncRow100k({tableId: prop.table.id});
   }
 
     if (!allRows || allRows.length === 0) {
@@ -323,7 +340,7 @@ export default function Table(prop: TableProp) {
               </button>
             ))}
           </div>
-          {/* {showFilterModal ? <FilterModal onCancel={() => setShowFilterModal(false)}/> : null} */}
+          {showFilterModal ? <FilterModal tableFilters={prop.table.filters} tableHeaders={prop.table.headers} tableId={prop.table.id} setData={setData} setModal={setShowFilterModal} tableName={prop.table.name} baseId={prop.table.baseId}/> : null}
           {showColumnModal ? <NewColModal
             tableId={{
               id: prop.table.id,
@@ -377,12 +394,6 @@ export default function Table(prop: TableProp) {
                      data-col={(cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0}
                      tabIndex={0}
                      style={{ borderLeft: (cell.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (cell.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (cell.column.columnDef.meta as { width?: number })?.width ?? 200, fontSize: "12px", padding: "5px" }}
-                     onClick={() =>
-                       setSelectedCell({
-                         rowIndex: row.index,
-                         colIndex: (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0,
-                       })
-                     }
                      onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
                    >
                      {flexRender(cell.column.columnDef.cell, cell.getContext())}

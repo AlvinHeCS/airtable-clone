@@ -218,7 +218,15 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.FilterType = exports.$Enums.FilterType = {
+  contains: 'contains',
+  not_contains: 'not_contains',
+  eq: 'eq',
+  gt: 'gt',
+  lt: 'lt',
+  empty: 'empty',
+  not_empty: 'not_empty'
+};
 
 exports.Prisma.ModelName = {
   Post: 'Post',

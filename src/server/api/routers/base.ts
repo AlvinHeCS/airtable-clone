@@ -6,7 +6,15 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
-
+const filterTypes = z.enum([
+  "contains",
+  "not_contains",
+  "eq",
+  "gt",
+  "lt",
+  "empty",
+  "not_empty",
+]);
 
 export const baseRouter = createTRPCRouter({
     addTables: protectedProcedure
@@ -65,14 +73,21 @@ export const baseRouter = createTRPCRouter({
           baseId: input.baseId,     
           name: input.tableName 
         },
+        include: {
+          filters: true
+        }
       }) 
     }),
+
+
     getTableRowsAhead: protectedProcedure
-    .input(z.object({ tableId: z.string(), cursor: z.number().optional() }))
+    .input(z.object({ tableId: z.string(), cursor: z.number().optional()}))
     .query(async ({ ctx, input }) => {
-      
+
       let rows = await (ctx.db.row.findMany({
-        where: { tableId: input.tableId, rowNum: { gte: input.cursor ?? 0 } },
+        where: { tableId: input.tableId, 
+          rowNum: { gte: input.cursor ?? 0 },
+        },
         take: 50,
       })) ?? []
       

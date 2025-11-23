@@ -65,6 +65,28 @@ export type Filter = $Result.DefaultSelection<Prisma.$FilterPayload>
 export type Sort = $Result.DefaultSelection<Prisma.$SortPayload>
 
 /**
+ * Enums
+ */
+export namespace $Enums {
+  export const FilterType: {
+  contains: 'contains',
+  not_contains: 'not_contains',
+  eq: 'eq',
+  gt: 'gt',
+  lt: 'lt',
+  empty: 'empty',
+  not_empty: 'not_empty'
+};
+
+export type FilterType = (typeof FilterType)[keyof typeof FilterType]
+
+}
+
+export type FilterType = $Enums.FilterType
+
+export const FilterType: typeof $Enums.FilterType
+
+/**
  * ##  Prisma Client ʲˢ
  *
  * Type-safe database client for TypeScript & Node.js
@@ -10672,7 +10694,7 @@ export namespace Prisma {
     id: string | null
     tableId: string | null
     columnIndex: number | null
-    type: string | null
+    type: $Enums.FilterType | null
     value: string | null
   }
 
@@ -10680,7 +10702,7 @@ export namespace Prisma {
     id: string | null
     tableId: string | null
     columnIndex: number | null
-    type: string | null
+    type: $Enums.FilterType | null
     value: string | null
   }
 
@@ -10817,7 +10839,7 @@ export namespace Prisma {
     id: string
     tableId: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
     _count: FilterCountAggregateOutputType | null
     _avg: FilterAvgAggregateOutputType | null
@@ -10895,7 +10917,7 @@ export namespace Prisma {
       id: string
       tableId: string
       columnIndex: number
-      type: string
+      type: $Enums.FilterType
       value: string
     }, ExtArgs["result"]["filter"]>
     composites: {}
@@ -11324,7 +11346,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Filter", 'String'>
     readonly tableId: FieldRef<"Filter", 'String'>
     readonly columnIndex: FieldRef<"Filter", 'Int'>
-    readonly type: FieldRef<"Filter", 'String'>
+    readonly type: FieldRef<"Filter", 'FilterType'>
     readonly value: FieldRef<"Filter", 'String'>
   }
     
@@ -13018,6 +13040,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'FilterType'
+   */
+  export type EnumFilterTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FilterType'>
+    
+
+
+  /**
+   * Reference to a field of type 'FilterType[]'
+   */
+  export type ListEnumFilterTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FilterType[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Float'
    */
   export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -13531,7 +13567,7 @@ export namespace Prisma {
     id?: StringFilter<"Filter"> | string
     tableId?: StringFilter<"Filter"> | string
     columnIndex?: IntFilter<"Filter"> | number
-    type?: StringFilter<"Filter"> | string
+    type?: EnumFilterTypeFilter<"Filter"> | $Enums.FilterType
     value?: StringFilter<"Filter"> | string
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }
@@ -13552,7 +13588,7 @@ export namespace Prisma {
     NOT?: FilterWhereInput | FilterWhereInput[]
     tableId?: StringFilter<"Filter"> | string
     columnIndex?: IntFilter<"Filter"> | number
-    type?: StringFilter<"Filter"> | string
+    type?: EnumFilterTypeFilter<"Filter"> | $Enums.FilterType
     value?: StringFilter<"Filter"> | string
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }, "id">
@@ -13577,7 +13613,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Filter"> | string
     tableId?: StringWithAggregatesFilter<"Filter"> | string
     columnIndex?: IntWithAggregatesFilter<"Filter"> | number
-    type?: StringWithAggregatesFilter<"Filter"> | string
+    type?: EnumFilterTypeWithAggregatesFilter<"Filter"> | $Enums.FilterType
     value?: StringWithAggregatesFilter<"Filter"> | string
   }
 
@@ -14135,7 +14171,7 @@ export namespace Prisma {
   export type FilterCreateInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
     table: TableCreateNestedOneWithoutFiltersInput
   }
@@ -14144,14 +14180,14 @@ export namespace Prisma {
     id?: string
     tableId: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
   }
 
   export type FilterUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
     table?: TableUpdateOneRequiredWithoutFiltersNestedInput
   }
@@ -14160,7 +14196,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tableId?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
   }
 
@@ -14168,14 +14204,14 @@ export namespace Prisma {
     id?: string
     tableId: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
   }
 
   export type FilterUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
   }
 
@@ -14183,7 +14219,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tableId?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
   }
 
@@ -14773,6 +14809,13 @@ export namespace Prisma {
     rowNum?: SortOrder
   }
 
+  export type EnumFilterTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.FilterType | EnumFilterTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFilterTypeFilter<$PrismaModel> | $Enums.FilterType
+  }
+
   export type FilterCountOrderByAggregateInput = {
     id?: SortOrder
     tableId?: SortOrder
@@ -14803,6 +14846,16 @@ export namespace Prisma {
 
   export type FilterSumOrderByAggregateInput = {
     columnIndex?: SortOrder
+  }
+
+  export type EnumFilterTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FilterType | EnumFilterTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFilterTypeWithAggregatesFilter<$PrismaModel> | $Enums.FilterType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFilterTypeFilter<$PrismaModel>
+    _max?: NestedEnumFilterTypeFilter<$PrismaModel>
   }
 
   export type SortCountOrderByAggregateInput = {
@@ -15319,6 +15372,10 @@ export namespace Prisma {
     connect?: TableWhereUniqueInput
   }
 
+  export type EnumFilterTypeFieldUpdateOperationsInput = {
+    set?: $Enums.FilterType
+  }
+
   export type TableUpdateOneRequiredWithoutFiltersNestedInput = {
     create?: XOR<TableCreateWithoutFiltersInput, TableUncheckedCreateWithoutFiltersInput>
     connectOrCreate?: TableCreateOrConnectWithoutFiltersInput
@@ -15527,6 +15584,23 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumFilterTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.FilterType | EnumFilterTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFilterTypeFilter<$PrismaModel> | $Enums.FilterType
+  }
+
+  export type NestedEnumFilterTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.FilterType | EnumFilterTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.FilterType[] | ListEnumFilterTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumFilterTypeWithAggregatesFilter<$PrismaModel> | $Enums.FilterType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumFilterTypeFilter<$PrismaModel>
+    _max?: NestedEnumFilterTypeFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutPostsInput = {
@@ -16096,14 +16170,14 @@ export namespace Prisma {
   export type FilterCreateWithoutTableInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
   }
 
   export type FilterUncheckedCreateWithoutTableInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
   }
 
@@ -16213,7 +16287,7 @@ export namespace Prisma {
     id?: StringFilter<"Filter"> | string
     tableId?: StringFilter<"Filter"> | string
     columnIndex?: IntFilter<"Filter"> | number
-    type?: StringFilter<"Filter"> | string
+    type?: EnumFilterTypeFilter<"Filter"> | $Enums.FilterType
     value?: StringFilter<"Filter"> | string
   }
 
@@ -16607,7 +16681,7 @@ export namespace Prisma {
   export type FilterCreateManyTableInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.FilterType
     value: string
   }
 
@@ -16638,21 +16712,21 @@ export namespace Prisma {
   export type FilterUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
   }
 
   export type FilterUncheckedUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
   }
 
   export type FilterUncheckedUpdateManyWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
   }
 

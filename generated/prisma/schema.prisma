@@ -108,12 +108,22 @@ model Row {
   @@index([tableId, rowNum], name: "row_table_rownum_idx")
 }
 
+enum FilterType {
+  contains
+  not_contains
+  eq
+  gt
+  lt
+  empty
+  not_empty
+}
+
 model Filter {
-  id          String @id @default(cuid())
+  id          String     @id @default(cuid())
   tableId     String
-  table       Table  @relation(fields: [tableId], references: [id])
+  table       Table      @relation(fields: [tableId], references: [id])
   columnIndex Int
-  type        String
+  type        FilterType
   value       String
 }
 
