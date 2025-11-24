@@ -41,20 +41,28 @@ export default function FilterModal(FilterModalProps: prop) {
     const [operator, setOperator] = useState<OperatorType>("contains");
     const { mutateAsync: addFilterAsync } = api.table.addFilter.useMutation({
         onSuccess: () => {
-            utils.base.getTableFromName.setData(
-                { baseId: FilterModalProps.baseId, tableName: FilterModalProps.tableName }, 
-                undefined 
-              );            
-            utils.base.getTableFromName.invalidate({tableName: FilterModalProps.tableName, baseId: FilterModalProps.baseId});
+        utils.table.getTableWithRowsAhead.setData(
+          {         baseId: FilterModalProps.baseId,
+          tableName: FilterModalProps.tableName },
+          undefined
+        );
+        utils.table.getTableWithRowsAhead.invalidate({
+          baseId: FilterModalProps.baseId,
+          tableName: FilterModalProps.tableName
+        });
           }
     });
     const { mutateAsync: deleteFilterAsync } = api.table.removeFilter.useMutation({
         onSuccess: () => {
-            utils.base.getTableFromName.setData(
-                { baseId: FilterModalProps.baseId, tableName: FilterModalProps.tableName }, 
-                undefined 
-              );            
-            utils.base.getTableFromName.invalidate({tableName: FilterModalProps.tableName, baseId: FilterModalProps.baseId});
+        utils.table.getTableWithRowsAhead.setData(
+          {         baseId: FilterModalProps.baseId,
+          tableName: FilterModalProps.tableName },
+          undefined
+        );
+        utils.table.getTableWithRowsAhead.invalidate({
+          baseId: FilterModalProps.baseId,
+          tableName: FilterModalProps.tableName
+        });
           }
     });
 
