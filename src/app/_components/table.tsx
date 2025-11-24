@@ -84,11 +84,6 @@ export default function Table(tableProp: prop) {
 
     const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
       onSuccess: () => {
-        utils.table.getTableWithRowsAhead.setData(
-          {         baseId: tableProp.baseId,
-          tableName: tableProp.tableName },
-          undefined
-        );
         utils.table.getTableWithRowsAhead.invalidate({
           baseId: tableProp.baseId,
           tableName: tableProp.tableName

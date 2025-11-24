@@ -41,29 +41,19 @@ export default function FilterModal(FilterModalProps: prop) {
     const [operator, setOperator] = useState<OperatorType>("contains");
     const { mutateAsync: addFilterAsync } = api.table.addFilter.useMutation({
         onSuccess: () => {
-        utils.table.getTableWithRowsAhead.setData(
-          {         baseId: FilterModalProps.baseId,
-          tableName: FilterModalProps.tableName },
-          undefined
-        );
-        utils.table.getTableWithRowsAhead.invalidate({
-          baseId: FilterModalProps.baseId,
-          tableName: FilterModalProps.tableName
-        });
+            utils.table.getTableWithRowsAhead.reset({
+                baseId: FilterModalProps.baseId,
+                tableName: FilterModalProps.tableName
+            });
           }
     });
     const { mutateAsync: deleteFilterAsync } = api.table.removeFilter.useMutation({
         onSuccess: () => {
-        utils.table.getTableWithRowsAhead.setData(
-          {         baseId: FilterModalProps.baseId,
-          tableName: FilterModalProps.tableName },
-          undefined
-        );
-        utils.table.getTableWithRowsAhead.invalidate({
-          baseId: FilterModalProps.baseId,
-          tableName: FilterModalProps.tableName
-        });
-          }
+            utils.table.getTableWithRowsAhead.reset({
+                baseId: FilterModalProps.baseId,
+                tableName: FilterModalProps.tableName
+            });
+        }
     });
 
     useEffect(() => {

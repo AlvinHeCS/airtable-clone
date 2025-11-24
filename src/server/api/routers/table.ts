@@ -24,7 +24,20 @@ getTableWithRowsAhead: protectedProcedure
     // 2. Load rows with pagination
     const pageSize = 200;
     const rows = await ctx.db.row.findMany({
-      where: { tableId: table.id },
+      where: { 
+        tableId: table.id,
+        AND: table.filters.map((f) => ({
+          cells: {
+            some: {
+              colNum: f.columnIndex,
+              // string contains
+              ...(f.type === "contains" && {
+                val: { contains: f.value },
+              })
+            }
+          }
+        }))
+      },
       orderBy: { rowNum: "asc" },
       take: pageSize + 1,
       skip: input.cursor ?? 0,
@@ -47,6 +60,7 @@ getTableWithRowsAhead: protectedProcedure
       nextCursor
     };
   }),
+
   getTableFromName: protectedProcedure
   .input(z.object({tableName: z.string(), baseId: z.string()}))
   .query(({ctx, input}) => {
@@ -223,31 +237,6 @@ addCol: protectedProcedure
       where: { id: input.tableId },
       data: { numRows: numRows + NUM_TO_ADD },
     });
-  }),
-
-  getTableRowsAhead: protectedProcedure
-  .input(z.object({ tableId: z.string(), cursor: z.number().optional() }))
-  .query(async ({ ctx, input }) => {
-
-    const rows = await ctx.db.row.findMany({
-      where: {
-        tableId: input.tableId,
-        rowNum: { gte: input.cursor ?? 0 },
-      },
-      include: {
-        cells: true,
-      },
-      take: 50,
-      orderBy: {
-        rowNum: "asc",
-      },
-    }) ?? [];
-
-    const lastRow = rows[rows.length - 1];
-    const nextCursor = lastRow ? lastRow.rowNum + 1 : input.cursor ?? 0;
-    const hasMore = rows.length === 50;
-
-    return { rows, nextCursor, hasMore };
   }),
   addFilter: protectedProcedure
   .input(
