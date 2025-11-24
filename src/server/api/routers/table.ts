@@ -96,42 +96,54 @@ getTableWithRowsAhead: protectedProcedure
     });
   }),
   
-  addCol: protectedProcedure
-  .input(z.object({ tableId: z.string(), type: z.number(), header: z.string() }))
-  .mutation(async ({ ctx, input }) => {
-    await ctx.db.$transaction(async (tx) => {
-      
-      const table = await tx.table.update({
-        where: { id: input.tableId },
-        data: {
-          headers: { push: input.header },
-          headerTypes: { push: input.type },
-        },
-        select: {
-          headers: true,
-        },
-      });
+addCol: protectedProcedure
+.input(z.object({ tableId: z.string(), type: z.number(), header: z.string() }))
+.mutation(async ({ ctx, input }) => {
+  // 1️⃣ Update table headers
+  const table = await ctx.db.table.update({
+    where: { id: input.tableId },
+    data: {
+      headers: { push: input.header },
+      headerTypes: { push: input.type },
+    },
+    select: { headers: true, headerTypes: true },
+  });
 
-      const newColNum = table.headers.length - 1;
+  const newColNum = table.headers.length - 1;
 
-      const rows = await tx.row.findMany({
-        where: { tableId: input.tableId },
-        select: { id: true, rowNum: true },
-      });
+  // 2️⃣ Fetch rows
+  const rows = await ctx.db.row.findMany({
+    where: { tableId: input.tableId },
+    select: { id: true, rowNum: true },
+  });
 
-      if (rows.length === 0) return;
+  if (rows.length === 0) return [];
 
-      const cellsToInsert = rows.map((r) => ({
-        rowId: r.id,
-        colNum: newColNum,
-        val: "",       
-      }));
+  // 3️⃣ Construct cells in memory
+  const newCells = rows.map((r) => ({
+    rowId: r.id,
+    colNum: newColNum,
+    val: "", // initial value
+  }));
 
-      await tx.cell.createMany({
-        data: cellsToInsert,
-      });
-    });
-  }),
+  // 4️⃣ Insert all cells at once
+  await ctx.db.cell.createMany({
+    data: newCells,
+    skipDuplicates: true,
+  });
+
+  // 5️⃣ Return updated rows directly without extra query
+  const updatedRows = rows.map((r) => ({
+    ...r,
+    tableId: input.tableId,
+    cells: [
+      // Keep old cells empty, add the new cell
+      { ...newCells.find((c) => c.rowId === r.id) } as any,
+    ],
+  }));
+
+  return updatedRows;
+}),
     
   editCell: protectedProcedure
   .input(z.object({

@@ -72,16 +72,6 @@ export default function Table(tableProp: prop) {
       const allRows = useMemo(() => {
         return getTableWithRowsAheadData?.pages.flatMap((p) => p.rows) ?? [];
       }, [getTableWithRowsAheadData]);
-
-    // every time ableName swaps it first clears the cache then refetches
-    useEffect(() => {
-      console.log("tableName and prop has swapped", tableProp.baseId, tableProp.tableName);
-      
-      utils.table.getTableWithRowsAhead.invalidate({
-        baseId: tableProp.baseId,
-        tableName: tableProp.tableName
-      });
-    }, [tableProp.baseId, tableProp.tableName]);    
     
     const [localHeaders, setLocalHeaders] = useState<string[]>([]);
     const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
@@ -239,22 +229,70 @@ export default function Table(tableProp: prop) {
     cellElement?.focus();
   }
 
-  async function addRow() {
-    if (!table) return;
-  
-    const newRow = await mutateAsyncRow({ tableId: table.id });
-  
-    const rowData: TableRow = { rowId: newRow!.id };
-  
-    for (let i = 0; i < table.headers.length; i++) {
-      const header = table.headers[i] || "";
-      // find the cell for this column
-      const cell = newRow!.cells.find(c => c.colNum === i);
-      rowData[header] = cell?.val ?? "";
-    }
-  
-    setData(prevData => [...prevData, rowData]);
+async function addRow() {
+  if (!table) return;
+
+  // 1. Call mutation
+  const newRow = await mutateAsyncRow({ tableId: table.id });
+
+  const cachedRow = {
+    id: newRow!.id,
+    rowNum: newRow!.rowNum,
+    tableId: table.id,
+    cells: newRow!.cells.map(c => ({
+      id: c.id,
+      colNum: c.colNum,
+      val: c.val,
+      rowId: newRow!.id,
+    })),
+  };
+
+  // 2. Prepare TableRow object
+  const rowData: TableRow = { rowId: newRow!.id };
+  for (let i = 0; i < table.headers.length; i++) {
+    const header = table.headers[i] || "";
+    const cell = newRow!.cells.find(c => c.colNum === i);
+    rowData[header] = cell?.val ?? "";
   }
+
+  // 3. Update local state
+  setData(prev => [...prev, rowData]);
+
+  utils.table.getTableWithRowsAhead.setInfiniteData(
+    { baseId: tableProp.baseId, tableName: tableProp.tableName },
+    oldData => {
+      if (!oldData) {
+        return {
+          pages: [
+            {
+              table,
+              rows: [cachedRow],
+              nextCursor: null,
+            },
+          ],
+          pageParams: [],
+        };
+      }
+
+      const pages = [...oldData.pages];
+      const lastPageIndex = pages.length - 1;
+      const lastPage = pages[lastPageIndex];
+
+      pages[lastPageIndex] = {
+        ...lastPage,
+        table: lastPage!.table!, 
+        rows: [...lastPage!.rows, cachedRow],
+        nextCursor: lastPage!.nextCursor ?? null,
+      };
+
+      return {
+        ...oldData,
+        pages,
+        pageParams: oldData.pageParams,
+      };
+    }
+  );
+}
   const add100kRow = () => {
     mutateAsyncRow100k({tableId: table!.id});
   }

@@ -21,14 +21,50 @@ export default function StringCell(prop: CellProp) {
 
   const { mutateAsync } = api.table.editCell.useMutation();
 
-  const handleChange = (newVal: string) => {
-      setCellValue(newVal);
-      mutateAsync({ 
-        rowId: prop.info.row.original.rowId, 
-        col: colIndex, 
-        newVal 
-      }).catch(console.error);
-  };
+const handleChange = async (newVal: string) => {
+  setCellValue(newVal);
+
+  try {
+    await mutateAsync({ 
+      rowId: prop.info.row.original.rowId, 
+      col: colIndex, 
+      newVal 
+    });
+
+    // Update the cached infinite query
+    utils.table.getTableWithRowsAhead.setInfiniteData(
+      { baseId: prop.baseId, tableName: prop.tableName },
+      (oldData) => {
+        if (!oldData) return oldData;
+
+        // Update the correct cell in all pages
+        const newPages = oldData.pages.map(page => {
+          return {
+            ...page,
+            rows: page.rows.map(row => {
+              if (row.id !== prop.info.row.original.rowId) return row;
+
+              return {
+                ...row,
+                cells: row.cells.map(cell => {
+                  if (cell.colNum !== colIndex) return cell;
+                  return { ...cell, val: newVal };
+                }),
+              };
+            }),
+          };
+        });
+
+        return {
+          ...oldData,
+          pages: newPages,
+        };
+      }
+    );
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
       <input 

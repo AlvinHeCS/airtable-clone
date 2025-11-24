@@ -23,25 +23,65 @@ export default function NewColModal(NewColModalProp: prop) {
     const utils = api.useUtils();
     const tableId = NewColModalProp.tableId
     const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
-    function addCol() {
-        if (newHeaderVal !== "" && newHeaderType !== "") {
-            let type;
-            if (newHeaderType === "0") {
-                type = 0;
-            } else {
-                type = 1;
-            }
-            mutateAsyncCol({tableId: tableId.id, type: type, header: newHeaderVal});        
-            tableId.setLocalHeaders((prev) => [...prev, newHeaderVal]);
-            tableId.setLocalHeaderTypes((prev) => [...prev, type])
-            // data is an array containg table rows
-            tableId.setData((prev) => prev.map((row) => ({
-                ...row,
-                [newHeaderVal]: "",
-            })))
-        }
-        tableId.setModal(false); 
-    }
+async function addCol() {
+  if (newHeaderVal !== "" && newHeaderType !== "") {
+    const type = newHeaderType === "0" ? 0 : 1;
+
+    // Call your backend mutation, returns only the new cells
+    const updatedRows = await mutateAsyncCol({ tableId: tableId.id, type, header: newHeaderVal });
+
+    // Update local state immediately
+    tableId.setLocalHeaders((prev) => [...prev, newHeaderVal]);
+    tableId.setLocalHeaderTypes((prev) => [...prev, type]);
+    tableId.setData((prev) =>
+      prev.map((row) => ({
+        ...row,
+        [newHeaderVal]: "", // for UI rendering
+      }))
+    );
+
+    // Update the tRPC cache efficiently
+utils.table.getTableWithRowsAhead.setInfiniteData(
+  { baseId: tableId.baseId, tableName: tableId.tableName },
+  (oldData) => {
+    if (!oldData) return oldData;
+
+    const newPages = oldData.pages.map((page) => ({
+      ...page,
+      table: {
+        ...page.table,
+        headers: [...page.table.headers, newHeaderVal],
+        headerTypes: [...page.table.headerTypes, type],
+      },
+      rows: page.rows.map((row) => {
+        // Find the new cell for this row
+        const newCell = updatedRows.find((r) => r.id === row.id)?.cells[0];
+        if (!newCell) return row;
+
+        // Merge the new cell into the existing row.cells array
+        return {
+          ...row,
+          cells: [...row.cells, {
+            id: newCell.id,
+            colNum: newCell.colNum,
+            val: newCell.val,
+            rowId: newCell.rowId,
+          }],
+        };
+      }),
+    }));
+
+    return {
+      ...oldData,
+      pages: newPages,
+    };
+  }
+);
+  }
+
+  tableId.setModal(false);
+}
+
 
     return (
         <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "20vw", height: "150px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", marginLeft: "70vw", marginTop: "260px"}}>
