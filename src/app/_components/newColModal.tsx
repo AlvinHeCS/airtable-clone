@@ -22,11 +22,7 @@ export default function NewColModal(NewColModalProp: prop) {
     const [newHeaderType, setNewHeaderType] = useState<string>("0");
     const utils = api.useUtils();
     const tableId = NewColModalProp.tableId
-    const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation({
-        onSuccess: () => {
-          utils.base.getTableFromName.invalidate({ tableName: tableId.tableName, baseId: tableId.baseId });
-        },
-      });
+    const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
     function addCol() {
         if (newHeaderVal !== "" && newHeaderType !== "") {
             let type;

@@ -22,7 +22,7 @@ export default function StringCell(prop: CellProp) {
   const { mutateAsync } = api.table.editCell.useMutation({
     onSuccess: () => {
       utils.base.getTableFromName.invalidate({ tableName: prop.tableName, baseId: prop.baseId });
-      utils.base.getTableRowsAhead.invalidate({ tableId: prop.tableId })
+      utils.table.getTableRowsAhead.invalidate({ tableId: prop.tableId })
     },
   });
 

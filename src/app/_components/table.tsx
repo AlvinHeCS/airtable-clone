@@ -12,8 +12,9 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import GridBar from "~/app/_components/gridBar"
 import FilterModal from "./filterModal";
 
-interface TableProp {
-    table: Table;
+interface prop {
+    tableName: string;
+    baseId: string;
 }
 
 const filterTypes = [
@@ -49,9 +50,42 @@ type Table = {
 type TableRow = Record<string, string> & { rowId: string };
 
 
-export default function Table(prop: TableProp) {
+export default function Table(tableProp: prop) {
     const utils = api.useUtils();    
   
+      const {
+        data: getTableWithRowsAheadData,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
+      } = api.table.getTableWithRowsAhead.useInfiniteQuery(
+        {
+          baseId: tableProp.baseId,
+          tableName: tableProp.tableName,
+        },
+        {
+          getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+        }
+      );
+      const table = getTableWithRowsAheadData?.pages?.[0]?.table;
+
+      const allRows = useMemo(() => {
+        return getTableWithRowsAheadData?.pages.flatMap((p) => p.rows) ?? [];
+      }, [getTableWithRowsAheadData]);
+
+    // every time ableName swaps it first clears the cache then refetches
+    useEffect(() => {
+      utils.table.getTableWithRowsAhead.setData(
+        {         baseId: tableProp.baseId,
+        tableName: tableProp.tableName },
+        undefined
+      );
+      utils.table.getTableWithRowsAhead.invalidate({
+        baseId: tableProp.baseId,
+        tableName: tableProp.tableName
+      });
+    }, [tableProp.baseId, tableProp.tableName]);    
+    
     const [localHeaders, setLocalHeaders] = useState<string[]>([]);
     const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
     const [data, setData] = useState<TableRow[]>([]);
@@ -60,22 +94,21 @@ export default function Table(prop: TableProp) {
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
 
     const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
+
     const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
       onSuccess: () => {
-        utils.base.getTableRowsAhead.invalidate({ tableId: prop.table.id})
-        utils.base.getTableRowsAhead.setData(
-          { tableId: prop.table.id },
-          () => undefined 
+        utils.table.getTableWithRowsAhead.setData(
+          {         baseId: tableProp.baseId,
+          tableName: tableProp.tableName },
+          undefined
         );
+        utils.table.getTableWithRowsAhead.invalidate({
+          baseId: tableProp.baseId,
+          tableName: tableProp.tableName
+        });
       }
     });
-    
 
-    const { data: infiniteData, fetchNextPage, hasNextPage, isFetchingNextPage, refetch, } = api.base.getTableRowsAhead.useInfiniteQuery( { tableId: prop.table.id },
-       { getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined } )
-    const allRows = useMemo(() => {
-      return infiniteData?.pages.flatMap(page => page.rows) ?? [];
-    }, [infiniteData]);
     const scrollingRef = useRef<HTMLDivElement>(null);
     const virtualizer = useVirtualizer({
       count: allRows.length,
@@ -95,18 +128,25 @@ export default function Table(prop: TableProp) {
     
     // set local table information
     useEffect(() => {
-      const newData: TableRow[]=  allRows.map(row => {
+      if (!table || !allRows) return;
+    
+      const newData: TableRow[] = allRows.map(row => {
         const rowData: TableRow = { rowId: row.id };
-        prop.table.headers.forEach((header, i) => {
-          rowData[header] = row.cells[i] ?? "";
+    
+        // Map each header to the corresponding cell value
+        table.headers.forEach((header, i) => {
+          const cell = row.cells.find(c => c.colNum === i);
+          rowData[header] = cell?.val ?? "";
         });
+    
         return rowData;
-      })
+      });
+    
       setData(newData);
-      setLocalHeaders(prop.table.headers);
-      setLocalHeadersTypes(prop.table.headerTypes);
-        
-    }, [prop.table, allRows]);
+      setLocalHeaders(table.headers);
+      setLocalHeadersTypes(table.headerTypes);
+    
+    }, [table, allRows]);
 
 
   // create columns dynamically
@@ -160,8 +200,8 @@ export default function Table(prop: TableProp) {
       },
       meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number, second: boolean },
       cell: (info: CellContext<TableRow, string>) => {
-        if (localHeaderTypes[i] === 0) return <StringCell info={info} tableId={prop.table.id} tableName={prop.table.name} baseId={prop.table.baseId}/>;
-        else return <NumCell info={info} />;
+        if (localHeaderTypes[i] === 0) return <StringCell info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId}/>;
+        else return <NumCell info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId} />;
       },
     }));
     return [rowNumberCol, ...dataCols];
@@ -190,7 +230,7 @@ export default function Table(prop: TableProp) {
         newCol = Math.max(0, colIndex - 1);
         break;
       case "ArrowRight":
-        newCol = Math.min(prop.table.headers.length - 1, colIndex + 1);
+        newCol = Math.min(table!.headers.length - 1, colIndex + 1);
         break;
       default:
         return;
@@ -203,16 +243,23 @@ export default function Table(prop: TableProp) {
   }
 
   async function addRow() {
-    const newRow = await mutateAsyncRow({tableId: prop.table.id});
-    const rowData: TableRow = { rowId: newRow.id };
-    for (let i = 0; i < prop.table.headers.length; i++) {
-      const header = prop.table.headers[i] ?? '';
-      rowData[header] = newRow.cells[i] ?? '';
+    if (!table) return;
+  
+    const newRow = await mutateAsyncRow({ tableId: table.id });
+  
+    const rowData: TableRow = { rowId: newRow!.id };
+  
+    for (let i = 0; i < table.headers.length; i++) {
+      const header = table.headers[i] || "";
+      // find the cell for this column
+      const cell = newRow!.cells.find(c => c.colNum === i);
+      rowData[header] = cell?.val ?? "";
     }
-    setData((prevData) => [...prevData, rowData]);
+  
+    setData(prevData => [...prevData, rowData]);
   }
   const add100kRow = () => {
-    mutateAsyncRow100k({tableId: prop.table.id});
+    mutateAsyncRow100k({tableId: table!.id});
   }
 
     if (!allRows || allRows.length === 0) {
@@ -340,12 +387,12 @@ export default function Table(prop: TableProp) {
               </button>
             ))}
           </div>
-          {showFilterModal ? <FilterModal tableFilters={prop.table.filters} tableHeaders={prop.table.headers} tableId={prop.table.id} setData={setData} setModal={setShowFilterModal} tableName={prop.table.name} baseId={prop.table.baseId}/> : null}
+          {showFilterModal ? <FilterModal tableFilters={table!.filters} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowFilterModal} tableName={table!.name} baseId={table!.baseId}/> : null}
           {showColumnModal ? <NewColModal
             tableId={{
-              id: prop.table.id,
-              tableName: prop.table.name,
-              baseId: prop.table.baseId,
+              id: table!.id,
+              tableName: table!.name,
+              baseId: table!.baseId,
               setModal: setShowColumnModal,
               setData,
               setLocalHeaders,
@@ -405,7 +452,7 @@ export default function Table(prop: TableProp) {
            {/* add row and 100k row */}
            <tfoot>
              <tr>
-               <td colSpan={prop.table.headers.length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
+               <td colSpan={table!.headers.length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
                  <div style={{ display: "flex", gap: "4px" }}>
                    <button
                      onClick={addRow}

@@ -185,8 +185,14 @@ exports.Prisma.TableScalarFieldEnum = {
 exports.Prisma.RowScalarFieldEnum = {
   id: 'id',
   rowNum: 'rowNum',
-  cells: 'cells',
   tableId: 'tableId'
+};
+
+exports.Prisma.CellScalarFieldEnum = {
+  id: 'id',
+  colNum: 'colNum',
+  val: 'val',
+  rowId: 'rowId'
 };
 
 exports.Prisma.FilterScalarFieldEnum = {
@@ -237,6 +243,7 @@ exports.Prisma.ModelName = {
   Base: 'Base',
   Table: 'Table',
   Row: 'Row',
+  Cell: 'Cell',
   Filter: 'Filter',
   Sort: 'Sort'
 };

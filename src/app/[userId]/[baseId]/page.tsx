@@ -5,32 +5,31 @@ import { api } from "~/trpc/react"
 import Table from "~/app/_components/table"
 import BaseSideBar from "~/app/_components/baseSideBar"
 import BaseHeader from "~/app/_components/baseHeader"
-import GridBar from "~/app/_components/gridBar"
-import { useState, useRef } from "react"
+import { useState } from "react"
 import "./page.css"
 import CircularProgress from '@mui/material/CircularProgress';
 
 export default function BasePage() {
-  const [selectedTableName, setSelectedTableName] = useState<string>("Table 1")
-  const [showGridView, setShowGridView] = useState<boolean>(false)
   const utils = api.useUtils()
   const params = useParams()
   const baseId = String(params.baseId)
-
-  const { data: tableAmount, isLoading: loadingTableAmount } = api.base.getTableAmount.useQuery({ baseId })
+  const [selectedTableName, setSelectedTableName] = useState<string>("Table 1")
+  const { data: tables, isLoading: loadingTables } = api.base.getTables.useQuery({ baseId })
 
   const { mutateAsync: addTableMutate } = api.base.addTables.useMutation({
-    onSuccess: () => utils.base.getTableAmount.invalidate()
+    onSuccess: () => { 
+      utils.base.getTables.setData({baseId}, undefined);
+      utils.base.getTables.invalidate({ baseId });
+    }
   })
-  const { data: table, isLoading: tableLoading, isFetching: tableFetching } = api.base.getTableFromName.useQuery({tableName: selectedTableName, baseId: baseId})
 
   function addTable() {
     addTableMutate({ baseId })
   }
 
-  if (loadingTableAmount) {
+  if (loadingTables) {
     return(
-        <div style={{display: "flex", width: "100%", height: "80vh", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading Bases <CircularProgress size="20px"/></div>
+        <div style={{display: "flex", width: "100%", height: "80vh", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading tables <CircularProgress size="20px"/></div>
     )
   }
 
@@ -55,10 +54,9 @@ export default function BasePage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-            {Array.from({ length: tableAmount ?? 0 }).map((_, index) => {
+            {tables!.map((_, index) => {
               const tableName = `Table ${index + 1}`
               const isSelected = selectedTableName === tableName
-
               return (
                 <div key={index}>
                   <button
@@ -124,7 +122,7 @@ export default function BasePage() {
           </button>
         </div>
         <div style={{width: "100%", height: "100%"}}>
-          {table ? <Table key={selectedTableName} table={table}/> : null}
+          <Table key={selectedTableName} tableName={selectedTableName} baseId={baseId}/>
         </div>
       </div>
     </div>

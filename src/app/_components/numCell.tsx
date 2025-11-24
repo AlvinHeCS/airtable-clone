@@ -10,20 +10,27 @@ type TableRow = Record<string, string> & { rowId: string };
 
 interface CellProp {
   info: CellContext<TableRow, string>;
+  baseId: string;
+  tableName: string;
+  tableId: string;
 }
 
-export default function StringCell({ info }: CellProp) {
+export default function StringCell(prop: CellProp) {
   const utils = api.useUtils();
-  const colIndex = (info.column.columnDef.meta as { colIndex: number }).colIndex;
+  const colIndex = (prop.info.column.columnDef.meta as { colIndex: number }).colIndex;
 
-  const [cellValue, setCellValue] = useState<string>(info.getValue() ?? "");
+  const [cellValue, setCellValue] = useState<string>(prop.info.getValue() ?? "");
 
-  const { mutateAsync } = api.table.editCell.useMutation();
-
+  const { mutateAsync } = api.table.editCell.useMutation({
+    onSuccess: () => {
+      utils.base.getTableFromName.invalidate({ tableName: prop.tableName, baseId: prop.baseId });
+      utils.table.getTableRowsAhead.invalidate({ tableId: prop.tableId })
+    },
+  });
   const handleChange = (newVal: string) => {
       setCellValue(newVal);
       mutateAsync({ 
-        rowId: info.row.original.rowId, 
+        rowId: prop.info.row.original.rowId, 
         col: colIndex, 
         newVal 
       }).catch(console.error);

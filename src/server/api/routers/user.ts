@@ -22,12 +22,11 @@ export const userRouter = createTRPCRouter({
     addBase: protectedProcedure
     .mutation(async ({ ctx }) => {
       const userId = ctx.session.user.id;
-      
       const newBase = await ctx.db.base.create({
         data: {
           user: { connect: { id: userId } },
           name: "Untitled Base",
-          tableAmount: 1,             
+          tableAmount: 1,
           tables: {
             create: [
               {
@@ -39,8 +38,15 @@ export const userRouter = createTRPCRouter({
                   create: [
                     {
                       rowNum: 0,
-                      cells: [faker.person.fullName(), faker.person.fullName(), String(faker.number.int({ min: 1, max: 100 })), String(faker.number.int({ min: 1, max: 100 }))]
-                    }, 
+                      cells: {
+                        create: [
+                          { colNum: 0, val: faker.person.fullName()},
+                          { colNum: 1, val: faker.person.fullName()},
+                          { colNum: 2, val: String(faker.number.int({ min: 1, max: 100 }))},
+                          { colNum: 3, val: String(faker.number.int({ min: 1, max: 100 }))},
+                        ],
+                      },
+                    },
                   ],
                 },
               },
@@ -48,27 +54,25 @@ export const userRouter = createTRPCRouter({
           },
         },
         include: {
-          tables: true,
+          tables: {
+            include: {
+              rows: {
+                include: {
+                  cells: true,
+                },
+              },
+            },
+          },
         },
       });
-
+  
       return newBase;
-    }),
+    }),  
     getBaseTables: protectedProcedure
     .input(z.object({ baseId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const base = await ctx.db.base.findUnique(
-        {
-          where: {id: input.baseId},
-          include: { 
-            tables: {
-              include: {
-                rows: true
-              }
-            }
-           },
-        }
-      )
-      return base?.tables || []
+      return await ctx.db.table.findMany({
+        where: {baseId: input.baseId}
+      })
     })
 })

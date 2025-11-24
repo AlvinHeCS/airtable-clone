@@ -6,147 +6,270 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
-
-
 export const tableRouter = createTRPCRouter({
-    addRow: protectedProcedure
-    .input(z.object({tableId: z.string()}))
-    .mutation(async ({ ctx, input }) => {
-      const newRow = await ctx.db.$transaction(async (tx) => {
+getTableWithRowsAhead: protectedProcedure
+  .input(z.object({
+    baseId: z.string(),
+    tableName: z.string(),
+    cursor: z.number().optional()
+  }))
+  .query(async ({ ctx, input }) => {
+    // 1. Load table once
+    const table = await ctx.db.table.findFirst({
+      where: { baseId: input.baseId, name: input.tableName },
+      include: { filters: true }
+    });
+    if (!table) throw new Error("Table not found");
 
-        const table = await tx.table.update({
-          where: { id: input.tableId },
-          data: { numRows: { increment: 1 } },
-          select: { numRows: true, headers: true, headerTypes: true },
-        });
-
-        const rowNum = (table.numRows ?? 1) - 1; 
-        const cells = table.headers.map((_, i) =>
-          table.headerTypes[i] === 0
-            ? faker.person.fullName()
-            : String(faker.number.int({ min: 1, max: 100 }))
-        );
-
-        return tx.row.create({
-          data: {
-            rowNum,
-            cells,
-            tableId: input.tableId,
-          },
-        });
-      });
-
-      return newRow;
-    }),
-  
-    addCol: protectedProcedure
-    .input(z.object({ tableId: z.string(), type: z.number(), header: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      await ctx.db.$transaction([
-        ctx.db.row.updateMany({
-          where: { tableId: input.tableId },
-          data: { cells: { push: "" } },
-        }),
-        ctx.db.table.update({
-          where: { id: input.tableId },
-          data: { headers: { push: input.header }, headerTypes: { push: input.type } },
-        }),
-      ]);
-    }),
-    
-    editCell: protectedProcedure
-    .input(z.object({rowId: z.string(), col: z.number(), newVal: z.string()}))
-    .mutation(async ({ctx, input}) => {
-      let row = await ctx.db.row.findUnique({
-        where: {id: input.rowId}
-      })
-      if (!row) {
-        throw new Error("row not found")
-      }
-      const updatedCells = row.cells.map((val, idx) =>
-        idx === input.col ? input.newVal : val
-      );
-      await ctx.db.row.update({
-        where: {id: input.rowId},
-        data: {
-          cells: updatedCells
+    // 2. Load rows with pagination
+    const pageSize = 200;
+    const rows = await ctx.db.row.findMany({
+      where: { tableId: table.id },
+      orderBy: { rowNum: "asc" },
+      take: pageSize + 1,
+      skip: input.cursor ?? 0,
+      include: {
+        cells: {
+          orderBy: { colNum: "asc" },  
         }
-      });
-    }),
-    add100kRow: protectedProcedure
-    .input(z.object({ tableId: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-    
-      const table = await ctx.db.table.findUnique({
-        where: { id: input.tableId },
-        select: { numRows: true, headers: true, headerTypes: true }
-      });
-    
-      if (!table) throw new Error("Table not found");
-    
-      const { numRows, headers, headerTypes } = table;
-      const NUM_TO_ADD = 100_000;
-    
-      const rowsToInsert = Array.from({ length: NUM_TO_ADD }, (_, i) => {
-        const cells = headers.map((_, colIndex) => {
-          return headerTypes[colIndex] === 0
-            ? faker.person.fullName()
-            : String(faker.number.int({ min: 1, max: 100 }));
-        });
-    
-        return {
-          tableId: input.tableId,
-          rowNum: numRows + i,
-          cells
-        };
-      });
-    
-      const BATCH_SIZE = 5000;
-    
-      for (let start = 0; start < rowsToInsert.length; start += BATCH_SIZE) {
-        await ctx.db.row.createMany({
-          data: rowsToInsert.slice(start, start + BATCH_SIZE)
-        });
       }
-    
-      return await ctx.db.table.update({
+    });
+
+    let nextCursor: number | null = null;
+    if (rows.length > pageSize) {
+      rows.pop(); 
+      nextCursor = (input.cursor ?? 0) + pageSize;
+    }
+
+    return {
+      table,
+      rows,
+      nextCursor
+    };
+  }),
+  getTableFromName: protectedProcedure
+  .input(z.object({tableName: z.string(), baseId: z.string()}))
+  .query(({ctx, input}) => {
+    return ctx.db.table.findFirst({
+      where: {
+        baseId: input.baseId,     
+        name: input.tableName 
+      },
+      include: {
+        filters: true
+      }
+    }) 
+  }),
+  addRow: protectedProcedure
+  .input(z.object({ tableId: z.string() }))
+  .mutation(async ({ ctx, input }) => {
+    return await ctx.db.$transaction(async (tx) => {
+      const table = await tx.table.update({
         where: { id: input.tableId },
-        data: { numRows: numRows + NUM_TO_ADD }
+        data: { numRows: { increment: 1 } },
+        select: { numRows: true, headers: true, headerTypes: true },
       });
-    }),
-    addFilter: protectedProcedure
-    .input(
-      z.object({
-        tableId: z.string(),
-        colNum: z.number(),
-        filterVal: z.string().optional(),
-        filterType: z.enum([
-          "contains",
-          "not_contains",
-          "eq",
-          "gt",
-          "lt",
-          "empty",
-          "not_empty",
-        ]),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.filter.create({
+
+      const rowNum = (table.numRows ?? 1) - 1;
+
+      const newRow = await tx.row.create({
         data: {
+          rowNum,
           tableId: input.tableId,
-          columnIndex: input.colNum,
-          type: input.filterType,
-          value: input.filterVal ?? "",
         },
       });
-    }),
-    removeFilter: protectedProcedure
-    .input(z.object({filterId: z.string()}))
-    .mutation(async ({ctx, input}) => {
-      const deleted = await ctx.db.filter.delete({
-        where: {id: input.filterId}
-      })
-      return deleted;
+
+      const cellsData = table.headers.map((_, i) => ({
+        rowId: newRow.id,
+        colNum: i,
+        val: table.headerTypes[i] === 0
+          ? faker.person.fullName()
+          : String(faker.number.int({ min: 1, max: 100 })),
+      }));
+
+      await tx.cell.createMany({ data: cellsData });
+
+      return tx.row.findUnique({
+        where: { id: newRow.id },
+        include: { cells: true },
+      });
+    });
+  }),
+  
+  addCol: protectedProcedure
+  .input(z.object({ tableId: z.string(), type: z.number(), header: z.string() }))
+  .mutation(async ({ ctx, input }) => {
+    await ctx.db.$transaction(async (tx) => {
+      
+      const table = await tx.table.update({
+        where: { id: input.tableId },
+        data: {
+          headers: { push: input.header },
+          headerTypes: { push: input.type },
+        },
+        select: {
+          headers: true,
+        },
+      });
+
+      const newColNum = table.headers.length - 1;
+
+      const rows = await tx.row.findMany({
+        where: { tableId: input.tableId },
+        select: { id: true, rowNum: true },
+      });
+
+      if (rows.length === 0) return;
+
+      const cellsToInsert = rows.map((r) => ({
+        rowId: r.id,
+        colNum: newColNum,
+        val: "",       
+      }));
+
+      await tx.cell.createMany({
+        data: cellsToInsert,
+      });
+    });
+  }),
+    
+  editCell: protectedProcedure
+  .input(z.object({
+    rowId: z.string(),
+    col: z.number(),
+    newVal: z.string()
+  }))
+  .mutation(async ({ ctx, input }) => {
+
+    await ctx.db.cell.updateMany({
+      where: {
+        rowId: input.rowId,
+        colNum: input.col
+      },
+      data: {
+        val: input.newVal
+      }
+    });
+  }),
+  add100kRow: protectedProcedure
+  .input(z.object({ tableId: z.string() }))
+  .mutation(async ({ ctx, input }) => {
+
+    const table = await ctx.db.table.findUnique({
+      where: { id: input.tableId },
+      select: { numRows: true, headers: true, headerTypes: true }
+    });
+
+    if (!table) throw new Error("Table not found");
+
+    const { numRows, headers, headerTypes } = table;
+    const NUM_TO_ADD = 100_000;
+
+    const rows = Array.from({ length: NUM_TO_ADD }, (_, i) => ({
+      id: `row_${i}_${crypto.randomUUID()}`,
+      tableId: input.tableId,
+      rowNum: numRows + i,
+    }));
+
+    const ROW_BATCH = 5000;
+    for (let i = 0; i < rows.length; i += ROW_BATCH) {
+      await ctx.db.row.createMany({
+        data: rows.slice(i, i + ROW_BATCH)
+      });
+    }
+
+    const cells: {
+      rowId: string;
+      colNum: number;
+      val: string;
+    }[] = [];
+
+    for (let r = 0; r < NUM_TO_ADD; r++) {
+      const rowId = rows[r]!.id;
+
+      for (let c = 0; c < headers.length; c++) {
+        const v = headerTypes[c] === 0
+          ? faker.person.fullName()
+          : String(faker.number.int({ min: 1, max: 100 }));
+
+        cells.push({
+          rowId,
+          colNum: c,
+          val: v,
+        });
+      }
+    }
+
+    const CELL_BATCH = 20_000;
+    for (let i = 0; i < cells.length; i += CELL_BATCH) {
+      await ctx.db.cell.createMany({
+        data: cells.slice(i, i + CELL_BATCH),
+      });
+    }
+
+    return ctx.db.table.update({
+      where: { id: input.tableId },
+      data: { numRows: numRows + NUM_TO_ADD },
+    });
+  }),
+
+  getTableRowsAhead: protectedProcedure
+  .input(z.object({ tableId: z.string(), cursor: z.number().optional() }))
+  .query(async ({ ctx, input }) => {
+
+    const rows = await ctx.db.row.findMany({
+      where: {
+        tableId: input.tableId,
+        rowNum: { gte: input.cursor ?? 0 },
+      },
+      include: {
+        cells: true,
+      },
+      take: 50,
+      orderBy: {
+        rowNum: "asc",
+      },
+    }) ?? [];
+
+    const lastRow = rows[rows.length - 1];
+    const nextCursor = lastRow ? lastRow.rowNum + 1 : input.cursor ?? 0;
+    const hasMore = rows.length === 50;
+
+    return { rows, nextCursor, hasMore };
+  }),
+  addFilter: protectedProcedure
+  .input(
+    z.object({
+      tableId: z.string(),
+      colNum: z.number(),
+      filterVal: z.string().optional(),
+      filterType: z.enum([
+        "contains",
+        "not_contains",
+        "eq",
+        "gt",
+        "lt",
+        "empty",
+        "not_empty",
+      ]),
     })
+  )
+  .mutation(async ({ ctx, input }) => {
+    return ctx.db.filter.create({
+      data: {
+        tableId: input.tableId,
+        columnIndex: input.colNum,
+        type: input.filterType,
+        value: input.filterVal ?? "",
+      },
+    });
+  }),
+  removeFilter: protectedProcedure
+  .input(z.object({filterId: z.string()}))
+  .mutation(async ({ctx, input}) => {
+    const deleted = await ctx.db.filter.delete({
+      where: {id: input.filterId}
+    })
+    return deleted;
+  })
 })
