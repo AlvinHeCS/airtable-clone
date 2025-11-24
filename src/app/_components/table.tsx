@@ -75,11 +75,8 @@ export default function Table(tableProp: prop) {
 
     // every time ableName swaps it first clears the cache then refetches
     useEffect(() => {
-      utils.table.getTableWithRowsAhead.setData(
-        {         baseId: tableProp.baseId,
-        tableName: tableProp.tableName },
-        undefined
-      );
+      console.log("tableName and prop has swapped", tableProp.baseId, tableProp.tableName);
+      
       utils.table.getTableWithRowsAhead.invalidate({
         baseId: tableProp.baseId,
         tableName: tableProp.tableName

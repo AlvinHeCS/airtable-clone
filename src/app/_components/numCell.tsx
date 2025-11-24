@@ -21,12 +21,7 @@ export default function StringCell(prop: CellProp) {
 
   const [cellValue, setCellValue] = useState<string>(prop.info.getValue() ?? "");
 
-  const { mutateAsync } = api.table.editCell.useMutation({
-    onSuccess: () => {
-      utils.base.getTableFromName.invalidate({ tableName: prop.tableName, baseId: prop.baseId });
-      utils.table.getTableRowsAhead.invalidate({ tableId: prop.tableId })
-    },
-  });
+  const { mutateAsync } = api.table.editCell.useMutation();
   const handleChange = (newVal: string) => {
       setCellValue(newVal);
       mutateAsync({ 
