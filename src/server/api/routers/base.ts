@@ -26,11 +26,12 @@ export const baseRouter = createTRPCRouter({
     });
 
     const tableAmount = base?.tableAmount || 0;
-
+    const randomNumber1 = faker.number.int({ min: 1, max: 100 });
+    const randomNumber2 = faker.number.int({ min: 1, max: 100 });
     const newTable = await ctx.db.table.create({
       data: {
         name: `Table ${tableAmount + 1}`,
-        headers: ["A Name", "Assignee", "Status", "Attachments"],
+        headers: ["Name", "Assignee", "Status", "Attachments"],
         headerTypes: [0, 0, 1, 1],
         numRows: 1,
         base: { connect: { id: input.baseId } },
@@ -42,8 +43,8 @@ export const baseRouter = createTRPCRouter({
                 create: [
                   { colNum: 0, val: faker.person.fullName()},
                   { colNum: 1, val: faker.person.fullName()},
-                  { colNum: 2, val: String(faker.number.int({ min: 1, max: 100 }))},
-                  { colNum: 3, val: String(faker.number.int({ min: 1, max: 100 }))},
+                  { colNum: 2, val: String(randomNumber1), numVal: randomNumber1 },
+                  { colNum: 3, val: String(randomNumber2), numVal: randomNumber2 },
                 ],
               },
             },

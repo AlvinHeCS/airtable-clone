@@ -22,6 +22,8 @@ export const userRouter = createTRPCRouter({
     addBase: protectedProcedure
     .mutation(async ({ ctx }) => {
       const userId = ctx.session.user.id;
+      const randomNumber1 = faker.number.int({ min: 1, max: 100 });
+      const randomNumber2 = faker.number.int({ min: 1, max: 100 });
       const newBase = await ctx.db.base.create({
         data: {
           user: { connect: { id: userId } },
@@ -42,8 +44,8 @@ export const userRouter = createTRPCRouter({
                         create: [
                           { colNum: 0, val: faker.person.fullName()},
                           { colNum: 1, val: faker.person.fullName()},
-                          { colNum: 2, val: String(faker.number.int({ min: 1, max: 100 }))},
-                          { colNum: 3, val: String(faker.number.int({ min: 1, max: 100 }))},
+                          { colNum: 2, val: String(randomNumber1), numVal: randomNumber1 },
+                          { colNum: 3, val: String(randomNumber2), numVal: randomNumber2 },
                         ],
                       },
                     },

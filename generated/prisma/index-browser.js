@@ -192,6 +192,7 @@ exports.Prisma.CellScalarFieldEnum = {
   id: 'id',
   colNum: 'colNum',
   val: 'val',
+  numVal: 'numVal',
   rowId: 'rowId'
 };
 

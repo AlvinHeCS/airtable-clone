@@ -117,6 +117,7 @@ model Cell {
   id     String @id @default(cuid())
   colNum Int
   val    String
+  numVal Int?
   rowId  String
   row    Row    @relation(fields: [rowId], references: [id])
 

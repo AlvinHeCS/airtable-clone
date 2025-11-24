@@ -65,6 +65,7 @@ utils.table.getTableWithRowsAhead.setInfiniteData(
             id: newCell.id,
             colNum: newCell.colNum,
             val: newCell.val,
+            numVal: newCell.numVal,
             rowId: newCell.rowId,
           }],
         };

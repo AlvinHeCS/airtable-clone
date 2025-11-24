@@ -10839,16 +10839,19 @@ export namespace Prisma {
 
   export type CellAvgAggregateOutputType = {
     colNum: number | null
+    numVal: number | null
   }
 
   export type CellSumAggregateOutputType = {
     colNum: number | null
+    numVal: number | null
   }
 
   export type CellMinAggregateOutputType = {
     id: string | null
     colNum: number | null
     val: string | null
+    numVal: number | null
     rowId: string | null
   }
 
@@ -10856,6 +10859,7 @@ export namespace Prisma {
     id: string | null
     colNum: number | null
     val: string | null
+    numVal: number | null
     rowId: string | null
   }
 
@@ -10863,6 +10867,7 @@ export namespace Prisma {
     id: number
     colNum: number
     val: number
+    numVal: number
     rowId: number
     _all: number
   }
@@ -10870,16 +10875,19 @@ export namespace Prisma {
 
   export type CellAvgAggregateInputType = {
     colNum?: true
+    numVal?: true
   }
 
   export type CellSumAggregateInputType = {
     colNum?: true
+    numVal?: true
   }
 
   export type CellMinAggregateInputType = {
     id?: true
     colNum?: true
     val?: true
+    numVal?: true
     rowId?: true
   }
 
@@ -10887,6 +10895,7 @@ export namespace Prisma {
     id?: true
     colNum?: true
     val?: true
+    numVal?: true
     rowId?: true
   }
 
@@ -10894,6 +10903,7 @@ export namespace Prisma {
     id?: true
     colNum?: true
     val?: true
+    numVal?: true
     rowId?: true
     _all?: true
   }
@@ -10988,6 +10998,7 @@ export namespace Prisma {
     id: string
     colNum: number
     val: string
+    numVal: number | null
     rowId: string
     _count: CellCountAggregateOutputType | null
     _avg: CellAvgAggregateOutputType | null
@@ -11014,6 +11025,7 @@ export namespace Prisma {
     id?: boolean
     colNum?: boolean
     val?: boolean
+    numVal?: boolean
     rowId?: boolean
     row?: boolean | RowDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cell"]>
@@ -11022,6 +11034,7 @@ export namespace Prisma {
     id?: boolean
     colNum?: boolean
     val?: boolean
+    numVal?: boolean
     rowId?: boolean
     row?: boolean | RowDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cell"]>
@@ -11030,6 +11043,7 @@ export namespace Prisma {
     id?: boolean
     colNum?: boolean
     val?: boolean
+    numVal?: boolean
     rowId?: boolean
     row?: boolean | RowDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["cell"]>
@@ -11038,10 +11052,11 @@ export namespace Prisma {
     id?: boolean
     colNum?: boolean
     val?: boolean
+    numVal?: boolean
     rowId?: boolean
   }
 
-  export type CellOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "colNum" | "val" | "rowId", ExtArgs["result"]["cell"]>
+  export type CellOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "colNum" | "val" | "numVal" | "rowId", ExtArgs["result"]["cell"]>
   export type CellInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     row?: boolean | RowDefaultArgs<ExtArgs>
   }
@@ -11061,6 +11076,7 @@ export namespace Prisma {
       id: string
       colNum: number
       val: string
+      numVal: number | null
       rowId: string
     }, ExtArgs["result"]["cell"]>
     composites: {}
@@ -11489,6 +11505,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Cell", 'String'>
     readonly colNum: FieldRef<"Cell", 'Int'>
     readonly val: FieldRef<"Cell", 'String'>
+    readonly numVal: FieldRef<"Cell", 'Int'>
     readonly rowId: FieldRef<"Cell", 'String'>
   }
     
@@ -14184,6 +14201,7 @@ export namespace Prisma {
     id: 'id',
     colNum: 'colNum',
     val: 'val',
+    numVal: 'numVal',
     rowId: 'rowId'
   };
 
@@ -14808,6 +14826,7 @@ export namespace Prisma {
     id?: StringFilter<"Cell"> | string
     colNum?: IntFilter<"Cell"> | number
     val?: StringFilter<"Cell"> | string
+    numVal?: IntNullableFilter<"Cell"> | number | null
     rowId?: StringFilter<"Cell"> | string
     row?: XOR<RowScalarRelationFilter, RowWhereInput>
   }
@@ -14816,6 +14835,7 @@ export namespace Prisma {
     id?: SortOrder
     colNum?: SortOrder
     val?: SortOrder
+    numVal?: SortOrderInput | SortOrder
     rowId?: SortOrder
     row?: RowOrderByWithRelationInput
   }
@@ -14827,6 +14847,7 @@ export namespace Prisma {
     NOT?: CellWhereInput | CellWhereInput[]
     colNum?: IntFilter<"Cell"> | number
     val?: StringFilter<"Cell"> | string
+    numVal?: IntNullableFilter<"Cell"> | number | null
     rowId?: StringFilter<"Cell"> | string
     row?: XOR<RowScalarRelationFilter, RowWhereInput>
   }, "id">
@@ -14835,6 +14856,7 @@ export namespace Prisma {
     id?: SortOrder
     colNum?: SortOrder
     val?: SortOrder
+    numVal?: SortOrderInput | SortOrder
     rowId?: SortOrder
     _count?: CellCountOrderByAggregateInput
     _avg?: CellAvgOrderByAggregateInput
@@ -14850,6 +14872,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Cell"> | string
     colNum?: IntWithAggregatesFilter<"Cell"> | number
     val?: StringWithAggregatesFilter<"Cell"> | string
+    numVal?: IntNullableWithAggregatesFilter<"Cell"> | number | null
     rowId?: StringWithAggregatesFilter<"Cell"> | string
   }
 
@@ -15462,6 +15485,7 @@ export namespace Prisma {
     id?: string
     colNum: number
     val: string
+    numVal?: number | null
     row: RowCreateNestedOneWithoutCellsInput
   }
 
@@ -15469,6 +15493,7 @@ export namespace Prisma {
     id?: string
     colNum: number
     val: string
+    numVal?: number | null
     rowId: string
   }
 
@@ -15476,6 +15501,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
     row?: RowUpdateOneRequiredWithoutCellsNestedInput
   }
 
@@ -15483,6 +15509,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
     rowId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -15490,6 +15517,7 @@ export namespace Prisma {
     id?: string
     colNum: number
     val: string
+    numVal?: number | null
     rowId: string
   }
 
@@ -15497,12 +15525,14 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type CellUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
     rowId?: StringFieldUpdateOperationsInput | string
   }
 
@@ -16165,17 +16195,20 @@ export namespace Prisma {
     id?: SortOrder
     colNum?: SortOrder
     val?: SortOrder
+    numVal?: SortOrder
     rowId?: SortOrder
   }
 
   export type CellAvgOrderByAggregateInput = {
     colNum?: SortOrder
+    numVal?: SortOrder
   }
 
   export type CellMaxOrderByAggregateInput = {
     id?: SortOrder
     colNum?: SortOrder
     val?: SortOrder
+    numVal?: SortOrder
     rowId?: SortOrder
   }
 
@@ -16183,11 +16216,13 @@ export namespace Prisma {
     id?: SortOrder
     colNum?: SortOrder
     val?: SortOrder
+    numVal?: SortOrder
     rowId?: SortOrder
   }
 
   export type CellSumOrderByAggregateInput = {
     colNum?: SortOrder
+    numVal?: SortOrder
   }
 
   export type EnumFilterTypeFilter<$PrismaModel = never> = {
@@ -17748,12 +17783,14 @@ export namespace Prisma {
     id?: string
     colNum: number
     val: string
+    numVal?: number | null
   }
 
   export type CellUncheckedCreateWithoutRowInput = {
     id?: string
     colNum: number
     val: string
+    numVal?: number | null
   }
 
   export type CellCreateOrConnectWithoutRowInput = {
@@ -17816,6 +17853,7 @@ export namespace Prisma {
     id?: StringFilter<"Cell"> | string
     colNum?: IntFilter<"Cell"> | number
     val?: StringFilter<"Cell"> | string
+    numVal?: IntNullableFilter<"Cell"> | number | null
     rowId?: StringFilter<"Cell"> | string
   }
 
@@ -18265,24 +18303,28 @@ export namespace Prisma {
     id?: string
     colNum: number
     val: string
+    numVal?: number | null
   }
 
   export type CellUpdateWithoutRowInput = {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type CellUncheckedUpdateWithoutRowInput = {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type CellUncheckedUpdateManyWithoutRowInput = {
     id?: StringFieldUpdateOperationsInput | string
     colNum?: IntFieldUpdateOperationsInput | number
     val?: StringFieldUpdateOperationsInput | string
+    numVal?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
 

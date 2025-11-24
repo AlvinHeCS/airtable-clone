@@ -14,14 +14,11 @@ getTableWithRowsAhead: protectedProcedure
     cursor: z.number().optional()
   }))
   .query(async ({ ctx, input }) => {
-    // 1. Load table once
     const table = await ctx.db.table.findFirst({
       where: { baseId: input.baseId, name: input.tableName },
       include: { filters: true }
     });
     if (!table) throw new Error("Table not found");
-
-    // 2. Load rows with pagination
     const pageSize = 200;
     const rows = await ctx.db.row.findMany({
       where: { 
@@ -30,10 +27,30 @@ getTableWithRowsAhead: protectedProcedure
           cells: {
             some: {
               colNum: f.columnIndex,
-              // string contains
               ...(f.type === "contains" && {
                 val: { contains: f.value },
-              })
+              }),
+              ...(f.type === "not_contains" && {
+                val: { not: { contains: f.value } },
+              }),
+              ...(f.type === "not_contains" && {
+                val: { not: { contains: f.value } },
+              }),
+              ...(f.type === "empty" && {
+                val: "",
+              }),
+              ...(f.type === "not_empty" && {
+                val: { not: "" },
+              }),
+              ...(f.type === "eq" && {
+                val: f.value,
+              }),
+              ...(f.type === "lt" && {
+                numVal: { lt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
+              }),
+              ...(f.type === "gt" && {
+                numVal: { gt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
+              }),
             }
           }
         }))
@@ -92,14 +109,24 @@ getTableWithRowsAhead: protectedProcedure
           tableId: input.tableId,
         },
       });
-
-      const cellsData = table.headers.map((_, i) => ({
-        rowId: newRow.id,
-        colNum: i,
-        val: table.headerTypes[i] === 0
-          ? faker.person.fullName()
-          : String(faker.number.int({ min: 1, max: 100 })),
-      }));
+      const cellsData = table.headers.map((_, i) => {
+        if (table.headerTypes[i] === 0) {
+          return {
+            rowId: newRow.id,
+            colNum: i,
+            val: faker.person.fullName(),
+            numVal: null,
+          };
+        } else {
+          const randomNumber = faker.number.int({ min: 1, max: 100 });
+          return {
+            rowId: newRow.id,
+            colNum: i,
+            val: String(randomNumber),
+            numVal: randomNumber,
+          };
+        }
+      });
 
       await tx.cell.createMany({ data: cellsData });
 
@@ -173,7 +200,8 @@ addCol: protectedProcedure
         colNum: input.col
       },
       data: {
-        val: input.newVal
+        val: input.newVal,
+        numVal: isNaN(Number(input.newVal)) ? null : Number(input.newVal),
       }
     });
   }),
@@ -208,6 +236,7 @@ addCol: protectedProcedure
       rowId: string;
       colNum: number;
       val: string;
+      numVal: number | null
     }[] = [];
 
     for (let r = 0; r < NUM_TO_ADD; r++) {
@@ -222,6 +251,7 @@ addCol: protectedProcedure
           rowId,
           colNum: c,
           val: v,
+          numVal: isNaN(Number(v)) ? null : Number(v)
         });
       }
     }

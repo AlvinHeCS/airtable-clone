@@ -227,7 +227,6 @@ export default function Table(tableProp: prop) {
 async function addRow() {
   if (!table) return;
 
-  // 1. Call mutation
   const newRow = await mutateAsyncRow({ tableId: table.id });
 
   const cachedRow = {
@@ -238,11 +237,11 @@ async function addRow() {
       id: c.id,
       colNum: c.colNum,
       val: c.val,
+      numVal: c.numVal,
       rowId: newRow!.id,
     })),
   };
 
-  // 2. Prepare TableRow object
   const rowData: TableRow = { rowId: newRow!.id };
   for (let i = 0; i < table.headers.length; i++) {
     const header = table.headers[i] || "";
@@ -250,43 +249,76 @@ async function addRow() {
     rowData[header] = cell?.val ?? "";
   }
 
-  // 3. Update local state
-  setData(prev => [...prev, rowData]);
+let passed = true;
 
-  utils.table.getTableWithRowsAhead.setInfiniteData(
-    { baseId: tableProp.baseId, tableName: tableProp.tableName },
-    oldData => {
-      if (!oldData) {
+for (const f of table.filters) {
+  const header = table.headers[f.columnIndex] || "";
+  const cellVal = rowData[header] ?? "";
+
+  switch (f.type) {
+    case "contains":
+      if (!cellVal.includes(f.value)) passed = false;
+      break;
+    case "not_contains":
+      if (cellVal.includes(f.value)) passed = false;
+      break;
+    case "eq":
+      if (cellVal !== f.value) passed = false;
+      break;
+    case "empty":
+      if (cellVal !== "") passed = false;
+      break;
+    case "not_empty":
+      if (cellVal === "") passed = false;
+      break;
+    case "gt":
+      if (Number(cellVal) <= Number(f.value)) passed = false;
+      break;
+    case "lt":
+      if (Number(cellVal) >= Number(f.value)) passed = false;
+      break;
+  }
+
+  if (!passed) break; 
+}
+  if (passed) {
+    setData(prev => [...prev, rowData]);
+
+    utils.table.getTableWithRowsAhead.setInfiniteData(
+      { baseId: tableProp.baseId, tableName: tableProp.tableName },
+      oldData => {
+        if (!oldData) {
+          return {
+            pages: [
+              {
+                table,
+                rows: [cachedRow],
+                nextCursor: null,
+              },
+            ],
+            pageParams: [],
+          };
+        }
+
+        const pages = [...oldData.pages];
+        const lastPageIndex = pages.length - 1;
+        const lastPage = pages[lastPageIndex];
+
+        pages[lastPageIndex] = {
+          ...lastPage,
+          table: lastPage!.table!, 
+          rows: [...lastPage!.rows, cachedRow],
+          nextCursor: lastPage!.nextCursor ?? null,
+        };
+
         return {
-          pages: [
-            {
-              table,
-              rows: [cachedRow],
-              nextCursor: null,
-            },
-          ],
-          pageParams: [],
+          ...oldData,
+          pages,
+          pageParams: oldData.pageParams,
         };
       }
-
-      const pages = [...oldData.pages];
-      const lastPageIndex = pages.length - 1;
-      const lastPage = pages[lastPageIndex];
-
-      pages[lastPageIndex] = {
-        ...lastPage,
-        table: lastPage!.table!, 
-        rows: [...lastPage!.rows, cachedRow],
-        nextCursor: lastPage!.nextCursor ?? null,
-      };
-
-      return {
-        ...oldData,
-        pages,
-        pageParams: oldData.pageParams,
-      };
-    }
-  );
+    );
+  }
 }
   const add100kRow = () => {
     mutateAsyncRow100k({tableId: table!.id});
