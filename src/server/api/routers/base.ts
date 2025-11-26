@@ -24,10 +24,22 @@ export const baseRouter = createTRPCRouter({
       where: { id: input.baseId },
       include: { tables: true },
     });
-
+    const number1 = faker.number.int({ min: 1, max: 100 });
+    const number2 = faker.number.int({ min: 1, max: 100 });
     const tableAmount = base?.tableAmount || 0;
-    const randomNumber1 = faker.number.int({ min: 1, max: 100 });
-    const randomNumber2 = faker.number.int({ min: 1, max: 100 });
+    const fakeCellsData = [
+      { colNum: 0, val: faker.person.fullName() },
+      { colNum: 1, val: faker.person.fullName() },
+      { colNum: 2, val: String(number1), numVal: number1 },
+      { colNum: 3, val: String(number2), numVal: number2 },
+    ];
+
+      const cellsFlat: (string | number| null)[] = [];
+
+      fakeCellsData.forEach(cell => {
+        cellsFlat.push(cell.numVal ?? cell.val)
+      });
+      
     const newTable = await ctx.db.table.create({
       data: {
         name: `Table ${tableAmount + 1}`,
@@ -39,13 +51,9 @@ export const baseRouter = createTRPCRouter({
           create: [
             {
               rowNum: 0,
+              cellsFlat: cellsFlat,
               cells: {
-                create: [
-                  { colNum: 0, val: faker.person.fullName()},
-                  { colNum: 1, val: faker.person.fullName()},
-                  { colNum: 2, val: String(randomNumber1), numVal: randomNumber1 },
-                  { colNum: 3, val: String(randomNumber2), numVal: randomNumber2 },
-                ],
+                create: fakeCellsData,
               },
             },
           ],

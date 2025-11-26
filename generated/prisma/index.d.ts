@@ -93,6 +93,16 @@ export const FilterType: {
 
 export type FilterType = (typeof FilterType)[keyof typeof FilterType]
 
+
+export const SortType: {
+  sortA_Z: 'sortA_Z',
+  sortZ_A: 'sortZ_A',
+  sort1_9: 'sort1_9',
+  sort9_1: 'sort9_1'
+};
+
+export type SortType = (typeof SortType)[keyof typeof SortType]
+
 }
 
 export type CellType = $Enums.CellType
@@ -102,6 +112,10 @@ export const CellType: typeof $Enums.CellType
 export type FilterType = $Enums.FilterType
 
 export const FilterType: typeof $Enums.FilterType
+
+export type SortType = $Enums.SortType
+
+export const SortType: typeof $Enums.SortType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -9765,6 +9779,7 @@ export namespace Prisma {
     id: number
     rowNum: number
     tableId: number
+    cellsFlat: number
     _all: number
   }
 
@@ -9793,6 +9808,7 @@ export namespace Prisma {
     id?: true
     rowNum?: true
     tableId?: true
+    cellsFlat?: true
     _all?: true
   }
 
@@ -9886,6 +9902,7 @@ export namespace Prisma {
     id: string
     rowNum: number
     tableId: string
+    cellsFlat: JsonValue
     _count: RowCountAggregateOutputType | null
     _avg: RowAvgAggregateOutputType | null
     _sum: RowSumAggregateOutputType | null
@@ -9911,6 +9928,7 @@ export namespace Prisma {
     id?: boolean
     rowNum?: boolean
     tableId?: boolean
+    cellsFlat?: boolean
     cells?: boolean | Row$cellsArgs<ExtArgs>
     table?: boolean | TableDefaultArgs<ExtArgs>
     _count?: boolean | RowCountOutputTypeDefaultArgs<ExtArgs>
@@ -9920,6 +9938,7 @@ export namespace Prisma {
     id?: boolean
     rowNum?: boolean
     tableId?: boolean
+    cellsFlat?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["row"]>
 
@@ -9927,6 +9946,7 @@ export namespace Prisma {
     id?: boolean
     rowNum?: boolean
     tableId?: boolean
+    cellsFlat?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["row"]>
 
@@ -9934,9 +9954,10 @@ export namespace Prisma {
     id?: boolean
     rowNum?: boolean
     tableId?: boolean
+    cellsFlat?: boolean
   }
 
-  export type RowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rowNum" | "tableId", ExtArgs["result"]["row"]>
+  export type RowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rowNum" | "tableId" | "cellsFlat", ExtArgs["result"]["row"]>
   export type RowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     cells?: boolean | Row$cellsArgs<ExtArgs>
     table?: boolean | TableDefaultArgs<ExtArgs>
@@ -9959,6 +9980,7 @@ export namespace Prisma {
       id: string
       rowNum: number
       tableId: string
+      cellsFlat: Prisma.JsonValue
     }, ExtArgs["result"]["row"]>
     composites: {}
   }
@@ -10387,6 +10409,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Row", 'String'>
     readonly rowNum: FieldRef<"Row", 'Int'>
     readonly tableId: FieldRef<"Row", 'String'>
+    readonly cellsFlat: FieldRef<"Row", 'Json'>
   }
     
 
@@ -13037,14 +13060,14 @@ export namespace Prisma {
     id: string | null
     tableId: string | null
     columnIndex: number | null
-    type: string | null
+    type: $Enums.SortType | null
   }
 
   export type SortMaxAggregateOutputType = {
     id: string | null
     tableId: string | null
     columnIndex: number | null
-    type: string | null
+    type: $Enums.SortType | null
   }
 
   export type SortCountAggregateOutputType = {
@@ -13176,7 +13199,7 @@ export namespace Prisma {
     id: string
     tableId: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
     _count: SortCountAggregateOutputType | null
     _avg: SortAvgAggregateOutputType | null
     _sum: SortSumAggregateOutputType | null
@@ -13249,7 +13272,7 @@ export namespace Prisma {
       id: string
       tableId: string
       columnIndex: number
-      type: string
+      type: $Enums.SortType
     }, ExtArgs["result"]["sort"]>
     composites: {}
   }
@@ -13677,7 +13700,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Sort", 'String'>
     readonly tableId: FieldRef<"Sort", 'String'>
     readonly columnIndex: FieldRef<"Sort", 'Int'>
-    readonly type: FieldRef<"Sort", 'String'>
+    readonly type: FieldRef<"Sort", 'SortType'>
   }
     
 
@@ -14191,7 +14214,8 @@ export namespace Prisma {
   export const RowScalarFieldEnum: {
     id: 'id',
     rowNum: 'rowNum',
-    tableId: 'tableId'
+    tableId: 'tableId',
+    cellsFlat: 'cellsFlat'
   };
 
   export type RowScalarFieldEnum = (typeof RowScalarFieldEnum)[keyof typeof RowScalarFieldEnum]
@@ -14237,6 +14261,13 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -14251,6 +14282,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -14301,6 +14341,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+  /**
    * Reference to a field of type 'FilterType'
    */
   export type EnumFilterTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FilterType'>
@@ -14311,6 +14365,20 @@ export namespace Prisma {
    * Reference to a field of type 'FilterType[]'
    */
   export type ListEnumFilterTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FilterType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'SortType'
+   */
+  export type EnumSortTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SortType'>
+    
+
+
+  /**
+   * Reference to a field of type 'SortType[]'
+   */
+  export type ListEnumSortTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SortType[]'>
     
 
 
@@ -14776,6 +14844,7 @@ export namespace Prisma {
     id?: StringFilter<"Row"> | string
     rowNum?: IntFilter<"Row"> | number
     tableId?: StringFilter<"Row"> | string
+    cellsFlat?: JsonFilter<"Row">
     cells?: CellListRelationFilter
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }
@@ -14784,6 +14853,7 @@ export namespace Prisma {
     id?: SortOrder
     rowNum?: SortOrder
     tableId?: SortOrder
+    cellsFlat?: SortOrder
     cells?: CellOrderByRelationAggregateInput
     table?: TableOrderByWithRelationInput
   }
@@ -14795,6 +14865,7 @@ export namespace Prisma {
     NOT?: RowWhereInput | RowWhereInput[]
     rowNum?: IntFilter<"Row"> | number
     tableId?: StringFilter<"Row"> | string
+    cellsFlat?: JsonFilter<"Row">
     cells?: CellListRelationFilter
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }, "id">
@@ -14803,6 +14874,7 @@ export namespace Prisma {
     id?: SortOrder
     rowNum?: SortOrder
     tableId?: SortOrder
+    cellsFlat?: SortOrder
     _count?: RowCountOrderByAggregateInput
     _avg?: RowAvgOrderByAggregateInput
     _max?: RowMaxOrderByAggregateInput
@@ -14817,6 +14889,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Row"> | string
     rowNum?: IntWithAggregatesFilter<"Row"> | number
     tableId?: StringWithAggregatesFilter<"Row"> | string
+    cellsFlat?: JsonWithAggregatesFilter<"Row">
   }
 
   export type CellWhereInput = {
@@ -14940,7 +15013,7 @@ export namespace Prisma {
     id?: StringFilter<"Sort"> | string
     tableId?: StringFilter<"Sort"> | string
     columnIndex?: IntFilter<"Sort"> | number
-    type?: StringFilter<"Sort"> | string
+    type?: EnumSortTypeFilter<"Sort"> | $Enums.SortType
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }
 
@@ -14959,7 +15032,7 @@ export namespace Prisma {
     NOT?: SortWhereInput | SortWhereInput[]
     tableId?: StringFilter<"Sort"> | string
     columnIndex?: IntFilter<"Sort"> | number
-    type?: StringFilter<"Sort"> | string
+    type?: EnumSortTypeFilter<"Sort"> | $Enums.SortType
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }, "id">
 
@@ -14982,7 +15055,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Sort"> | string
     tableId?: StringWithAggregatesFilter<"Sort"> | string
     columnIndex?: IntWithAggregatesFilter<"Sort"> | number
-    type?: StringWithAggregatesFilter<"Sort"> | string
+    type?: EnumSortTypeWithAggregatesFilter<"Sort"> | $Enums.SortType
   }
 
   export type PostCreateInput = {
@@ -15439,6 +15512,7 @@ export namespace Prisma {
   export type RowCreateInput = {
     id?: string
     rowNum: number
+    cellsFlat: JsonNullValueInput | InputJsonValue
     cells?: CellCreateNestedManyWithoutRowInput
     table: TableCreateNestedOneWithoutRowsInput
   }
@@ -15447,12 +15521,14 @@ export namespace Prisma {
     id?: string
     rowNum: number
     tableId: string
+    cellsFlat: JsonNullValueInput | InputJsonValue
     cells?: CellUncheckedCreateNestedManyWithoutRowInput
   }
 
   export type RowUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
+    cellsFlat?: JsonNullValueInput | InputJsonValue
     cells?: CellUpdateManyWithoutRowNestedInput
     table?: TableUpdateOneRequiredWithoutRowsNestedInput
   }
@@ -15461,6 +15537,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     tableId?: StringFieldUpdateOperationsInput | string
+    cellsFlat?: JsonNullValueInput | InputJsonValue
     cells?: CellUncheckedUpdateManyWithoutRowNestedInput
   }
 
@@ -15468,17 +15545,20 @@ export namespace Prisma {
     id?: string
     rowNum: number
     tableId: string
+    cellsFlat: JsonNullValueInput | InputJsonValue
   }
 
   export type RowUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
+    cellsFlat?: JsonNullValueInput | InputJsonValue
   }
 
   export type RowUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     tableId?: StringFieldUpdateOperationsInput | string
+    cellsFlat?: JsonNullValueInput | InputJsonValue
   }
 
   export type CellCreateInput = {
@@ -15594,7 +15674,7 @@ export namespace Prisma {
   export type SortCreateInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
     table: TableCreateNestedOneWithoutSortsInput
   }
 
@@ -15602,13 +15682,13 @@ export namespace Prisma {
     id?: string
     tableId: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
   }
 
   export type SortUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
     table?: TableUpdateOneRequiredWithoutSortsNestedInput
   }
 
@@ -15616,27 +15696,27 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     tableId?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
   }
 
   export type SortCreateManyInput = {
     id?: string
     tableId: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
   }
 
   export type SortUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
   }
 
   export type SortUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     tableId?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -16144,6 +16224,29 @@ export namespace Prisma {
     headerTypes?: SortOrder
     numRows?: SortOrder
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type CellListRelationFilter = {
     every?: CellWhereInput
@@ -16164,6 +16267,7 @@ export namespace Prisma {
     id?: SortOrder
     rowNum?: SortOrder
     tableId?: SortOrder
+    cellsFlat?: SortOrder
   }
 
   export type RowAvgOrderByAggregateInput = {
@@ -16184,6 +16288,32 @@ export namespace Prisma {
 
   export type RowSumOrderByAggregateInput = {
     rowNum?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type RowScalarRelationFilter = {
@@ -16274,6 +16404,13 @@ export namespace Prisma {
     _max?: NestedEnumFilterTypeFilter<$PrismaModel>
   }
 
+  export type EnumSortTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SortType | EnumSortTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSortTypeFilter<$PrismaModel> | $Enums.SortType
+  }
+
   export type SortCountOrderByAggregateInput = {
     id?: SortOrder
     tableId?: SortOrder
@@ -16301,6 +16438,16 @@ export namespace Prisma {
 
   export type SortSumOrderByAggregateInput = {
     columnIndex?: SortOrder
+  }
+
+  export type EnumSortTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SortType | EnumSortTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSortTypeWithAggregatesFilter<$PrismaModel> | $Enums.SortType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSortTypeFilter<$PrismaModel>
+    _max?: NestedEnumSortTypeFilter<$PrismaModel>
   }
 
   export type UserCreateNestedOneWithoutPostsInput = {
@@ -16853,6 +17000,10 @@ export namespace Prisma {
     connect?: TableWhereUniqueInput
   }
 
+  export type EnumSortTypeFieldUpdateOperationsInput = {
+    set?: $Enums.SortType
+  }
+
   export type TableUpdateOneRequiredWithoutSortsNestedInput = {
     create?: XOR<TableCreateWithoutSortsInput, TableUncheckedCreateWithoutSortsInput>
     connectOrCreate?: TableCreateOrConnectWithoutSortsInput
@@ -17048,6 +17199,29 @@ export namespace Prisma {
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
 
   export type NestedEnumFilterTypeFilter<$PrismaModel = never> = {
     equals?: $Enums.FilterType | EnumFilterTypeFieldRefInput<$PrismaModel>
@@ -17064,6 +17238,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumFilterTypeFilter<$PrismaModel>
     _max?: NestedEnumFilterTypeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSortTypeFilter<$PrismaModel = never> = {
+    equals?: $Enums.SortType | EnumSortTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSortTypeFilter<$PrismaModel> | $Enums.SortType
+  }
+
+  export type NestedEnumSortTypeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SortType | EnumSortTypeFieldRefInput<$PrismaModel>
+    in?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SortType[] | ListEnumSortTypeFieldRefInput<$PrismaModel>
+    not?: NestedEnumSortTypeWithAggregatesFilter<$PrismaModel> | $Enums.SortType
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSortTypeFilter<$PrismaModel>
+    _max?: NestedEnumSortTypeFilter<$PrismaModel>
   }
 
   export type UserCreateWithoutPostsInput = {
@@ -17592,12 +17783,14 @@ export namespace Prisma {
   export type RowCreateWithoutTableInput = {
     id?: string
     rowNum: number
+    cellsFlat: JsonNullValueInput | InputJsonValue
     cells?: CellCreateNestedManyWithoutRowInput
   }
 
   export type RowUncheckedCreateWithoutTableInput = {
     id?: string
     rowNum: number
+    cellsFlat: JsonNullValueInput | InputJsonValue
     cells?: CellUncheckedCreateNestedManyWithoutRowInput
   }
 
@@ -17657,13 +17850,13 @@ export namespace Prisma {
   export type SortCreateWithoutTableInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
   }
 
   export type SortUncheckedCreateWithoutTableInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
   }
 
   export type SortCreateOrConnectWithoutTableInput = {
@@ -17699,6 +17892,7 @@ export namespace Prisma {
     id?: StringFilter<"Row"> | string
     rowNum?: IntFilter<"Row"> | number
     tableId?: StringFilter<"Row"> | string
+    cellsFlat?: JsonFilter<"Row">
   }
 
   export type BaseUpsertWithoutTablesInput = {
@@ -17776,7 +17970,7 @@ export namespace Prisma {
     id?: StringFilter<"Sort"> | string
     tableId?: StringFilter<"Sort"> | string
     columnIndex?: IntFilter<"Sort"> | number
-    type?: StringFilter<"Sort"> | string
+    type?: EnumSortTypeFilter<"Sort"> | $Enums.SortType
   }
 
   export type CellCreateWithoutRowInput = {
@@ -17893,6 +18087,7 @@ export namespace Prisma {
   export type RowCreateWithoutCellsInput = {
     id?: string
     rowNum: number
+    cellsFlat: JsonNullValueInput | InputJsonValue
     table: TableCreateNestedOneWithoutRowsInput
   }
 
@@ -17900,6 +18095,7 @@ export namespace Prisma {
     id?: string
     rowNum: number
     tableId: string
+    cellsFlat: JsonNullValueInput | InputJsonValue
   }
 
   export type RowCreateOrConnectWithoutCellsInput = {
@@ -17921,6 +18117,7 @@ export namespace Prisma {
   export type RowUpdateWithoutCellsInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
+    cellsFlat?: JsonNullValueInput | InputJsonValue
     table?: TableUpdateOneRequiredWithoutRowsNestedInput
   }
 
@@ -17928,6 +18125,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     tableId?: StringFieldUpdateOperationsInput | string
+    cellsFlat?: JsonNullValueInput | InputJsonValue
   }
 
   export type TableCreateWithoutFiltersInput = {
@@ -18228,6 +18426,7 @@ export namespace Prisma {
   export type RowCreateManyTableInput = {
     id?: string
     rowNum: number
+    cellsFlat: JsonNullValueInput | InputJsonValue
   }
 
   export type FilterCreateManyTableInput = {
@@ -18240,24 +18439,27 @@ export namespace Prisma {
   export type SortCreateManyTableInput = {
     id?: string
     columnIndex: number
-    type: string
+    type: $Enums.SortType
   }
 
   export type RowUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
+    cellsFlat?: JsonNullValueInput | InputJsonValue
     cells?: CellUpdateManyWithoutRowNestedInput
   }
 
   export type RowUncheckedUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
+    cellsFlat?: JsonNullValueInput | InputJsonValue
     cells?: CellUncheckedUpdateManyWithoutRowNestedInput
   }
 
   export type RowUncheckedUpdateManyWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
+    cellsFlat?: JsonNullValueInput | InputJsonValue
   }
 
   export type FilterUpdateWithoutTableInput = {
@@ -18284,19 +18486,19 @@ export namespace Prisma {
   export type SortUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
   }
 
   export type SortUncheckedUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
   }
 
   export type SortUncheckedUpdateManyWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
-    type?: StringFieldUpdateOperationsInput | string
+    type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
   }
 
   export type CellCreateManyRowInput = {

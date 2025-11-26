@@ -19,11 +19,26 @@ export const userRouter = createTRPCRouter({
         }
       })
     }),
+
+    // all vals will be either "" or wutever it is, this is the displayed val
     addBase: protectedProcedure
     .mutation(async ({ ctx }) => {
       const userId = ctx.session.user.id;
-      const randomNumber1 = faker.number.int({ min: 1, max: 100 });
-      const randomNumber2 = faker.number.int({ min: 1, max: 100 });
+      const number1 = faker.number.int({ min: 1, max: 100 })
+      const number2 = faker.number.int({ min: 1, max: 100 })
+      const fakeCellsData = [
+        { colNum: 0, val: faker.person.fullName() },
+        { colNum: 1, val: faker.person.fullName() },
+        { colNum: 2, val: String(number1), numVal: number1 },
+        { colNum: 3, val: String(number2), numVal: number2 },
+      ];
+
+      const cellsFlat: (string | number| null)[] = [];
+
+      fakeCellsData.forEach(cell => {
+        cellsFlat.push(cell.numVal ?? cell.val)
+      });
+
       const newBase = await ctx.db.base.create({
         data: {
           user: { connect: { id: userId } },
@@ -40,13 +55,9 @@ export const userRouter = createTRPCRouter({
                   create: [
                     {
                       rowNum: 0,
+                      cellsFlat: cellsFlat,
                       cells: {
-                        create: [
-                          { colNum: 0, val: faker.person.fullName()},
-                          { colNum: 1, val: faker.person.fullName()},
-                          { colNum: 2, val: String(randomNumber1), numVal: randomNumber1 },
-                          { colNum: 3, val: String(randomNumber2), numVal: randomNumber2 },
-                        ],
+                        create: fakeCellsData,
                       },
                     },
                   ],

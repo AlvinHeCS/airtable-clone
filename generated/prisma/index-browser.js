@@ -185,7 +185,8 @@ exports.Prisma.TableScalarFieldEnum = {
 exports.Prisma.RowScalarFieldEnum = {
   id: 'id',
   rowNum: 'rowNum',
-  tableId: 'tableId'
+  tableId: 'tableId',
+  cellsFlat: 'cellsFlat'
 };
 
 exports.Prisma.CellScalarFieldEnum = {
@@ -216,6 +217,10 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -225,6 +230,12 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
 exports.FilterType = exports.$Enums.FilterType = {
   contains: 'contains',
   not_contains: 'not_contains',
@@ -233,6 +244,13 @@ exports.FilterType = exports.$Enums.FilterType = {
   lt: 'lt',
   empty: 'empty',
   not_empty: 'not_empty'
+};
+
+exports.SortType = exports.$Enums.SortType = {
+  sortA_Z: 'sortA_Z',
+  sortZ_A: 'sortZ_A',
+  sort1_9: 'sort1_9',
+  sort9_1: 'sort9_1'
 };
 
 exports.Prisma.ModelName = {

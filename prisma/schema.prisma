@@ -105,7 +105,7 @@ model Row {
     cells         Cell[]    
     tableId       String
     table         Table     @relation(fields: [tableId], references: [id])
-
+    cellsFlat     Json
     @@index([tableId], name: "row_tableid_idx")
     @@index([tableId, rowNum], name: "row_table_rownum_idx")
 }
@@ -136,7 +136,7 @@ enum FilterType {
 }
 
 model Filter {
-    id            String    @id @default(cuid())
+    id           String    @id @default(cuid())
     tableId      String
     table        Table      @relation(fields: [tableId], references: [id])
     columnIndex  Int
@@ -144,10 +144,17 @@ model Filter {
     value        String
 }
 
+enum SortType {
+  sortA_Z
+  sortZ_A
+  sort1_9
+  sort9_1
+}
+
 model Sort {
-    id            String    @id @default(cuid())
+    id           String    @id @default(cuid())
     tableId      String
     table        Table      @relation(fields: [tableId], references: [id])
     columnIndex  Int
-    type         String
+    type         SortType
 }

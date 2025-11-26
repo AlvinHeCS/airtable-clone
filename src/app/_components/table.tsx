@@ -11,6 +11,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import GridBar from "~/app/_components/gridBar"
 import FilterModal from "./filterModal";
+import SortModal from "./sortModal";
 
 interface prop {
     tableName: string;
@@ -37,6 +38,22 @@ type Filter = {
   columnIndex: number;
 };
 
+const sortTypes = [
+  "sortA_Z",
+  "sortZ_A",
+  "sort1_9",
+  "sort9-1"
+] as const
+
+type SortType = typeof sortTypes[number];
+
+type Sort = {
+  id: string;
+  type: SortType;
+  tableId: string;
+  columnIndex: number;
+};
+
 type Table = {
   id: string;
   baseId: string;
@@ -44,7 +61,8 @@ type Table = {
   headerTypes: number[];
   numRows: number;
   name: string;
-  filters: Filter[]
+  filters: Filter[];
+  sorts: Sort[];
 }
 
 type TableRow = Record<string, string> & { rowId: string };
@@ -53,31 +71,46 @@ type TableRow = Record<string, string> & { rowId: string };
 export default function Table(tableProp: prop) {
     const utils = api.useUtils();    
   
-      const {
-        data: getTableWithRowsAheadData,
-        fetchNextPage,
-        hasNextPage,
-        isFetchingNextPage,
-      } = api.table.getTableWithRowsAhead.useInfiniteQuery(
-        {
-          baseId: tableProp.baseId,
-          tableName: tableProp.tableName,
-        },
-        {
-          getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-        }
-      );
-      const table = getTableWithRowsAheadData?.pages?.[0]?.table;
 
-      const allRows = useMemo(() => {
-        return getTableWithRowsAheadData?.pages.flatMap((p) => p.rows) ?? [];
-      }, [getTableWithRowsAheadData]);
+// this is the shape of getTableWIthRowsAhead
+// {
+//   pages: {
+//     table: Table;
+//     rows: Row[]; size is 200 as long as theres more
+//     nextCursor: number | null;
+//   }[],
+//   pageParams: (number | undefined)[];
+// }
+
+    const {
+      data: getTableWithRowsAheadData,
+      fetchNextPage,
+      hasNextPage,
+      isFetchingNextPage,
+    } = api.table.getTableWithRowsAhead.useInfiniteQuery(
+      {
+        baseId: tableProp.baseId,
+        tableName: tableProp.tableName,
+      },
+      {
+        getNextPageParam: (lastPage) => {
+          console.log("this is next cursor", lastPage.nextCursor);
+          return lastPage.nextCursor
+        }
+      }
+    );
+    const table = getTableWithRowsAheadData?.pages?.[0]?.table;
+
+    const allRows = useMemo(() => {
+      return getTableWithRowsAheadData?.pages.flatMap((p) => p.rows) ?? [];
+    }, [getTableWithRowsAheadData]);
     
     const [localHeaders, setLocalHeaders] = useState<string[]>([]);
     const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
     const [data, setData] = useState<TableRow[]>([]);
 
     const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
+    const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
 
     const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -95,20 +128,22 @@ export default function Table(tableProp: prop) {
     const virtualizer = useVirtualizer({
       count: allRows.length,
       getScrollElement: () => scrollingRef.current ?? null,
-      estimateSize: () => 40,
+      estimateSize: () => 30,
     });
+    // the amount of rows that the visualiser expects has loaded
     const virtualRows = virtualizer.getVirtualItems();
 
     // get rows
     useEffect(() => {
       const lastRow = virtualRows[virtualRows.length - 1];
       if (!lastRow) return;
+      // if lastRow of expected rows is within -10 of actual loaded allRows and nextpage exist then fetch the next page
       if (lastRow.index >= allRows.length - 10 && hasNextPage && !isFetchingNextPage) {
         fetchNextPage();
       }
     }, [virtualRows]);
     
-    // set local table information
+    // anytime new table, or allRows is loaded then set local table information (happens everytime table is swapped)
     useEffect(() => {
       if (!table || !allRows) return;
     
@@ -224,69 +259,71 @@ export default function Table(tableProp: prop) {
     cellElement?.focus();
   }
 
-async function addRow() {
-  if (!table) return;
+  async function addRow() {
+    if (!table) return;
 
-  const newRow = await mutateAsyncRow({ tableId: table.id });
+    const newRow = await mutateAsyncRow({ tableId: table.id });
+    if (!newRow) throw new Error("row failed to be created");
 
+
+  // row that the cache is updated with
   const cachedRow = {
-    id: newRow!.id,
-    rowNum: newRow!.rowNum,
+    id: newRow.id,
+    rowNum: newRow.rowNum,
     tableId: table.id,
-    cells: newRow!.cells.map(c => ({
-      id: c.id,
-      colNum: c.colNum,
-      val: c.val,
-      numVal: c.numVal,
-      rowId: newRow!.id,
-    })),
+    // cellsFlat can be left like this because when a new sort is created ir refetches the table which reupdates the cache
+    // pulling the correct cellsFlat from the db
+    cellsFlat: {},
+    cells: newRow.cells
   };
 
-  const rowData: TableRow = { rowId: newRow!.id };
+  // row used to update the local table
+  const rowData: TableRow = { rowId: newRow.id };
   for (let i = 0; i < table.headers.length; i++) {
     const header = table.headers[i] || "";
-    const cell = newRow!.cells.find(c => c.colNum === i);
+    const cell = newRow.cells.find(c => c.colNum === i);
     rowData[header] = cell?.val ?? "";
   }
 
-let passed = true;
+  let passed = true;
 
-for (const f of table.filters) {
-  const header = table.headers[f.columnIndex] || "";
-  const cellVal = rowData[header] ?? "";
+  for (const f of table.filters) {
+    const header = table.headers[f.columnIndex] || "";
+    const cellVal = rowData[header] ?? "";
 
-  switch (f.type) {
-    case "contains":
-      if (!cellVal.includes(f.value)) passed = false;
-      break;
-    case "not_contains":
-      if (cellVal.includes(f.value)) passed = false;
-      break;
-    case "eq":
-      if (cellVal !== f.value) passed = false;
-      break;
-    case "empty":
-      if (cellVal !== "") passed = false;
-      break;
-    case "not_empty":
-      if (cellVal === "") passed = false;
-      break;
-    case "gt":
-      if (Number(cellVal) <= Number(f.value)) passed = false;
-      break;
-    case "lt":
-      if (Number(cellVal) >= Number(f.value)) passed = false;
-      break;
+    switch (f.type) {
+      case "contains":
+        if (!cellVal.includes(f.value)) passed = false;
+        break;
+      case "not_contains":
+        if (cellVal.includes(f.value)) passed = false;
+        break;
+      case "eq":
+        if (cellVal !== f.value) passed = false;
+        break;
+      case "empty":
+        if (cellVal !== "") passed = false;
+        break;
+      case "not_empty":
+        if (cellVal === "") passed = false;
+        break;
+      case "gt":
+        if (Number(cellVal) <= Number(f.value)) passed = false;
+        break;
+      case "lt":
+        if (Number(cellVal) >= Number(f.value)) passed = false;
+        break;
+    }
+
+    if (!passed) break; 
   }
-
-  if (!passed) break; 
-}
   if (passed) {
+    // add row to local rows
     setData(prev => [...prev, rowData]);
 
-    utils.table.getTableWithRowsAhead.setInfiniteData(
-      { baseId: tableProp.baseId, tableName: tableProp.tableName },
-      oldData => {
+    // update cache 
+    utils.table.getTableWithRowsAhead.setInfiniteData({ baseId: tableProp.baseId, tableName: tableProp.tableName },
+      (oldData) => {
         if (!oldData) {
           return {
             pages: [
@@ -299,7 +336,18 @@ for (const f of table.filters) {
             pageParams: [],
           };
         }
+        // this is the shape of oldData
+        // {
+        //   pages: {
+        //     table: Table;
+        //     rows: Row[]; size is 200 as long as theres more
+        //     nextCursor: number | null;
+        //   }[],
+        //   pageParams: (number | undefined)[];
+        // }
 
+        // need to edit the data of the last page in pages
+        
         const pages = [...oldData.pages];
         const lastPageIndex = pages.length - 1;
         const lastPage = pages[lastPageIndex];
@@ -312,7 +360,6 @@ for (const f of table.filters) {
         };
 
         return {
-          ...oldData,
           pages,
           pageParams: oldData.pageParams,
         };
@@ -324,7 +371,7 @@ for (const f of table.filters) {
     mutateAsyncRow100k({tableId: table!.id});
   }
 
-    if (!allRows || allRows.length === 0) {
+    if (!allRows || !table) {
       return (
         <div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Fetching rows <CircularProgress size="20px"/></div>
       )
@@ -367,7 +414,7 @@ for (const f of table.filters) {
           </div>
           <button onClick={add100kRow}>100k</button>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-            {/* Hide */}
+
             <button
               className="bell"
               style={{
@@ -388,7 +435,6 @@ for (const f of table.filters) {
               </span>
             </button>
 
-            {/* Filter */}
             <button
               className="bell"
               style={{
@@ -410,10 +456,48 @@ for (const f of table.filters) {
               </span>
             </button>
 
-            {/* All remaining buttons */}
+            <button
+              className="bell"
+              style={{
+                width: "80px",
+                flexShrink: 0,
+                height: "30px",
+                borderRadius: "5px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "5px",
+                padding: "5px",
+              }}
+            >
+              <img style={{ width: "20px", height: "20px" }} src="/groupStuff.svg" />
+              <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
+                Groups
+              </span>
+            </button>
+
+            <button
+              className="bell"
+              style={{
+                width: "80px",
+                flexShrink: 0,
+                height: "30px",
+                borderRadius: "5px",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "5px",
+                padding: "5px",
+              }}
+              onClick={() => setShowSortModal(true)}
+            >
+              <img style={{ width: "20px", height: "20px" }} src="/sort.svg" />
+              <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
+                Sort
+              </span>
+            </button>
+
             {[
-              { src: "/groupStuff.svg", label: "Groups" },
-              { src: "/sort.svg", label: "Sort" },
               { src: "/color.svg", label: "Color" },
               { src: "/rowHeight.svg" },
               { src: "/share.svg", label: "Share and sync", width: "130px" },
@@ -450,17 +534,8 @@ for (const f of table.filters) {
             ))}
           </div>
           {showFilterModal ? <FilterModal tableFilters={table!.filters} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowFilterModal} tableName={table!.name} baseId={table!.baseId}/> : null}
-          {showColumnModal ? <NewColModal
-            tableId={{
-              id: table!.id,
-              tableName: table!.name,
-              baseId: table!.baseId,
-              setModal: setShowColumnModal,
-              setData,
-              setLocalHeaders,
-              setLocalHeaderTypes: setLocalHeadersTypes,
-            }}
-          /> : null}
+          {showSortModal ? <SortModal tableSorts={table!.sorts} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table!.name} baseId={table!.baseId}/> : null}
+          {showColumnModal ? <NewColModal id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes}/> : null}
         </div>
       <div style={{display: "flex", height: "100%"}}>
         <GridBar />
