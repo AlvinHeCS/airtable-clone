@@ -540,9 +540,9 @@ export default function Table(tableProp: prop) {
               </button>
             ))}
           </div>
-          {showShowHideColModal ? <ShowHideColModal localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table!.id} setModal={setShowShowHideColModal} /> : null}
-          {showFilterModal ? <FilterModal tableFilters={table!.filters} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowFilterModal} tableName={table!.name} baseId={table!.baseId}/> : null}
-          {showSortModal ? <SortModal tableSorts={table!.sorts} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table!.name} baseId={table!.baseId}/> : null}
+          {showShowHideColModal ? <ShowHideColModal tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
+          {showFilterModal ? <FilterModal tableFilters={table.filters} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
+          {showSortModal ? <SortModal tableSorts={table!.sorts} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
           {showColumnModal ? <NewColModal id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
         </div>
       <div style={{display: "flex", height: "100%"}}>
