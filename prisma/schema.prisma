@@ -95,7 +95,8 @@ model Table {
     headerTypes   Int[]
     numRows       Int
     filters       Filter[] 
-    sorts         Sort[]    
+    sorts         Sort[]
+    showing       Boolean[]    
 }
 
 

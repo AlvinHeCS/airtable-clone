@@ -85,16 +85,17 @@ model Base {
 }
 
 model Table {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
   rows        Row[]
   baseId      String
-  base        Base     @relation(fields: [baseId], references: [id])
+  base        Base      @relation(fields: [baseId], references: [id])
   headers     String[]
   headerTypes Int[]
   numRows     Int
   filters     Filter[]
   sorts       Sort[]
+  showing     Boolean[]
 }
 
 model Row {

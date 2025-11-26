@@ -12,6 +12,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import GridBar from "~/app/_components/gridBar"
 import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
+import ShowHideColModal from "./showHideColModal";
 
 interface prop {
     tableName: string;
@@ -63,6 +64,7 @@ type Table = {
   name: string;
   filters: Filter[];
   sorts: Sort[];
+  showing: boolean[];
 }
 
 type TableRow = Record<string, string> & { rowId: string };
@@ -94,7 +96,6 @@ export default function Table(tableProp: prop) {
       },
       {
         getNextPageParam: (lastPage) => {
-          console.log("this is next cursor", lastPage.nextCursor);
           return lastPage.nextCursor
         }
       }
@@ -107,8 +108,10 @@ export default function Table(tableProp: prop) {
     
     const [localHeaders, setLocalHeaders] = useState<string[]>([]);
     const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
+    const [localShowing, setLocalShowing] = useState<boolean[]>([]);
     const [data, setData] = useState<TableRow[]>([]);
 
+    const [showShowHideColModal, setShowShowHideColModal] = useState<boolean>(false);
     const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
     const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
@@ -146,7 +149,7 @@ export default function Table(tableProp: prop) {
     // anytime new table, or allRows is loaded then set local table information (happens everytime table is swapped)
     useEffect(() => {
       if (!table || !allRows) return;
-    
+      
       const newData: TableRow[] = allRows.map(row => {
         const rowData: TableRow = { rowId: row.id };
     
@@ -158,10 +161,10 @@ export default function Table(tableProp: prop) {
     
         return rowData;
       });
-    
       setData(newData);
       setLocalHeaders(table.headers);
       setLocalHeadersTypes(table.headerTypes);
+      setLocalShowing(table.showing);
     
     }, [table, allRows]);
 
@@ -188,7 +191,7 @@ export default function Table(tableProp: prop) {
       size: 40,
     };
 
-    const dataCols = localHeaders.map((header, i) => ({
+    let dataCols = localHeaders.map((header, i) => ({
       accessorKey: header,
       header: () => {
         if (localHeaderTypes[i] === 0) {
@@ -221,8 +224,11 @@ export default function Table(tableProp: prop) {
         else return <NumCell info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId} />;
       },
     }));
+    dataCols = dataCols.filter((_, i) => {
+        return localShowing[i]
+    })
     return [rowNumberCol, ...dataCols];
-  }, [localHeaders, localHeaderTypes]);
+  }, [localHeaders, localHeaderTypes, localShowing]);
 
   // create TanStack table instance
   const tanTable = useReactTable({
@@ -428,6 +434,7 @@ export default function Table(tableProp: prop) {
                 gap: "5px",
                 padding: "5px",
               }}
+              onClick={() => (setShowShowHideColModal(true))}
             >
               <img style={{ width: "20px", height: "20px" }} src="/hide.svg" />
               <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
@@ -533,9 +540,10 @@ export default function Table(tableProp: prop) {
               </button>
             ))}
           </div>
+          {showShowHideColModal ? <ShowHideColModal localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table!.id} setModal={setShowShowHideColModal} /> : null}
           {showFilterModal ? <FilterModal tableFilters={table!.filters} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowFilterModal} tableName={table!.name} baseId={table!.baseId}/> : null}
           {showSortModal ? <SortModal tableSorts={table!.sorts} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table!.name} baseId={table!.baseId}/> : null}
-          {showColumnModal ? <NewColModal id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes}/> : null}
+          {showColumnModal ? <NewColModal id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
         </div>
       <div style={{display: "flex", height: "100%"}}>
         <GridBar />
@@ -586,10 +594,10 @@ export default function Table(tableProp: prop) {
                </tr>
              ))}
            </tbody>
-           {/* add row and 100k row */}
+           {/* add row */}
            <tfoot>
              <tr>
-               <td colSpan={table!.headers.length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
+               <td colSpan={localShowing.filter(Boolean).length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
                  <div style={{ display: "flex", gap: "4px" }}>
                    <button
                      onClick={addRow}

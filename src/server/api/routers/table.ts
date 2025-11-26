@@ -154,6 +154,7 @@ addCol: protectedProcedure
     const table = await ctx.db.table.update({
       where: { id: input.tableId },
       data: {
+        showing: {push: true},
         headers: { push: input.header },
         headerTypes: { push: input.type },
       },
@@ -376,6 +377,25 @@ add100kRow: protectedProcedure
   .mutation(async ({ctx, input}) => {
     return await ctx.db.sort.delete({
       where: {id: input.sortId}
+    })
+  }),
+  showHideCol: protectedProcedure
+  .input(z.object({tableId: z.string(), check: z.boolean(), colIndex: z.number()}))
+  .mutation(async ({ctx, input}) => {
+    return await ctx.db.$transaction(async (tx) => {
+      const table = await tx.table.findUnique({
+        where: {id: input.tableId},
+      })
+
+      if (!table) throw new Error("table not found");
+      const newShowing = [...table.showing]
+      newShowing[input.colIndex] = input.check;
+      return await tx.table.update({
+        where: {id: input.tableId},
+        data: {
+          showing: newShowing
+        }
+      })
     })
   })
 })

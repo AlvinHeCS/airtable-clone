@@ -51,6 +51,7 @@ export const userRouter = createTRPCRouter({
                 headers: ["A Name", "Assignee", "Status", "Attachments"],
                 headerTypes: [0, 0, 1, 1],
                 numRows: 1,
+                showing: [true, true, true, true],
                 rows: {
                   create: [
                     {

@@ -13,6 +13,7 @@ interface prop {
     setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
     setLocalHeaders: React.Dispatch<React.SetStateAction<string[]>>;
     setLocalHeaderTypes: React.Dispatch<React.SetStateAction<number[]>>;
+    setLocalShowing: React.Dispatch<React.SetStateAction<boolean[]>>;
 }
 
 export default function NewColModal(NewColModalProp: prop) {
@@ -34,6 +35,39 @@ export default function NewColModal(NewColModalProp: prop) {
             [newHeaderVal]: "",
           }))
         );
+        NewColModalProp.setLocalShowing((prev) => {
+          const newLocalShowing = [...prev];
+          newLocalShowing.push(true);
+          utils.table.getTableWithRowsAhead.setInfiniteData({baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName}, 
+              (oldData) => {
+                  //   pages: {
+                  //     table: Table;
+                  //     rows: Row[]; size is 200 as long as theres more
+                  //     nextCursor: number | null;
+                  //   }[],
+
+                  // if value has never been cached before
+                  if (!oldData) return oldData;
+                  // set all table 
+                  const newPages = oldData.pages.map((page) => {
+                      return ({
+                          ...page,
+                          table: {
+                              ...page.table,
+                              showing: newLocalShowing
+                          }
+                          }
+                      )
+                  })
+                  return {
+                      ...oldData,
+                      pages: newPages
+                  }
+
+              }   
+          )
+          return newLocalShowing
+        })
 
         // Update the tRPC cache 
         utils.table.getTableWithRowsAhead.setInfiniteData(
@@ -50,6 +84,7 @@ export default function NewColModal(NewColModalProp: prop) {
               // overides the table from the spreaded ...page
               table: {
                 ...page.table,
+                showing: [...page.table.showing, true],
                 headers: [...page.table.headers, newHeaderVal],
                 headerTypes: [...page.table.headerTypes, newHeaderType],
               },

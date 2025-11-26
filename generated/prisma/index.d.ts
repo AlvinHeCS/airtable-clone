@@ -8599,6 +8599,7 @@ export namespace Prisma {
     headers: number
     headerTypes: number
     numRows: number
+    showing: number
     _all: number
   }
 
@@ -8634,6 +8635,7 @@ export namespace Prisma {
     headers?: true
     headerTypes?: true
     numRows?: true
+    showing?: true
     _all?: true
   }
 
@@ -8730,6 +8732,7 @@ export namespace Prisma {
     headers: string[]
     headerTypes: number[]
     numRows: number
+    showing: boolean[]
     _count: TableCountAggregateOutputType | null
     _avg: TableAvgAggregateOutputType | null
     _sum: TableSumAggregateOutputType | null
@@ -8758,6 +8761,7 @@ export namespace Prisma {
     headers?: boolean
     headerTypes?: boolean
     numRows?: boolean
+    showing?: boolean
     rows?: boolean | Table$rowsArgs<ExtArgs>
     base?: boolean | BaseDefaultArgs<ExtArgs>
     filters?: boolean | Table$filtersArgs<ExtArgs>
@@ -8772,6 +8776,7 @@ export namespace Prisma {
     headers?: boolean
     headerTypes?: boolean
     numRows?: boolean
+    showing?: boolean
     base?: boolean | BaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["table"]>
 
@@ -8782,6 +8787,7 @@ export namespace Prisma {
     headers?: boolean
     headerTypes?: boolean
     numRows?: boolean
+    showing?: boolean
     base?: boolean | BaseDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["table"]>
 
@@ -8792,9 +8798,10 @@ export namespace Prisma {
     headers?: boolean
     headerTypes?: boolean
     numRows?: boolean
+    showing?: boolean
   }
 
-  export type TableOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "baseId" | "headers" | "headerTypes" | "numRows", ExtArgs["result"]["table"]>
+  export type TableOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "baseId" | "headers" | "headerTypes" | "numRows" | "showing", ExtArgs["result"]["table"]>
   export type TableInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     rows?: boolean | Table$rowsArgs<ExtArgs>
     base?: boolean | BaseDefaultArgs<ExtArgs>
@@ -8824,6 +8831,7 @@ export namespace Prisma {
       headers: string[]
       headerTypes: number[]
       numRows: number
+      showing: boolean[]
     }, ExtArgs["result"]["table"]>
     composites: {}
   }
@@ -9257,6 +9265,7 @@ export namespace Prisma {
     readonly headers: FieldRef<"Table", 'String[]'>
     readonly headerTypes: FieldRef<"Table", 'Int[]'>
     readonly numRows: FieldRef<"Table", 'Int'>
+    readonly showing: FieldRef<"Table", 'Boolean[]'>
   }
     
 
@@ -14205,7 +14214,8 @@ export namespace Prisma {
     baseId: 'baseId',
     headers: 'headers',
     headerTypes: 'headerTypes',
-    numRows: 'numRows'
+    numRows: 'numRows',
+    showing: 'showing'
   };
 
   export type TableScalarFieldEnum = (typeof TableScalarFieldEnum)[keyof typeof TableScalarFieldEnum]
@@ -14337,6 +14347,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean[]'
+   */
+  export type ListBooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -14776,6 +14800,7 @@ export namespace Prisma {
     headers?: StringNullableListFilter<"Table">
     headerTypes?: IntNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
+    showing?: BoolNullableListFilter<"Table">
     rows?: RowListRelationFilter
     base?: XOR<BaseScalarRelationFilter, BaseWhereInput>
     filters?: FilterListRelationFilter
@@ -14789,6 +14814,7 @@ export namespace Prisma {
     headers?: SortOrder
     headerTypes?: SortOrder
     numRows?: SortOrder
+    showing?: SortOrder
     rows?: RowOrderByRelationAggregateInput
     base?: BaseOrderByWithRelationInput
     filters?: FilterOrderByRelationAggregateInput
@@ -14805,6 +14831,7 @@ export namespace Prisma {
     headers?: StringNullableListFilter<"Table">
     headerTypes?: IntNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
+    showing?: BoolNullableListFilter<"Table">
     rows?: RowListRelationFilter
     base?: XOR<BaseScalarRelationFilter, BaseWhereInput>
     filters?: FilterListRelationFilter
@@ -14818,6 +14845,7 @@ export namespace Prisma {
     headers?: SortOrder
     headerTypes?: SortOrder
     numRows?: SortOrder
+    showing?: SortOrder
     _count?: TableCountOrderByAggregateInput
     _avg?: TableAvgOrderByAggregateInput
     _max?: TableMaxOrderByAggregateInput
@@ -14835,6 +14863,7 @@ export namespace Prisma {
     headers?: StringNullableListFilter<"Table">
     headerTypes?: IntNullableListFilter<"Table">
     numRows?: IntWithAggregatesFilter<"Table"> | number
+    showing?: BoolNullableListFilter<"Table">
   }
 
   export type RowWhereInput = {
@@ -15441,6 +15470,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowCreateNestedManyWithoutTableInput
     base: BaseCreateNestedOneWithoutTablesInput
     filters?: FilterCreateNestedManyWithoutTableInput
@@ -15454,6 +15484,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowUncheckedCreateNestedManyWithoutTableInput
     filters?: FilterUncheckedCreateNestedManyWithoutTableInput
     sorts?: SortUncheckedCreateNestedManyWithoutTableInput
@@ -15465,6 +15496,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUpdateManyWithoutTableNestedInput
     base?: BaseUpdateOneRequiredWithoutTablesNestedInput
     filters?: FilterUpdateManyWithoutTableNestedInput
@@ -15478,6 +15510,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUncheckedUpdateManyWithoutTableNestedInput
     filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
     sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
@@ -15490,6 +15523,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
   }
 
   export type TableUpdateManyMutationInput = {
@@ -15498,6 +15532,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
   }
 
   export type TableUncheckedUpdateManyInput = {
@@ -15507,6 +15542,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
   }
 
   export type RowCreateInput = {
@@ -16157,6 +16193,14 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type BoolNullableListFilter<$PrismaModel = never> = {
+    equals?: boolean[] | ListBooleanFieldRefInput<$PrismaModel> | null
+    has?: boolean | BooleanFieldRefInput<$PrismaModel> | null
+    hasEvery?: boolean[] | ListBooleanFieldRefInput<$PrismaModel>
+    hasSome?: boolean[] | ListBooleanFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type RowListRelationFilter = {
     every?: RowWhereInput
     some?: RowWhereInput
@@ -16199,6 +16243,7 @@ export namespace Prisma {
     headers?: SortOrder
     headerTypes?: SortOrder
     numRows?: SortOrder
+    showing?: SortOrder
   }
 
   export type TableAvgOrderByAggregateInput = {
@@ -16756,6 +16801,10 @@ export namespace Prisma {
     set: number[]
   }
 
+  export type TableCreateshowingInput = {
+    set: boolean[]
+  }
+
   export type RowCreateNestedManyWithoutTableInput = {
     create?: XOR<RowCreateWithoutTableInput, RowUncheckedCreateWithoutTableInput> | RowCreateWithoutTableInput[] | RowUncheckedCreateWithoutTableInput[]
     connectOrCreate?: RowCreateOrConnectWithoutTableInput | RowCreateOrConnectWithoutTableInput[]
@@ -16812,6 +16861,11 @@ export namespace Prisma {
   export type TableUpdateheaderTypesInput = {
     set?: number[]
     push?: number | number[]
+  }
+
+  export type TableUpdateshowingInput = {
+    set?: boolean[]
+    push?: boolean | boolean[]
   }
 
   export type RowUpdateManyWithoutTableNestedInput = {
@@ -17666,6 +17720,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowCreateNestedManyWithoutTableInput
     filters?: FilterCreateNestedManyWithoutTableInput
     sorts?: SortCreateNestedManyWithoutTableInput
@@ -17677,6 +17732,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowUncheckedCreateNestedManyWithoutTableInput
     filters?: FilterUncheckedCreateNestedManyWithoutTableInput
     sorts?: SortUncheckedCreateNestedManyWithoutTableInput
@@ -17745,6 +17801,7 @@ export namespace Prisma {
     headers?: StringNullableListFilter<"Table">
     headerTypes?: IntNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
+    showing?: BoolNullableListFilter<"Table">
   }
 
   export type UserUpsertWithoutBasesInput = {
@@ -18003,6 +18060,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     base: BaseCreateNestedOneWithoutTablesInput
     filters?: FilterCreateNestedManyWithoutTableInput
     sorts?: SortCreateNestedManyWithoutTableInput
@@ -18015,6 +18073,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     filters?: FilterUncheckedCreateNestedManyWithoutTableInput
     sorts?: SortUncheckedCreateNestedManyWithoutTableInput
   }
@@ -18068,6 +18127,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     base?: BaseUpdateOneRequiredWithoutTablesNestedInput
     filters?: FilterUpdateManyWithoutTableNestedInput
     sorts?: SortUpdateManyWithoutTableNestedInput
@@ -18080,6 +18140,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
     sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
   }
@@ -18134,6 +18195,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowCreateNestedManyWithoutTableInput
     base: BaseCreateNestedOneWithoutTablesInput
     sorts?: SortCreateNestedManyWithoutTableInput
@@ -18146,6 +18208,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowUncheckedCreateNestedManyWithoutTableInput
     sorts?: SortUncheckedCreateNestedManyWithoutTableInput
   }
@@ -18172,6 +18235,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUpdateManyWithoutTableNestedInput
     base?: BaseUpdateOneRequiredWithoutTablesNestedInput
     sorts?: SortUpdateManyWithoutTableNestedInput
@@ -18184,6 +18248,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUncheckedUpdateManyWithoutTableNestedInput
     sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
   }
@@ -18194,6 +18259,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowCreateNestedManyWithoutTableInput
     base: BaseCreateNestedOneWithoutTablesInput
     filters?: FilterCreateNestedManyWithoutTableInput
@@ -18206,6 +18272,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
     rows?: RowUncheckedCreateNestedManyWithoutTableInput
     filters?: FilterUncheckedCreateNestedManyWithoutTableInput
   }
@@ -18232,6 +18299,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUpdateManyWithoutTableNestedInput
     base?: BaseUpdateOneRequiredWithoutTablesNestedInput
     filters?: FilterUpdateManyWithoutTableNestedInput
@@ -18244,6 +18312,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUncheckedUpdateManyWithoutTableNestedInput
     filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
   }
@@ -18391,6 +18460,7 @@ export namespace Prisma {
     headers?: TableCreateheadersInput | string[]
     headerTypes?: TableCreateheaderTypesInput | number[]
     numRows: number
+    showing?: TableCreateshowingInput | boolean[]
   }
 
   export type TableUpdateWithoutBaseInput = {
@@ -18399,6 +18469,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUpdateManyWithoutTableNestedInput
     filters?: FilterUpdateManyWithoutTableNestedInput
     sorts?: SortUpdateManyWithoutTableNestedInput
@@ -18410,6 +18481,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
     rows?: RowUncheckedUpdateManyWithoutTableNestedInput
     filters?: FilterUncheckedUpdateManyWithoutTableNestedInput
     sorts?: SortUncheckedUpdateManyWithoutTableNestedInput
@@ -18421,6 +18493,7 @@ export namespace Prisma {
     headers?: TableUpdateheadersInput | string[]
     headerTypes?: TableUpdateheaderTypesInput | number[]
     numRows?: IntFieldUpdateOperationsInput | number
+    showing?: TableUpdateshowingInput | boolean[]
   }
 
   export type RowCreateManyTableInput = {
