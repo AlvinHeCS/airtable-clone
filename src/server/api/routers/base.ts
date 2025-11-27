@@ -45,9 +45,16 @@ export const baseRouter = createTRPCRouter({
         name: `Table ${tableAmount + 1}`,
         headers: ["Name", "Assignee", "Status", "Attachments"],
         headerTypes: [0, 0, 1, 1],
-        showing: [true, true, true, true],
         numRows: 1,
-        base: { connect: { id: input.baseId } },
+        baseId: input.baseId,
+        views: {
+          create: [
+            {
+              name: "Grid view",
+              showing: [true, true, true, true],
+            }
+          ]
+        },
         rows: {
           create: [
             {

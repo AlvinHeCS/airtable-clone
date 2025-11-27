@@ -13,6 +13,7 @@ interface CellProp {
   baseId: string;
   tableName: string;
   tableId: string;
+  viewName: string;
 }
 
 export default function StringCell(prop: CellProp) {
@@ -22,22 +23,27 @@ export default function StringCell(prop: CellProp) {
   const [cellValue, setCellValue] = useState<string>(prop.info.getValue() ?? "");
 
   const { mutateAsync } = api.table.editCell.useMutation();
-const handleChange = async (newVal: string) => {
-  setCellValue(newVal);
-
+  const handleChange = async (newVal: string) => {
+      setCellValue(newVal);
   try {
     await mutateAsync({ 
       rowId: prop.info.row.original.rowId, 
       col: colIndex, 
       newVal 
     });
-
     // Update the cached infinite query
-    utils.table.getTableWithRowsAhead.setInfiniteData(
-      { baseId: prop.baseId, tableName: prop.tableName },
+    utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
+      { viewName: prop.viewName, baseId: prop.baseId, tableName: prop.tableName },
+      //   pages: {
+      //     table: Table;
+      //     rows: Row[]; size is 200 as long as theres more
+      //     nextCursor: number | null;
+      //     view: View;
+      //   }[],
       (oldData) => {
+        console.log("entered here", prop.viewName, prop.baseId, prop.tableName)
         if (!oldData) return oldData;
-
+        console.log("we in this btch")
         // Update the correct cell in all pages
         const newPages = oldData.pages.map(page => {
           return {
@@ -65,7 +71,7 @@ const handleChange = async (newVal: string) => {
   } catch (err) {
     console.error(err);
   }
-};
+  };
 
   return (
       <input 

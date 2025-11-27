@@ -5,29 +5,42 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { table } from "console";
 
 export const tableRouter = createTRPCRouter({
-getTableWithRowsAhead: protectedProcedure
+getTableAndViewWithRowsAhead: protectedProcedure
   .input(z.object({
     baseId: z.string(),
     tableName: z.string(),
-    cursor: z.number().optional()
+    cursor: z.number().optional(),
+    viewName: z.string(),
   }))
   .query(async ({ ctx, input }) => {
 
     // get table
     const table = await ctx.db.table.findFirst({
       where: { baseId: input.baseId, name: input.tableName },
-      include: { filters: true, sorts: true }
     });
     if (!table) throw new Error("Table not found");
     
+    const view = await ctx.db.view.findFirst({
+      where: {
+        name: input.viewName,
+        tableId: table.id
+      },
+      include: {filters: true, sorts: true}
+    })
+    if (!view) throw new Error("View not found");
+
+    const filters = view.filters;
+    const sorts = view.sorts;
+
     // find rows that fit table.Id and fit applied filters
     const pageSize = 200;
     const rows = await ctx.db.row.findMany({
       where: { 
         tableId: table.id,
-        AND: table.filters.map((f) => ({
+        AND: filters.map((f) => ({
           cells: {
             some: {
               colNum: f.columnIndex,
@@ -68,9 +81,9 @@ getTableWithRowsAhead: protectedProcedure
 
     // sort rows
     const sortedRows = [...rows].sort((a, b) => {
-      for (let i = table.sorts.length - 1; i >= 0; i--) {
-        const col = table.sorts[i]!.columnIndex;
-        const dir = table.sorts[i]!.type === "sortA_Z" || table.sorts[i]!.type === "sort1_9" ? 1 : -1;
+      for (let i = sorts.length - 1; i >= 0; i--) {
+        const col = sorts[i]!.columnIndex;
+        const dir = sorts[i]!.type === "sortA_Z" || sorts[i]!.type === "sort1_9" ? 1 : -1;
 
         const aVal = (a.cellsFlat as (string | number)[])[col];
         const bVal = (b.cellsFlat as (string | number)[])[col];
@@ -94,6 +107,7 @@ getTableWithRowsAhead: protectedProcedure
 
     return {
       table,
+      view,
       rows: sortedRows,
       nextCursor
     };
@@ -149,16 +163,31 @@ addRow: protectedProcedure
 }),
   
 addCol: protectedProcedure
-.input(z.object({ tableId: z.string(), type: z.number(), header: z.string() }))
+.input(z.object({ tableId: z.string(), type: z.number(), header: z.string(), viewName: z.string() }))
 .mutation(async ({ ctx, input }) => {
     const table = await ctx.db.table.update({
       where: { id: input.tableId },
       data: {
-        showing: {push: true},
         headers: { push: input.header },
         headerTypes: { push: input.type },
       },
       select: { headers: true, headerTypes: true },
+    });
+
+    // update showing for all the views
+    await ctx.db.view.updateMany({
+      where: { 
+        tableId: input.tableId,
+        NOT: { name: input.viewName }
+      },
+      data: { showing: { push: false } },
+    });
+    await ctx.db.view.updateMany({
+      where: { 
+        tableId: input.tableId, 
+        name: input.viewName 
+      },
+      data: { showing: { push: true }}
     });
 
     const newColNum = table.headers.length - 1;
@@ -326,7 +355,7 @@ add100kRow: protectedProcedure
   addFilter: protectedProcedure
   .input(
     z.object({
-      tableId: z.string(),
+      viewId: z.string(),
       colNum: z.number(),
       filterVal: z.string().optional(),
       filterType: z.enum([
@@ -341,9 +370,9 @@ add100kRow: protectedProcedure
     })
   )
   .mutation(async ({ ctx, input }) => {
-    return ctx.db.filter.create({
+    return await ctx.db.filter.create({
       data: {
-        tableId: input.tableId,
+        viewId: input.viewId,
         columnIndex: input.colNum,
         type: input.filterType,
         value: input.filterVal ?? "",
@@ -361,7 +390,7 @@ add100kRow: protectedProcedure
   addSort: protectedProcedure
   .input(
     z.object({
-      tableId: z.string(),
+      viewId: z.string(),
       colNum: z.number(),
       sortType: z.enum([
         "sortA_Z",
@@ -374,7 +403,7 @@ add100kRow: protectedProcedure
   .mutation(async({ctx, input}) => {
     return await ctx.db.sort.create({
       data: {
-        tableId: input.tableId,
+        viewId: input.viewId,
         columnIndex: input.colNum,
         type: input.sortType
       }
@@ -388,20 +417,77 @@ add100kRow: protectedProcedure
     })
   }),
   showHideCol: protectedProcedure
-  .input(z.object({tableId: z.string(), check: z.boolean(), colIndex: z.number()}))
+  .input(z.object({viewId: z.string(), check: z.boolean(), colIndex: z.number()}))
+  .mutation(async ({ctx, input}) => {
+    return await ctx.db.$transaction(async (tx) => {
+      const view = await tx.view.findUnique({
+        where: {id: input.viewId},
+      })
+
+      if (!view) throw new Error("view not found");
+      const newShowing = [...view.showing]
+      newShowing[input.colIndex] = input.check;
+      return await tx.view.update({
+        where: {id: input.viewId},
+        data: {
+          showing: newShowing
+        }
+      })
+    })
+  }),
+  getViews: protectedProcedure
+  .input(z.object({tableId: z.string()}))
+  .query(async ({ctx, input}) => {
+    const table = await ctx.db.table.findUnique({
+      where: { id: input.tableId },
+      select: { 
+        views: {
+          orderBy: { creationDate: "asc" },
+          include: { filters: true, sorts: true}
+      } },
+    });
+    return table?.views ?? [];
+  }),
+  getViewFromTableIdViewName: protectedProcedure
+  .input(z.object({tableId: z.string(), viewName: z.string()}))
+  .query(async ({ctx, input}) => {
+    return await ctx.db.view.findFirst({
+      where: {
+        tableId: input.tableId,
+        name: input.viewName
+      },
+      include: {
+        filters: true,
+        sorts: true
+      }
+    })
+  }),
+  addView: protectedProcedure
+  .input(z.object({tableId: z.string()}))
   .mutation(async ({ctx, input}) => {
     return await ctx.db.$transaction(async (tx) => {
       const table = await tx.table.findUnique({
         where: {id: input.tableId},
+        select: {numViews: true, headers: true}
       })
-
       if (!table) throw new Error("table not found");
-      const newShowing = [...table.showing]
-      newShowing[input.colIndex] = input.check;
-      return await tx.table.update({
+      const viewAmount = table.numViews
+      // update viewAmount
+      await tx.table.update({
         where: {id: input.tableId},
         data: {
-          showing: newShowing
+          numViews: { increment: 1 }
+        }
+      })
+      return await tx.view.create({
+        data: {
+          name: `Grid ${viewAmount + 1}`,
+          tableId: input.tableId,
+          showing: table.headers.map((h) => { return true})
+        },
+        include: {
+          filters: true,
+          sorts: true
         }
       })
     })

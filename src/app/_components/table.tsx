@@ -13,71 +13,23 @@ import GridBar from "~/app/_components/gridBar"
 import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
+import type { Table, TableRow } from "~/types/types";
 
 interface prop {
     tableName: string;
     baseId: string;
 }
 
-const filterTypes = [
-  "contains",
-  "not_contains",
-  "eq",
-  "gt",
-  "lt",
-  "empty",
-  "not_empty",
-] as const;
-
-type OperatorType = typeof filterTypes[number];
-
-type Filter = {
-  id: string;
-  type: OperatorType;
-  value: string;
-  tableId: string;
-  columnIndex: number;
-};
-
-const sortTypes = [
-  "sortA_Z",
-  "sortZ_A",
-  "sort1_9",
-  "sort9-1"
-] as const
-
-type SortType = typeof sortTypes[number];
-
-type Sort = {
-  id: string;
-  type: SortType;
-  tableId: string;
-  columnIndex: number;
-};
-
-type Table = {
-  id: string;
-  baseId: string;
-  headers: string[];
-  headerTypes: number[];
-  numRows: number;
-  name: string;
-  filters: Filter[];
-  sorts: Sort[];
-  showing: boolean[];
-}
-
-type TableRow = Record<string, string> & { rowId: string };
-
-
 export default function Table(tableProp: prop) {
     const utils = api.useUtils();    
-  
-
+    
+    const [viewName, setViewName] = useState<string>("Grid view");
+    
 // this is the shape of getTableWIthRowsAhead
 // {
 //   pages: {
 //     table: Table;
+//     view: View;
 //     rows: Row[]; size is 200 as long as theres more
 //     nextCursor: number | null;
 //   }[],
@@ -85,14 +37,15 @@ export default function Table(tableProp: prop) {
 // }
 
     const {
-      data: getTableWithRowsAheadData,
+      data: getTableAndViewWithRowsAhead,
       fetchNextPage,
       hasNextPage,
       isFetchingNextPage,
-    } = api.table.getTableWithRowsAhead.useInfiniteQuery(
+    } = api.table.getTableAndViewWithRowsAhead.useInfiniteQuery(
       {
         baseId: tableProp.baseId,
         tableName: tableProp.tableName,
+        viewName: viewName
       },
       {
         getNextPageParam: (lastPage) => {
@@ -100,11 +53,11 @@ export default function Table(tableProp: prop) {
         }
       }
     );
-    const table = getTableWithRowsAheadData?.pages?.[0]?.table;
-
+    const table = getTableAndViewWithRowsAhead?.pages?.[0]?.table;
+    const view = getTableAndViewWithRowsAhead?.pages?.[0]?.view;
     const allRows = useMemo(() => {
-      return getTableWithRowsAheadData?.pages.flatMap((p) => p.rows) ?? [];
-    }, [getTableWithRowsAheadData]);
+      return getTableAndViewWithRowsAhead?.pages.flatMap((p) => p.rows) ?? [];
+    }, [getTableAndViewWithRowsAhead]);
     
     const [localHeaders, setLocalHeaders] = useState<string[]>([]);
     const [localHeaderTypes, setLocalHeadersTypes] = useState<number[]>([]);
@@ -120,9 +73,10 @@ export default function Table(tableProp: prop) {
 
     const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
       onSuccess: () => {
-        utils.table.getTableWithRowsAhead.invalidate({
+        utils.table.getTableAndViewWithRowsAhead.invalidate({
           baseId: tableProp.baseId,
-          tableName: tableProp.tableName
+          tableName: tableProp.tableName,
+          viewName: viewName,
         });
       }
     });
@@ -148,7 +102,7 @@ export default function Table(tableProp: prop) {
     
     // anytime new table, or allRows is loaded then set local table information (happens everytime table is swapped)
     useEffect(() => {
-      if (!table || !allRows) return;
+      if (!table || !allRows || !view) return;
       
       const newData: TableRow[] = allRows.map(row => {
         const rowData: TableRow = { rowId: row.id };
@@ -164,14 +118,15 @@ export default function Table(tableProp: prop) {
       setData(newData);
       setLocalHeaders(table.headers);
       setLocalHeadersTypes(table.headerTypes);
-      setLocalShowing(table.showing);
-    
+      setLocalShowing(view.showing);
     }, [table, allRows]);
+
+    
 
 
   // create columns dynamically
   const columns = useMemo<ColumnDef<TableRow, string>[]>(() => {
-    if (localHeaderTypes.length === 0 || localHeaderTypes.length === 0) return [];
+    if (localHeaderTypes.length === 0 || localHeaderTypes.length === 0 || !table) return [];
 
     const rowNumberCol: ColumnDef<TableRow, string> = {
       id: "rowNumber",
@@ -220,15 +175,15 @@ export default function Table(tableProp: prop) {
       },
       meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number, second: boolean },
       cell: (info: CellContext<TableRow, string>) => {
-        if (localHeaderTypes[i] === 0) return <StringCell info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId}/>;
-        else return <NumCell info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId} />;
+        if (localHeaderTypes[i] === 0) return <StringCell viewName={viewName} info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId}/>;
+        else return <NumCell viewName={viewName} info={info} tableId={table.id} tableName={table!.name} baseId={table!.baseId} />;
       },
     }));
     dataCols = dataCols.filter((_, i) => {
         return localShowing[i]
     })
     return [rowNumberCol, ...dataCols];
-  }, [localHeaders, localHeaderTypes, localShowing]);
+  }, [localHeaders, localHeaderTypes, localShowing, viewName]);
 
   // create TanStack table instance
   const tanTable = useReactTable({
@@ -266,7 +221,7 @@ export default function Table(tableProp: prop) {
   }
 
   async function addRow() {
-    if (!table) return;
+    if (!table || !view) return;
 
     const newRow = await mutateAsyncRow({ tableId: table.id });
     if (!newRow) throw new Error("row failed to be created");
@@ -293,7 +248,7 @@ export default function Table(tableProp: prop) {
 
   let passed = true;
 
-  for (const f of table.filters) {
+  for (const f of view.filters) {
     const header = table.headers[f.columnIndex] || "";
     const cellVal = rowData[header] ?? "";
 
@@ -328,13 +283,14 @@ export default function Table(tableProp: prop) {
     setData(prev => [...prev, rowData]);
 
     // update cache 
-    utils.table.getTableWithRowsAhead.setInfiniteData({ baseId: tableProp.baseId, tableName: tableProp.tableName },
+    utils.table.getTableAndViewWithRowsAhead.setInfiniteData({ baseId: tableProp.baseId, tableName: tableProp.tableName, viewName: viewName },
       (oldData) => {
         if (!oldData) {
           return {
             pages: [
               {
                 table,
+                view,
                 rows: [cachedRow],
                 nextCursor: null,
               },
@@ -358,11 +314,13 @@ export default function Table(tableProp: prop) {
         const lastPageIndex = pages.length - 1;
         const lastPage = pages[lastPageIndex];
 
+        if (!lastPage) throw new Error("last page not found");
         pages[lastPageIndex] = {
           ...lastPage,
-          table: lastPage!.table!, 
-          rows: [...lastPage!.rows, cachedRow],
-          nextCursor: lastPage!.nextCursor ?? null,
+          view: lastPage.view,
+          table: lastPage.table, 
+          rows: [...lastPage.rows, cachedRow],
+          nextCursor: lastPage.nextCursor ?? null,
         };
 
         return {
@@ -377,12 +335,13 @@ export default function Table(tableProp: prop) {
     mutateAsyncRow100k({tableId: table!.id});
   }
 
-    if (!allRows || !table) {
+    if (!allRows || !table || !view) {
       return (
         <div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Fetching rows <CircularProgress size="20px"/></div>
       )
     }
 
+    // view should be defined when at this stage right
     return(
       <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
         <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
@@ -540,13 +499,13 @@ export default function Table(tableProp: prop) {
               </button>
             ))}
           </div>
-          {showShowHideColModal ? <ShowHideColModal tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
-          {showFilterModal ? <FilterModal tableFilters={table.filters} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
-          {showSortModal ? <SortModal tableSorts={table!.sorts} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
-          {showColumnModal ? <NewColModal id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
+          {showShowHideColModal ? <ShowHideColModal view={view} tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
+          {showFilterModal ? <FilterModal view={view} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
+          {showSortModal ? <SortModal view={view} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
+          {showColumnModal ? <NewColModal view={view} id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
         </div>
       <div style={{display: "flex", height: "100%"}}>
-        <GridBar />
+        <GridBar tableId={table.id} setViewName={setViewName} tableName={table.name} baseId={table.baseId} viewName={viewName}/>
         <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh"}}>
         <table style={{ minWidth: "max-content", borderCollapse: "collapse" }}>
            <thead>

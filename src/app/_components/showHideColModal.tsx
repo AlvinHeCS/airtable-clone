@@ -2,7 +2,7 @@ import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import { api } from "~/trpc/react";
-import { useEffect } from 'react';
+import type { View } from "~/types/types";
 
 interface prop {
     tableHeaders: string[];
@@ -12,9 +12,8 @@ interface prop {
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     localShowing: boolean[];
     setLocalShowing: React.Dispatch<React.SetStateAction<boolean[]>>;
+    view: View;
 }
-
-
 
 export default function ShowHideColModal(showHideColModalProp: prop) {
     const utils = api.useUtils();
@@ -22,13 +21,13 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
 
     async function handleChange(colIndex: number, check: boolean) {
         //update backend first
-        await mutateAsync({tableId: showHideColModalProp.tableId, check: check, colIndex: colIndex})
+        await mutateAsync({viewId: showHideColModalProp.view.id, check: check, colIndex: colIndex})
         // update local state
         showHideColModalProp.setLocalShowing((prev) => {
             const newLocalShowing = [...prev];
             newLocalShowing[colIndex] = check;
 
-            utils.table.getTableWithRowsAhead.setInfiniteData({baseId: showHideColModalProp.baseId, tableName: showHideColModalProp.tableName}, 
+            utils.table.getTableAndViewWithRowsAhead.setInfiniteData({baseId: showHideColModalProp.baseId, tableName: showHideColModalProp.tableName, viewName: showHideColModalProp.view.name}, 
                 (oldData) => {
                     //   pages: {
                     //     table: Table;
@@ -42,8 +41,8 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
                     const newPages = oldData.pages.map((page) => {
                         return ({
                             ...page,
-                            table: {
-                                ...page.table,
+                            view: {
+                                ...page.view,
                                 showing: newLocalShowing
                             }
                             }

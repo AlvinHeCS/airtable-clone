@@ -3,14 +3,15 @@
 import type { CellContext } from "@tanstack/react-table"
 import { useState } from "react" 
 import { api } from "~/trpc/react"
+import type { TableRow } from "~/types/types";
 
-type TableRow = Record<string, string> & { rowId: string };
 
 interface CellProp {
   info: CellContext<TableRow, string>;
   baseId: string;
   tableName: string;
   tableId: string;
+  viewName: string;
 }
 
 export default function StringCell(prop: CellProp) {
@@ -22,21 +23,26 @@ export default function StringCell(prop: CellProp) {
   const { mutateAsync } = api.table.editCell.useMutation();
 
 const handleChange = async (newVal: string) => {
+  // set local value
   setCellValue(newVal);
-
+  // mutate backend cell value
   try {
     await mutateAsync({ 
       rowId: prop.info.row.original.rowId, 
       col: colIndex, 
       newVal 
     });
-
     // Update the cached infinite query
-    utils.table.getTableWithRowsAhead.setInfiniteData(
-      { baseId: prop.baseId, tableName: prop.tableName },
+    utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
+      { viewName: prop.viewName, baseId: prop.baseId, tableName: prop.tableName },
+      //   pages: {
+      //     table: Table;
+      //     rows: Row[]; size is 200 as long as theres more
+      //     nextCursor: number | null;
+      //     view: View;
+      //   }[],
       (oldData) => {
         if (!oldData) return oldData;
-
         // Update the correct cell in all pages
         const newPages = oldData.pages.map(page => {
           return {

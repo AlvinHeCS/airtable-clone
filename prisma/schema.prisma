@@ -94,11 +94,20 @@ model Table {
     headers       String[]
     headerTypes   Int[]
     numRows       Int
-    filters       Filter[] 
-    sorts         Sort[]
-    showing       Boolean[]    
+    numViews      Int
+    views         View[]
 }
 
+model View {
+    id            String    @id @default(cuid())
+    tableId       String
+    table         Table     @relation(fields: [tableId], references: [id])
+    name          String
+    filters       Filter[] 
+    sorts         Sort[]
+    showing       Boolean[]
+    creationDate  DateTime  @default(now())
+}
 
 model Row {
     id            String    @id @default(cuid())
@@ -138,8 +147,8 @@ enum FilterType {
 
 model Filter {
     id           String    @id @default(cuid())
-    tableId      String
-    table        Table      @relation(fields: [tableId], references: [id])
+    viewId       String
+    view         View      @relation(fields: [viewId], references: [id])
     columnIndex  Int
     type         FilterType
     value        String
@@ -154,8 +163,8 @@ enum SortType {
 
 model Sort {
     id           String    @id @default(cuid())
-    tableId      String
-    table        Table      @relation(fields: [tableId], references: [id])
+    viewId       String
+    view         View      @relation(fields: [viewId], references: [id])
     columnIndex  Int
     type         SortType
 }

@@ -1,32 +1,16 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react"
+import type { View, Sort, TableRow, SortType } from "~/types/types";
 
-type TableRow = Record<string, string> & { rowId: string };
-
-const sortTypes = [
-    "sortA_Z",
-    "sortZ_A",
-    "sort1_9",
-    "sort9_1",
-] as const;
-
-type OperatorType = typeof sortTypes[number];
-
-type Sort = {
-    id: string;
-    type: OperatorType;
-    tableId: string;
-    columnIndex: number;
-};
 
 interface prop {
-    tableSorts: Sort[];
     tableHeaders: string[];
     tableId: string;
     tableName: string;
     baseId: string;
     setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
+    view: View;
 }
 
 export default function SortModal(SortModalProps: prop) {
@@ -34,31 +18,33 @@ export default function SortModal(SortModalProps: prop) {
     const [sorts, setSorts] = useState<Sort[]>([]);
     const [val, setVal] = useState<string>("");
     const [col, setCol] = useState<number>(0);
-    const [operator, setOperator] = useState<OperatorType>("sortA_Z");
+    const [operator, setOperator] = useState<SortType>("sortA_Z");
     const { mutateAsync: addSortAsync } = api.table.addSort.useMutation({
         onSuccess: () => {
-            utils.table.getTableWithRowsAhead.reset({
+            utils.table.getTableAndViewWithRowsAhead.reset({
                 baseId: SortModalProps.baseId,
-                tableName: SortModalProps.tableName
+                tableName: SortModalProps.tableName,
+                viewName: SortModalProps.view.name
             });
           }
     });
     const { mutateAsync: deleteSortAsync } = api.table.removeSort.useMutation({
         onSuccess: () => {
-            utils.table.getTableWithRowsAhead.reset({
+            utils.table.getTableAndViewWithRowsAhead.reset({
                 baseId: SortModalProps.baseId,
-                tableName: SortModalProps.tableName
+                tableName: SortModalProps.tableName,
+                viewName: SortModalProps.view.name
             });
         }
     });
-
+    
     useEffect(() => {
-        setSorts(SortModalProps.tableSorts);
+        setSorts(SortModalProps.view.sorts);
     }, [])    
 
     async function addSort() {
         if (operator) {
-            const newSort = await addSortAsync({tableId: SortModalProps.tableId, colNum: col, sortType: operator});
+            const newSort = await addSortAsync({viewId: SortModalProps.view.id || "", colNum: col, sortType: operator});
             setSorts([...sorts, newSort]);
         }
     }
@@ -69,6 +55,7 @@ export default function SortModal(SortModalProps: prop) {
             return sort.id !== sortId;
         }))
     }   
+
 
     return(
         <div style={{zIndex: "1000", marginLeft: "40vw", marginTop: "220px", width: "400px", background: "white", border: "solid black 1px", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
@@ -88,7 +75,7 @@ export default function SortModal(SortModalProps: prop) {
                         return(<option key={i} value={i}>{header}</option>)
                     })}
                 </select>
-                <select style={{border: "solid grey 0.5px", width: "150px", height: "30px", fontSize: "14px"}} value={operator} onChange={(e) => (setOperator(e.target.value as OperatorType))} >
+                <select style={{border: "solid grey 0.5px", width: "150px", height: "30px", fontSize: "14px"}} value={operator} onChange={(e) => (setOperator(e.target.value as SortType))} >
                     <option key={0} value="sortA_Z">A-Z</option>
                     <option key={1} value="sortZ_A">Z-A</option>
                     <option key={2} value="sort1_9">1-9</option>

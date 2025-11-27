@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import { api } from "~/trpc/react"
-
-type TableRow = Record<string, string> & { rowId: string };
+import type { TableRow, View } from "~/types/types";
 
 interface prop {
     id: string;
@@ -14,6 +13,7 @@ interface prop {
     setLocalHeaders: React.Dispatch<React.SetStateAction<string[]>>;
     setLocalHeaderTypes: React.Dispatch<React.SetStateAction<number[]>>;
     setLocalShowing: React.Dispatch<React.SetStateAction<boolean[]>>;
+    view: View;
 }
 
 export default function NewColModal(NewColModalProp: prop) {
@@ -24,7 +24,7 @@ export default function NewColModal(NewColModalProp: prop) {
     async function addCol() {
       if (newHeaderVal !== "") {
         // updatedRows.cells only contains the newley created cells for the last col
-        const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.id, type: newHeaderType, header: newHeaderVal });
+        const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.id, type: newHeaderType, header: newHeaderVal, viewName: NewColModalProp.view.name });
 
         // Update local state
         NewColModalProp.setLocalHeaders((prev) => [...prev, newHeaderVal]);
@@ -38,7 +38,7 @@ export default function NewColModal(NewColModalProp: prop) {
         NewColModalProp.setLocalShowing((prev) => {
           const newLocalShowing = [...prev];
           newLocalShowing.push(true);
-          utils.table.getTableWithRowsAhead.setInfiniteData({baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName}, 
+          utils.table.getTableAndViewWithRowsAhead.setInfiniteData({baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName, viewName: NewColModalProp.view.name }, 
               (oldData) => {
                   //   pages: {
                   //     table: Table;
@@ -63,15 +63,14 @@ export default function NewColModal(NewColModalProp: prop) {
                       ...oldData,
                       pages: newPages
                   }
-
               }   
           )
           return newLocalShowing
         })
 
         // Update the tRPC cache 
-        utils.table.getTableWithRowsAhead.setInfiniteData(
-          { baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName },
+        utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
+          { baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName, viewName: NewColModalProp.view.name },
           (oldData) => {
             if (!oldData) return oldData;
             //   pages: {
@@ -82,9 +81,12 @@ export default function NewColModal(NewColModalProp: prop) {
             const newPages = oldData.pages.map((page) => ({
               ...page,
               // overides the table from the spreaded ...page
+              view: {
+                ...page.view,
+                showing: [...page.view.showing, true]
+              },
               table: {
                 ...page.table,
-                showing: [...page.table.showing, true],
                 headers: [...page.table.headers, newHeaderVal],
                 headerTypes: [...page.table.headerTypes, newHeaderType],
               },

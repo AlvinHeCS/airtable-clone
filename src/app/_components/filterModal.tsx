@@ -1,68 +1,59 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react"
-
-type TableRow = Record<string, string> & { rowId: string };
-
-const filterTypes = [
-    "contains",
-    "not_contains",
-    "eq",
-    "gt",
-    "lt",
-    "empty",
-    "not_empty",
-] as const;
-
-type OperatorType = typeof filterTypes[number];
-
-type Filter = {
-    id: string;
-    type: OperatorType;
-    value: string;
-    tableId: string;
-    columnIndex: number;
-};
+import type { View, Filter, TableRow, OperatorType } from "~/types/types";
 
 interface prop {
-    tableFilters: Filter[];
     tableHeaders: string[];
     tableId: string;
     tableName: string;
     baseId: string;
     setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
+    view: View
 }
 
+
 export default function FilterModal(FilterModalProps: prop) {
+    const filterTypes = [
+        "contains",
+        "not_contains",
+        "eq",
+        "gt",
+        "lt",
+        "empty",
+        "not_empty",
+    ];
     const utils = api.useUtils();    
-    const [filters, setFilters] = useState<Filter[]>([]);
+    const [filters, setFilters] = useState<Filter[]>(FilterModalProps.view.filters);
     const [val, setVal] = useState<string>("");
     const [col, setCol] = useState<number>(0);
     const [operator, setOperator] = useState<OperatorType>("contains");
     const { mutateAsync: addFilterAsync } = api.table.addFilter.useMutation({
         onSuccess: () => {
-            utils.table.getTableWithRowsAhead.reset({
+            utils.table.getTableAndViewWithRowsAhead.reset({
                 baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName
+                tableName: FilterModalProps.tableName,
+                viewName: FilterModalProps.view.name
             });
           }
     });
     const { mutateAsync: deleteFilterAsync } = api.table.removeFilter.useMutation({
         onSuccess: () => {
-            utils.table.getTableWithRowsAhead.reset({
+            utils.table.getTableAndViewWithRowsAhead.reset({
                 baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName
+                tableName: FilterModalProps.tableName,
+                viewName: FilterModalProps.view.name
             });
-        }
+          }
     });
 
     useEffect(() => {
-        setFilters(FilterModalProps.tableFilters);
+        setFilters(FilterModalProps.view.filters);
     }, [])    
 
     async function addFilter() {
         if (operator) {
-            const newFilter = await addFilterAsync({tableId: FilterModalProps.tableId, colNum: col, filterType: operator, filterVal: val});
+            const newFilter = await addFilterAsync({viewId: FilterModalProps.view.id, colNum: col, filterType: operator, filterVal: val});
             setFilters([...filters, newFilter]);
         }
     }
