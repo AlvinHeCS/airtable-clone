@@ -3,7 +3,7 @@
 import type { CellContext } from "@tanstack/react-table"
 import { useState } from "react" 
 import { api } from "~/trpc/react"
-import type { TableRow } from "~/types/types";
+import type { TableRow, View } from "~/types/types";
 
 
 interface CellProp {
@@ -12,6 +12,7 @@ interface CellProp {
   tableName: string;
   tableId: string;
   viewName: string;
+  views: View[];
 }
 
 export default function StringCell(prop: CellProp) {
@@ -33,40 +34,42 @@ const handleChange = async (newVal: string) => {
       newVal 
     });
     // Update the cached infinite query
-    utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
-      { viewName: prop.viewName, baseId: prop.baseId, tableName: prop.tableName },
-      //   pages: {
-      //     table: Table;
-      //     rows: Row[]; size is 200 as long as theres more
-      //     nextCursor: number | null;
-      //     view: View;
-      //   }[],
-      (oldData) => {
-        if (!oldData) return oldData;
-        // Update the correct cell in all pages
-        const newPages = oldData.pages.map(page => {
+    for (let view of prop.views) {
+      utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
+        { viewName: view.name, baseId: prop.baseId, tableName: prop.tableName },
+        //   pages: {
+        //     table: Table;
+        //     rows: Row[]; size is 200 as long as theres more
+        //     nextCursor: number | null;
+        //     view: View;
+        //   }[],
+        (oldData) => {
+          if (!oldData) return oldData;
+          // Update the correct cell in all pages
+          const newPages = oldData.pages.map(page => {
+            return {
+              ...page,
+              rows: page.rows.map(row => {
+                if (row.id !== prop.info.row.original.rowId) return row;
+
+                return {
+                  ...row,
+                  cells: row.cells.map(cell => {
+                    if (cell.colNum !== colIndex) return cell;
+                    return { ...cell, val: newVal };
+                  }),
+                };
+              }),
+            };
+          });
+
           return {
-            ...page,
-            rows: page.rows.map(row => {
-              if (row.id !== prop.info.row.original.rowId) return row;
-
-              return {
-                ...row,
-                cells: row.cells.map(cell => {
-                  if (cell.colNum !== colIndex) return cell;
-                  return { ...cell, val: newVal };
-                }),
-              };
-            }),
+            ...oldData,
+            pages: newPages,
           };
-        });
-
-        return {
-          ...oldData,
-          pages: newPages,
-        };
-      }
-    );
+        }
+      );
+    }
   } catch (err) {
     console.error(err);
   }

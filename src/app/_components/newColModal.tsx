@@ -14,6 +14,7 @@ interface prop {
     setLocalHeaderTypes: React.Dispatch<React.SetStateAction<number[]>>;
     setLocalShowing: React.Dispatch<React.SetStateAction<boolean[]>>;
     view: View;
+    views: View[];
 }
 
 export default function NewColModal(NewColModalProp: prop) {
@@ -26,7 +27,7 @@ export default function NewColModal(NewColModalProp: prop) {
         // updatedRows.cells only contains the newley created cells for the last col
         const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.id, type: newHeaderType, header: newHeaderVal, viewName: NewColModalProp.view.name });
 
-        // Update local state
+        // Update local states
         NewColModalProp.setLocalHeaders((prev) => [...prev, newHeaderVal]);
         NewColModalProp.setLocalHeaderTypes((prev) => [...prev, newHeaderType]);
         NewColModalProp.setData((prev) =>
@@ -38,83 +39,59 @@ export default function NewColModal(NewColModalProp: prop) {
         NewColModalProp.setLocalShowing((prev) => {
           const newLocalShowing = [...prev];
           newLocalShowing.push(true);
-          utils.table.getTableAndViewWithRowsAhead.setInfiniteData({baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName, viewName: NewColModalProp.view.name }, 
-              (oldData) => {
-                  //   pages: {
-                  //     table: Table;
-                  //     rows: Row[]; size is 200 as long as theres more
-                  //     nextCursor: number | null;
-                  //   }[],
-
-                  // if value has never been cached before
-                  if (!oldData) return oldData;
-                  // set all table 
-                  const newPages = oldData.pages.map((page) => {
-                      return ({
-                          ...page,
-                          table: {
-                              ...page.table,
-                              showing: newLocalShowing
-                          }
-                          }
-                      )
-                  })
-                  return {
-                      ...oldData,
-                      pages: newPages
-                  }
-              }   
-          )
           return newLocalShowing
         })
 
-        // Update the tRPC cache 
-        utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
-          { baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName, viewName: NewColModalProp.view.name },
-          (oldData) => {
-            if (!oldData) return oldData;
-            //   pages: {
-            //     table: Table;
-            //     rows: Row[]; size is 200 as long as theres more
-            //     nextCursor: number | null;
-            //   }[],
-            const newPages = oldData.pages.map((page) => ({
-              ...page,
-              // overides the table from the spreaded ...page
-              view: {
-                ...page.view,
-                showing: [...page.view.showing, true]
-              },
-              table: {
-                ...page.table,
-                headers: [...page.table.headers, newHeaderVal],
-                headerTypes: [...page.table.headerTypes, newHeaderType],
-              },
-              rows: page.rows.map((row) => {
-                // Find the new cell for this row
-                const newCell = updatedRows.find((r) => r.id === row.id)?.cells[0];
-                if (!newCell) return row;
+        // Update the tRPC cache for all views
+        for (let view of NewColModalProp.views) {
+          utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
+            { baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName, viewName: view.name },
+            (oldData) => {
+              if (!oldData) return oldData;
+              //   pages: {
+              //     table: Table;
+              //     rows: Row[]; size is 200 as long as theres more
+              //     nextCursor: number | null;
+              //   }[],
+              const currView = view.name === NewColModalProp.view.name
+              const newPages = oldData.pages.map((page) => ({
+                ...page,
+                // overides the table from the spreaded ...page
+                view: {
+                  ...page.view,
+                  showing: [...page.view.showing, currView]
+                },
+                table: {
+                  ...page.table,
+                  headers: [...page.table.headers, newHeaderVal],
+                  headerTypes: [...page.table.headerTypes, newHeaderType],
+                },
+                rows: page.rows.map((row) => {
+                  // Find the new cell for this row
+                  const newCell = updatedRows.find((r) => r.id === row.id)?.cells[0];
+                  if (!newCell) return row;
 
-                // Merge the new cell into the existing row.cells array
-                return {
-                  ...row,
-                  cells: [...row.cells, {
-                    id: newCell.id,
-                    colNum: newCell.colNum,
-                    val: newCell.val,
-                    numVal: newCell.numVal ?? null,
-                    rowId: newCell.rowId,
-                  }],
-                };
-              }),
-            }));
+                  // Merge the new cell into the existing row.cells array
+                  return {
+                    ...row,
+                    cells: [...row.cells, {
+                      id: newCell.id,
+                      colNum: newCell.colNum,
+                      val: newCell.val,
+                      numVal: newCell.numVal ?? null,
+                      rowId: newCell.rowId,
+                    }],
+                  };
+                }),
+              }));
 
-            return {
-              ...oldData,
-              pages: newPages,
-            };
-          }
-        );
+              return {
+                ...oldData,
+                pages: newPages,
+              };
+            }
+          );
+        }
       }
       NewColModalProp.setModal(false);
     }

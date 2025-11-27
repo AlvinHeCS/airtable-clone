@@ -36,28 +36,28 @@ export default function GridBar(GridBarProp: prop) {
                 [...prev, newView]
             )
         })
-        // update localCache for showing
-        for (const view of localViews) {
-            utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
-                { baseId: GridBarProp.baseId, tableName: GridBarProp.tableName, viewName: view.name},
-                (oldData) => {
-                if (!oldData) return
-                const newPages = oldData.pages.map((page) => {
-                    return {
-                        ...page,
-                        view: {
-                            ...page.view,
-                            showing: [...view.showing, false]
-                        }
-                    }
-                });
-                return {
-                    pages: newPages,
-                    pageParams: oldData.pageParams
-                }
-                }
-            )
-        }
+        // update localCache for showings
+        // for (const view of localViews) {
+        //     utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
+        //         { baseId: GridBarProp.baseId, tableName: GridBarProp.tableName, viewName: view.name},
+        //         (oldData) => {
+        //         if (!oldData) return
+        //         const newPages = oldData.pages.map((page) => {
+        //             return {
+        //                 ...page,
+        //                 view: {
+        //                     ...page.view,
+        //                     showing: [...view.showing, false]
+        //                 }
+        //             }
+        //         });
+        //         return {
+        //             pages: newPages,
+        //             pageParams: oldData.pageParams
+        //         }
+        //         }
+        //     )
+        // }
 
     }
 

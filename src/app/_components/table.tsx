@@ -24,17 +24,16 @@ export default function Table(tableProp: prop) {
     const utils = api.useUtils();    
     
     const [viewName, setViewName] = useState<string>("Grid view");
-    
-// this is the shape of getTableWIthRowsAhead
-// {
-//   pages: {
-//     table: Table;
-//     view: View;
-//     rows: Row[]; size is 200 as long as theres more
-//     nextCursor: number | null;
-//   }[],
-//   pageParams: (number | undefined)[];
-// }
+  // this is the shape of getTableWIthRowsAhead
+  // {
+  //   pages: {
+  //     table: Table;
+  //     view: View;
+  //     rows: Row[]; size is 200 as long as theres more
+  //     nextCursor: number | null;
+  //   }[],
+  //   pageParams: (number | undefined)[];
+  // }
 
     const {
       data: getTableAndViewWithRowsAhead,
@@ -54,6 +53,10 @@ export default function Table(tableProp: prop) {
       }
     );
     const table = getTableAndViewWithRowsAhead?.pages?.[0]?.table;
+    const { data: allViews, isLoading: viewsLoading } = api.table.getViews.useQuery(
+      { tableId: table?.id ?? "" }, 
+      { enabled: !!table }           
+    );
     const view = getTableAndViewWithRowsAhead?.pages?.[0]?.view;
     const allRows = useMemo(() => {
       return getTableAndViewWithRowsAhead?.pages.flatMap((p) => p.rows) ?? [];
@@ -175,8 +178,8 @@ export default function Table(tableProp: prop) {
       },
       meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number, second: boolean },
       cell: (info: CellContext<TableRow, string>) => {
-        if (localHeaderTypes[i] === 0) return <StringCell viewName={viewName} info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId}/>;
-        else return <NumCell viewName={viewName} info={info} tableId={table.id} tableName={table!.name} baseId={table!.baseId} />;
+        if (localHeaderTypes[i] === 0) return <StringCell views={allViews ?? []} viewName={viewName} info={info} tableId={table!.id} tableName={table!.name} baseId={table!.baseId}/>;
+        else return <NumCell views={allViews ?? []} viewName={viewName} info={info} tableId={table.id} tableName={table!.name} baseId={table!.baseId} />;
       },
     }));
     dataCols = dataCols.filter((_, i) => {
@@ -221,7 +224,7 @@ export default function Table(tableProp: prop) {
   }
 
   async function addRow() {
-    if (!table || !view) return;
+    if (!table || !view || !allViews) return;
 
     const newRow = await mutateAsyncRow({ tableId: table.id });
     if (!newRow) throw new Error("row failed to be created");
@@ -282,8 +285,11 @@ export default function Table(tableProp: prop) {
     // add row to local rows
     setData(prev => [...prev, rowData]);
 
+
+  allViews.forEach((view, _) => {
     // update cache 
-    utils.table.getTableAndViewWithRowsAhead.setInfiniteData({ baseId: tableProp.baseId, tableName: tableProp.tableName, viewName: viewName },
+    console.log("updating this view: ", view.name);
+    utils.table.getTableAndViewWithRowsAhead.setInfiniteData({ baseId: tableProp.baseId, tableName: tableProp.tableName, viewName: view.name },
       (oldData) => {
         if (!oldData) {
           return {
@@ -298,18 +304,6 @@ export default function Table(tableProp: prop) {
             pageParams: [],
           };
         }
-        // this is the shape of oldData
-        // {
-        //   pages: {
-        //     table: Table;
-        //     rows: Row[]; size is 200 as long as theres more
-        //     nextCursor: number | null;
-        //   }[],
-        //   pageParams: (number | undefined)[];
-        // }
-
-        // need to edit the data of the last page in pages
-        
         const pages = [...oldData.pages];
         const lastPageIndex = pages.length - 1;
         const lastPage = pages[lastPageIndex];
@@ -329,13 +323,14 @@ export default function Table(tableProp: prop) {
         };
       }
     );
+  });
   }
 }
   const add100kRow = () => {
     mutateAsyncRow100k({tableId: table!.id});
   }
 
-    if (!allRows || !table || !view) {
+    if (!allRows || !table || !view || !allViews) {
       return (
         <div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Fetching rows <CircularProgress size="20px"/></div>
       )
@@ -502,7 +497,7 @@ export default function Table(tableProp: prop) {
           {showShowHideColModal ? <ShowHideColModal view={view} tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
           {showFilterModal ? <FilterModal view={view} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
           {showSortModal ? <SortModal view={view} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
-          {showColumnModal ? <NewColModal view={view} id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
+          {showColumnModal ? <NewColModal views={allViews} view={view} id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
         </div>
       <div style={{display: "flex", height: "100%"}}>
         <GridBar tableId={table.id} setViewName={setViewName} tableName={table.name} baseId={table.baseId} viewName={viewName}/>
