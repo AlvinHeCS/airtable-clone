@@ -163,6 +163,14 @@ addCol: protectedProcedure
 
     const newColNum = table.headers.length - 1;
 
+    const newCellFlatVal = input.type === 0 ? '""' : 'null'; // JSON string or null
+
+    await ctx.db.$executeRaw`
+      UPDATE "Row"
+      SET "cellsFlat" = COALESCE("cellsFlat", '[]'::jsonb) || ${newCellFlatVal}::jsonb
+      WHERE "tableId" = ${input.tableId};
+    `;
+
     const rows = await ctx.db.row.findMany({
       where: { tableId: input.tableId },
       select: { id: true, rowNum: true, cellsFlat: true },
