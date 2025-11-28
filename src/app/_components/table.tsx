@@ -507,7 +507,7 @@ export default function Table(tableProp: prop) {
               </button>
             ))}
           </div>
-          {showShowHideColModal ? <ShowHideColModal view={view} tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
+          {showShowHideColModal ? <ShowHideColModal tableHeaderTypes={table.headerTypes} view={view} tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
           {showFilterModal ? <FilterModal view={view} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
           {showSortModal ? <SortModal tableHeaderTypes={table.headerTypes} view={view} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
           {showColumnModal ? <NewColModal views={allViews} view={view} id={table.id} tableName={table.name} baseId={table.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}

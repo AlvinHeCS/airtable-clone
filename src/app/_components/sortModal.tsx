@@ -197,7 +197,7 @@ export default function SortModal(SortModalProps: prop) {
     }
 
     return(
-        <div ref={modalRef} style={{zIndex: "1000", marginLeft: "40vw", minHeight: "150px", top: "139px", width: "500px", background: "white", border: "solid black 1px", position: "fixed"}}>
+        <div ref={modalRef} style={{zIndex: "1000", marginLeft: "40vw", minHeight: "140px", top: "139px", width: "500px", background: "white", border: "solid black 1px", position: "fixed"}}>
             <div style={{paddingRight: "20px", paddingTop: "10px", paddingBottom: "10px", paddingLeft: "20px", gap: "10px", display: "flex", flexDirection: "column"}}>
                 <div style={{paddingBottom: "5px", borderBottom: "solid rgba(216, 216, 216, 1) 1px", fontSize: "14px", color: "grey", fontWeight: "500", display: "flex", alignItems: "center", gap: "5px"}}>
                     Sort by 

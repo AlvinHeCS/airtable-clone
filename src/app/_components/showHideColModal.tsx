@@ -1,11 +1,15 @@
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
+import { alpha, styled } from '@mui/material/styles';
+import { green } from '@mui/material/colors';
 import { api } from "~/trpc/react";
 import type { View } from "~/types/types";
+import { useRef, useEffect } from "react"
 
 interface prop {
     tableHeaders: string[];
+    tableHeaderTypes: number[];
     tableId: string;
     tableName: string;
     baseId: string;
@@ -16,8 +20,33 @@ interface prop {
 }
 
 export default function ShowHideColModal(showHideColModalProp: prop) {
+
+    const GreenSwitch = styled(Switch)(({ theme }) => ({
+    '& .MuiSwitch-switchBase.Mui-checked': {
+        color: '#ffffff',
+        '&:hover': {
+        backgroundColor: alpha(green[600], theme.palette.action.hoverOpacity),
+        },
+    },
+    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+        backgroundColor: green[600],
+    },
+    }));
+
     const utils = api.useUtils();
+    const modalRef = useRef<HTMLDivElement>(null);
     const {mutateAsync} = api.table.showHideCol.useMutation();
+    
+    useEffect(() => {
+    function handleClick(event: MouseEvent) {
+        if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        showHideColModalProp.setModal(false);
+        }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
 
     async function handleChange(colIndex: number, check: boolean) {
         //update backend first
@@ -33,6 +62,7 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
                     //     table: Table;
                     //     rows: Row[]; size is 200 as long as theres more
                     //     nextCursor: number | null;
+                    //     view: View
                     //   }[],
 
                     // if value has never been cached before
@@ -52,7 +82,6 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
                         ...oldData,
                         pages: newPages
                     }
-
                 }   
             )
             return newLocalShowing
@@ -60,14 +89,19 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
     }
     
     return(
-        <div style={{zIndex: "1000", marginLeft: "10vw", marginTop: "220px", width: "600px", background: "white", border: "solid black 1px", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
-            <span style={{borderBottom: "solid grey 1px"}}>find a field</span>
+        <div ref={modalRef} style={{zIndex: "1000", left: "40vw", top: "140px", width: "300px", background: "white", border: "solid black 1px", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
+            <span style={{color: "grey", fontSize: "12px", height: "35px", borderBottom: "solid rgba(210, 210, 210, 1) 1px", display: "flex", alignItems: "center", justifyContent: "space-between"}}>Find a field<img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img></span>
             <FormGroup>
                 {showHideColModalProp.tableHeaders.map((header, i) => {
-                    return(<FormControlLabel key={i} control={<Switch onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.localShowing[i]} />} label={header} />)
+                    return (showHideColModalProp.tableHeaderTypes[i] ? <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.localShowing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} /> :
+                            <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.localShowing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/letter.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} />
+                            )
                 })}
             </FormGroup>
-            <button onClick={() => (showHideColModalProp.setModal(false))}>back</button>
+            <div style={{display: "flex", justifyContent: "center", gap: "20px"}}>
+                <button style={{fontSize: "12px", fontWeight: "500", color: "grey", width: "130px", height: "27px", background: "rgba(235, 235, 235, 1)"}}>Hide all</button>
+                <button style={{fontSize: "12px", fontWeight: "500", color: "grey", width: "130px", height: "27px", background: "rgba(235, 235, 235, 1)"}}>Show all</button>
+            </div>
         </div>
     )
 }
