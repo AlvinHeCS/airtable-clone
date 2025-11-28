@@ -2,7 +2,7 @@
 import { api } from "~/trpc/react"
 import { useState, useEffect } from "react"
 import type { View } from "~/types/types";
-
+import "./gridBar.css";
 
 interface prop {
     tableId: string;
@@ -36,29 +36,6 @@ export default function GridBar(GridBarProp: prop) {
                 [...prev, newView]
             )
         })
-        // update localCache for showings
-        // for (const view of localViews) {
-        //     utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
-        //         { baseId: GridBarProp.baseId, tableName: GridBarProp.tableName, viewName: view.name},
-        //         (oldData) => {
-        //         if (!oldData) return
-        //         const newPages = oldData.pages.map((page) => {
-        //             return {
-        //                 ...page,
-        //                 view: {
-        //                     ...page.view,
-        //                     showing: [...view.showing, false]
-        //                 }
-        //             }
-        //         });
-        //         return {
-        //             pages: newPages,
-        //             pageParams: oldData.pageParams
-        //         }
-        //         }
-        //     )
-        // }
-
     }
 
     if (loadingViews || !views) {
@@ -70,17 +47,25 @@ export default function GridBar(GridBarProp: prop) {
     }
 
     return (
-        <div style={{height: "100%", width: "300px", position: "sticky", top: "0", background: "rgb(207, 207, 207)", display: "flex", flexDirection: "column"}}>
+        <div style={{borderTop: "grey solid 0.5px", borderRight: "grey solid 0.5px", height: "100%", width: "300px", padding: "10px", position: "sticky", top: "0", background: "rgba(255, 255, 255, 1)", display: "flex", flexDirection: "column"}}>
+            <button className="addGrid" onClick={addView}>
+                <img style={{ height: "16px", width: "16px" }} src="/plus2.svg" />
+                <div style={{fontSize: "13px"}}>Create new...</div>
+            </button>
+            <div className="searchGrids">
+                <img style={{ height: "16px", width: "16px" }} src="/search2.svg" />
+                <div style={{fontSize: "13px", color: "grey"}}>Find a view</div>
+            </div>
+            
             {localViews.map((view) => {
                 const isSelected = view.name === GridBarProp.viewName;
                 return(
-                    <button onClick={() => GridBarProp.setViewName(view.name)} key={view.id} style={{background: isSelected ? "green" : "grey"}}>
-                        <span>{view.name}</span>
+                    <button onClick={() => GridBarProp.setViewName(view.name)} key={view.id} className={`grid ${isSelected ? "selected" : "unselected"}`}>
+                        <img style={{ width: "18px", height: "15px" }} src="/bTable.png" />
+                        <div style={{fontSize: "13px", fontWeight: "400"}}>{view.name}</div>
                     </button>
                 )
             })}
-            
-            <button onClick={addView}>add a view</button>
         </div>
     )
 }

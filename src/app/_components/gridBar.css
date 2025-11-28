@@ -1,0 +1,56 @@
+
+
+
+.addGrid {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    height: 35px;
+}
+
+
+.addGrid:hover {
+    background: rgb(234, 234, 234)
+}
+
+
+.searchGrids {
+    height: 35px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    margin-bottom: 5px;
+}
+
+
+.searchGrids:hover {
+    cursor: text
+}
+
+
+.grid {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    height: 35px;
+}
+
+.grid:hover {
+    background-color: rgba(237, 237, 237, 1) !important;
+}
+
+.grid.selected {
+    background-color: rgba(237, 237, 237, 1);
+}
+
+.grid.unselected {
+  background: white;
+}
