@@ -1,24 +1,58 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { api } from "~/trpc/react"
-import type { View, Sort, TableRow, SortType } from "~/types/types";
-
+import type { View, Sort, SortType } from "~/types/types";
+import "./sortModal.css";
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import { alpha, styled } from '@mui/material/styles';
+import { green } from '@mui/material/colors';
 
 interface prop {
     tableHeaders: string[];
+    tableHeaderTypes: number[];
     tableId: string;
     tableName: string;
     baseId: string;
-    setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
 }
 
 export default function SortModal(SortModalProps: prop) {
+    const modalRef = useRef<HTMLDivElement>(null);
+    const selectNewSortRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils();    
     const [sorts, setSorts] = useState<Sort[]>([]);
-    const [val, setVal] = useState<string>("");
     const [col, setCol] = useState<number>(0);
     const [operator, setOperator] = useState<SortType>("sortA_Z");
+    const [newSortModal, setNewSortModal] = useState<boolean>(false);
+
+    const GreenSwitch = styled(Switch)(({ theme }) => ({
+    '& .MuiSwitch-switchBase.Mui-checked': {
+        color: '#ffffff',
+        '&:hover': {
+        backgroundColor: alpha(green[600], theme.palette.action.hoverOpacity),
+        },
+    },
+    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+        backgroundColor: green[600],
+    },
+    }));
+
+    useEffect(() => {
+    function handleClick(event: MouseEvent) {
+        if (selectNewSortRef.current && !selectNewSortRef.current.contains(event.target as Node)) {
+            setNewSortModal(false)
+            return
+        }
+        if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        SortModalProps.setModal(false);
+        }
+    }
+
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+    }, []);
+
     const { mutateAsync: addSortAsync } = api.table.addSort.useMutation({
         onSuccess: () => {
             utils.table.getTableAndViewWithRowsAhead.reset({
@@ -37,16 +71,38 @@ export default function SortModal(SortModalProps: prop) {
             });
         }
     });
+    const { mutateAsync: editSortTypeAsync } = api.table.editSortType.useMutation({
+        onSuccess: () => {
+            utils.table.getTableAndViewWithRowsAhead.reset({
+                baseId: SortModalProps.baseId,
+                tableName: SortModalProps.tableName,
+                viewName: SortModalProps.view.name
+            });
+        }
+    });
+    const { mutateAsync: editSortHeaderAsync } = api.table.editSortHeader.useMutation({
+        onSuccess: () => {
+            utils.table.getTableAndViewWithRowsAhead.reset({
+                baseId: SortModalProps.baseId,
+                tableName: SortModalProps.tableName,
+                viewName: SortModalProps.view.name
+            });
+        }
+    })
     
     useEffect(() => {
+        console.log("this is sorts: ", SortModalProps.view.sorts)
         setSorts(SortModalProps.view.sorts);
     }, [])    
 
-    async function addSort() {
-        if (operator) {
-            const newSort = await addSortAsync({viewId: SortModalProps.view.id || "", colNum: col, sortType: operator});
+    async function addSort(col: number) {
+        if (SortModalProps.tableHeaderTypes[col]) {
+            const newSort = await addSortAsync({viewId: SortModalProps.view.id || "", colNum: col, sortType: "sort1_9"});
             setSorts([...sorts, newSort]);
-        }
+        } else {
+            const newSort = await addSortAsync({viewId: SortModalProps.view.id || "", colNum: col, sortType: "sortA_Z"});
+            setSorts([...sorts, newSort]);
+        }        
     }
 
     async function deleteSort(sortId: string) {
@@ -55,36 +111,139 @@ export default function SortModal(SortModalProps: prop) {
             return sort.id !== sortId;
         }))
     }   
+    async function changeSortHeader(sortId: string, newSortColIndex: number) {
+        // edit sort backend
+        const newSort = await editSortHeaderAsync({sortId: sortId, sortColIndex: newSortColIndex});
+        if (!newSort) return 
+        // edit local frontend
+        setSorts((prev) => {
+            if (!prev) return []
+            console.log("this is sorts")
+            return prev.map((sort) => {
+                if (sort.id === sortId) {
+                    return {
+                        ...sort,
+                        columnIndex: newSortColIndex
+                    }
+                } else {
+                    return sort
+                }
+            })
+        })
+        // edit trpc cache for stored views
+        utils.table.getViews.setData({tableId: SortModalProps.tableId}, (oldData) => {
+            if (!oldData) return []
+            return oldData.map((view) => {
+                if (view.id === SortModalProps.view.id) {
+                    return {
+                        ...view,
+                        sorts:  view.sorts.map((sort) => {
+                            if (sort.id === sortId) {
+                                return {
+                                    ...sort,
+                                    columnIndex: newSortColIndex
+                                }
+                            } else {
+                                return sort
+                            }
+                        })
+                    }
+                } else {
+                    return view
+                }
+            })
+        })
+    }
+    async function changeSortType(sortId: string, newSortType: SortType) {
+        // edit sort backend
+        const newReturnedSort = await editSortTypeAsync({sortId: sortId, sortType: newSortType});
+        if (!newReturnedSort) return
+        // edit local value for sort
+        setSorts((prev) => {
+            if (!prev) return []
+            return (prev.map((sort) => {
+                if (sort.id === sortId) {
+                    return { ...sort, type: newSortType }
+                } else {
+                    return sort
+                }
+            }))
+        });
 
+        // update trpc cache 
+        utils.table.getViews.setData({tableId: SortModalProps.tableId}, (oldData) => {
+            if (!oldData) return []
+            return oldData.map((view) => {
+                if (view.id === SortModalProps.view.id) {
+                    return {
+                        ...view,
+                        sorts:  view.sorts.map((sort) => {
+                            if (sort.id === sortId) {
+                                return {
+                                    ...sort,
+                                    type: newSortType
+                                }
+                            } else {
+                                return sort
+                            }
+                        })
+                    }
+                } else {
+                    return view
+                }
+            })
+        })
+    
+    }
 
     return(
-        <div style={{zIndex: "1000", marginLeft: "40vw", marginTop: "220px", width: "400px", background: "white", border: "solid black 1px", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
-            <span style={{fontSize: "14px", color: "grey"}}>In this view, show records</span>
-            <div style={{overflow: "scroll", height: "50px", display: "flex", flexDirection: "column", gap: "5px", border: "solid grey 0.5px"}}>
-                {sorts.map((sort) => {
-                    return(<div style={{display: "flex"}}key={sort.id}>
-                        <div style={{border: "solid grey 1px", width: "150px", height: "30px", padding: "10px", display: "flex", alignItems: "center"}}>{SortModalProps.tableHeaders[sort.columnIndex]}</div>
-                        <div style={{border: "solid grey 1px", width: "150px", height: "30px", padding: "10px", display: "flex", alignItems: "center"}}>{sort.type}</div>
-                        <button onClick={() => (deleteSort(sort.id))}>delete</button>
-                    </div>)
-                })}
-            </div>
-            <div style={{display: "flex"}}>
-                <select style={{border: "solid rgba(161, 161, 161, 1) 0.5px", width: "150px", height: "30px", fontSize: "14px"}} value={col} onChange={(e) => setCol(Number(e.target.value))}>
-                    {SortModalProps.tableHeaders.map((header, i) => {
-                        return(<option key={i} value={i}>{header}</option>)
+        <div ref={modalRef} style={{zIndex: "1000", marginLeft: "40vw", minHeight: "150px", top: "139px", width: "500px", background: "white", border: "solid black 1px", position: "fixed"}}>
+            <div style={{paddingRight: "20px", paddingTop: "10px", paddingBottom: "10px", paddingLeft: "20px", gap: "10px", display: "flex", flexDirection: "column"}}>
+                <div style={{paddingBottom: "5px", borderBottom: "solid rgba(216, 216, 216, 1) 1px", fontSize: "14px", color: "grey", fontWeight: "500", display: "flex", alignItems: "center", gap: "5px"}}>
+                    Sort by 
+                    <img src="/questionMark.svg" style={{width: "13px", height: "13px" }}></img>
+                </div>
+                    {sorts.map((sort) => {
+                        return(<div style={{display: "flex", justifyContent: "center", gap: "10px", alignItems: "center"}} key={sort.id}>
+                            <select style={{borderRadius: "5px", border: "solid grey 1px", width: "250px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => changeSortHeader(sort.id, Number(e.target.value))} value={sort.columnIndex} >
+                                {SortModalProps.tableHeaders.map((header, i) => {
+                                    return(<option key={i} value={i}>{header}</option>)
+                                })}
+                            </select>
+                            {SortModalProps.tableHeaderTypes[sort.columnIndex] ?
+                                <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
+                                    <option key={0} value="sort1_9">1-9</option>
+                                    <option key={1} value="sort9_1">9-1</option>
+                                </select> : 
+                                <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
+                                    <option key={0} value="sortA_Z">A-Z</option>
+                                    <option key={1} value="sortZ_A">Z-A</option>
+                                </select>
+                            }
+                            <button className="deleteButton" onClick={() => (deleteSort(sort.id))}><img src="/cross.svg" style={{width: "15px", height: "15px"}}></img></button>
+                        </div>)
                     })}
-                </select>
-                <select style={{border: "solid grey 0.5px", width: "150px", height: "30px", fontSize: "14px"}} value={operator} onChange={(e) => (setOperator(e.target.value as SortType))} >
-                    <option key={0} value="sortA_Z">A-Z</option>
-                    <option key={1} value="sortZ_A">Z-A</option>
-                    <option key={2} value="sort1_9">1-9</option>
-                    <option key={3} value="sortA_Z">9-1</option>
-                </select>
-                <button style={{marginLeft: "10px"}}onClick={addSort}>AddSort</button>
+
+            <div style={{position: "relative"}}>
+                <button className="addSort">
+                    <img src="/plus2.svg" style={{width: "15px", height: "15px"}}></img>
+                    <div onClick={() => {setNewSortModal(true)}}>Add another sort</div>
+                </button>
+                {newSortModal && 
+                    <div ref={selectNewSortRef} style={{overflow: "scroll", position: "absolute", width: "450px", height: "200px", background: "white", zIndex: "999", display: "flex", flexDirection: "column", alignItems: "flex-start", border: "solid black 1px"}}>
+                        <span style={{width: "100%", padding: "5px", color: "grey", fontSize: "14px", position: "sticky", top: 0, background: "white"}}>Find a field</span>
+                        {SortModalProps.tableHeaders.map((header, i) => {
+                            return (SortModalProps.tableHeaderTypes[i] ? 
+                            <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/hashtag.svg" style={{width: "15px", height: "15px"}}></img>{header}</button> :
+                            <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/letter.svg" style={{width: "15px", height: "15px"}}></img>{header}</button>
+                        )
+                        })}           
+                    </div>
+                }
             </div>
-            <div>
-                <button onClick={() => SortModalProps.setModal(false)}>Back</button>
+            </div>
+            <div style={{background: "rgba(216, 216, 216, 1)", height: "40px", padding: "20px", display: "flex", alignItems: "center"}}>
+                <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} defaultChecked/>} label="Automatically sort records" />
             </div>
         </div>
     );

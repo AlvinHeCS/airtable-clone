@@ -5,7 +5,6 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { table } from "console";
 
 export const tableRouter = createTRPCRouter({
 getTableAndViewWithRowsAhead: protectedProcedure
@@ -28,7 +27,7 @@ getTableAndViewWithRowsAhead: protectedProcedure
         name: input.viewName,
         tableId: table.id
       },
-      include: {filters: true, sorts: true}
+      include: {filters: {orderBy: {creationDate: "asc"}}, sorts: {orderBy: {creationDate: "asc"}}}
     })
     if (!view) throw new Error("View not found");
 
@@ -416,6 +415,31 @@ add100kRow: protectedProcedure
       where: {id: input.sortId}
     })
   }),
+  editSortType: protectedProcedure
+  .input(z.object({sortId: z.string(), sortType: z.enum([
+        "sortA_Z",
+        "sortZ_A",
+        "sort1_9",
+        "sort9_1",
+      ]),}))
+  .mutation(async ({ctx, input}) => {
+    return await ctx.db.sort.update({
+      where: {id: input.sortId},
+      data: {
+        type: input.sortType
+      }
+    })
+  }),
+  editSortHeader: protectedProcedure
+  .input(z.object({sortId: z.string(), sortColIndex: z.number()}))
+  .mutation(async ({ctx, input}) => {
+    return await ctx.db.sort.update({
+      where: {id: input.sortId},
+      data: {
+        columnIndex: input.sortColIndex
+      }
+    })
+  }),
   showHideCol: protectedProcedure
   .input(z.object({viewId: z.string(), check: z.boolean(), colIndex: z.number()}))
   .mutation(async ({ctx, input}) => {
@@ -423,7 +447,6 @@ add100kRow: protectedProcedure
       const view = await tx.view.findUnique({
         where: {id: input.viewId},
       })
-
       if (!view) throw new Error("view not found");
       const newShowing = [...view.showing]
       newShowing[input.colIndex] = input.check;
@@ -443,7 +466,11 @@ add100kRow: protectedProcedure
       select: { 
         views: {
           orderBy: { creationDate: "asc" },
-          include: { filters: true, sorts: true}
+          include: { filters: {
+            orderBy: {creationDate: "asc"}
+          }, sorts: {
+            orderBy: {creationDate: "asc"}
+          }}
       } },
     });
     return table?.views ?? [];

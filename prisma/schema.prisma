@@ -152,6 +152,7 @@ model Filter {
     columnIndex  Int
     type         FilterType
     value        String
+    creationDate DateTime  @default(now())
 }
 
 enum SortType {
@@ -167,4 +168,5 @@ model Sort {
     view         View      @relation(fields: [viewId], references: [id])
     columnIndex  Int
     type         SortType
+    creationDate DateTime  @default(now())
 }

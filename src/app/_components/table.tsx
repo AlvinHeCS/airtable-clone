@@ -372,9 +372,22 @@ export default function Table(tableProp: prop) {
               <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
             </button>
           </div>
-          <button onClick={add100kRow}>100k</button>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-
+            <button               
+            className="bell"
+                style={{
+                  width: "100px",
+                  flexShrink: 0,
+                  height: "30px",
+                  borderRadius: "5px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "5px",
+                  padding: "5px",
+                  fontSize: "14px" 
+                }} onClick={add100kRow}>100k
+            </button>
             <button
               className="bell"
               style={{
@@ -496,8 +509,8 @@ export default function Table(tableProp: prop) {
           </div>
           {showShowHideColModal ? <ShowHideColModal view={view} tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
           {showFilterModal ? <FilterModal view={view} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
-          {showSortModal ? <SortModal view={view} tableHeaders={table!.headers} tableId={table!.id} setData={setData} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
-          {showColumnModal ? <NewColModal views={allViews} view={view} id={table!.id} tableName={table!.name} baseId={table!.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
+          {showSortModal ? <SortModal tableHeaderTypes={table.headerTypes} view={view} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
+          {showColumnModal ? <NewColModal views={allViews} view={view} id={table.id} tableName={table.name} baseId={table.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
         </div>
       <div style={{display: "flex", height: "100%"}}>
         <GridBar tableId={table.id} setViewName={setViewName} tableName={table.name} baseId={table.baseId} viewName={viewName}/>

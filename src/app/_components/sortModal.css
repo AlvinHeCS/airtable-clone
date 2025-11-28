@@ -1,0 +1,29 @@
+
+.deleteButton {
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+}
+.deleteButton:hover {
+    background: rgb(222, 222, 222);
+}
+
+.addSort {
+    height: 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    color: grey;
+    font-size: 13px;
+}
+
+.addSort:hover {
+    color: black;
+}
+
+.selectNewHeader:hover {
+    background: rgb(225, 225, 225)
+}

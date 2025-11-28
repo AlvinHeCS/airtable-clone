@@ -147,12 +147,13 @@ enum FilterType {
 }
 
 model Filter {
-  id          String     @id @default(cuid())
-  viewId      String
-  view        View       @relation(fields: [viewId], references: [id])
-  columnIndex Int
-  type        FilterType
-  value       String
+  id           String     @id @default(cuid())
+  viewId       String
+  view         View       @relation(fields: [viewId], references: [id])
+  columnIndex  Int
+  type         FilterType
+  value        String
+  creationDate DateTime   @default(now())
 }
 
 enum SortType {
@@ -163,9 +164,10 @@ enum SortType {
 }
 
 model Sort {
-  id          String   @id @default(cuid())
-  viewId      String
-  view        View     @relation(fields: [viewId], references: [id])
-  columnIndex Int
-  type        SortType
+  id           String   @id @default(cuid())
+  viewId       String
+  view         View     @relation(fields: [viewId], references: [id])
+  columnIndex  Int
+  type         SortType
+  creationDate DateTime @default(now())
 }

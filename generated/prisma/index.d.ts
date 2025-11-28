@@ -13193,6 +13193,7 @@ export namespace Prisma {
     columnIndex: number | null
     type: $Enums.FilterType | null
     value: string | null
+    creationDate: Date | null
   }
 
   export type FilterMaxAggregateOutputType = {
@@ -13201,6 +13202,7 @@ export namespace Prisma {
     columnIndex: number | null
     type: $Enums.FilterType | null
     value: string | null
+    creationDate: Date | null
   }
 
   export type FilterCountAggregateOutputType = {
@@ -13209,6 +13211,7 @@ export namespace Prisma {
     columnIndex: number
     type: number
     value: number
+    creationDate: number
     _all: number
   }
 
@@ -13227,6 +13230,7 @@ export namespace Prisma {
     columnIndex?: true
     type?: true
     value?: true
+    creationDate?: true
   }
 
   export type FilterMaxAggregateInputType = {
@@ -13235,6 +13239,7 @@ export namespace Prisma {
     columnIndex?: true
     type?: true
     value?: true
+    creationDate?: true
   }
 
   export type FilterCountAggregateInputType = {
@@ -13243,6 +13248,7 @@ export namespace Prisma {
     columnIndex?: true
     type?: true
     value?: true
+    creationDate?: true
     _all?: true
   }
 
@@ -13338,6 +13344,7 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate: Date
     _count: FilterCountAggregateOutputType | null
     _avg: FilterAvgAggregateOutputType | null
     _sum: FilterSumAggregateOutputType | null
@@ -13365,6 +13372,7 @@ export namespace Prisma {
     columnIndex?: boolean
     type?: boolean
     value?: boolean
+    creationDate?: boolean
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["filter"]>
 
@@ -13374,6 +13382,7 @@ export namespace Prisma {
     columnIndex?: boolean
     type?: boolean
     value?: boolean
+    creationDate?: boolean
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["filter"]>
 
@@ -13383,6 +13392,7 @@ export namespace Prisma {
     columnIndex?: boolean
     type?: boolean
     value?: boolean
+    creationDate?: boolean
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["filter"]>
 
@@ -13392,9 +13402,10 @@ export namespace Prisma {
     columnIndex?: boolean
     type?: boolean
     value?: boolean
+    creationDate?: boolean
   }
 
-  export type FilterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "viewId" | "columnIndex" | "type" | "value", ExtArgs["result"]["filter"]>
+  export type FilterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "viewId" | "columnIndex" | "type" | "value" | "creationDate", ExtArgs["result"]["filter"]>
   export type FilterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }
@@ -13416,6 +13427,7 @@ export namespace Prisma {
       columnIndex: number
       type: $Enums.FilterType
       value: string
+      creationDate: Date
     }, ExtArgs["result"]["filter"]>
     composites: {}
   }
@@ -13845,6 +13857,7 @@ export namespace Prisma {
     readonly columnIndex: FieldRef<"Filter", 'Int'>
     readonly type: FieldRef<"Filter", 'FilterType'>
     readonly value: FieldRef<"Filter", 'String'>
+    readonly creationDate: FieldRef<"Filter", 'DateTime'>
   }
     
 
@@ -14284,6 +14297,7 @@ export namespace Prisma {
     viewId: string | null
     columnIndex: number | null
     type: $Enums.SortType | null
+    creationDate: Date | null
   }
 
   export type SortMaxAggregateOutputType = {
@@ -14291,6 +14305,7 @@ export namespace Prisma {
     viewId: string | null
     columnIndex: number | null
     type: $Enums.SortType | null
+    creationDate: Date | null
   }
 
   export type SortCountAggregateOutputType = {
@@ -14298,6 +14313,7 @@ export namespace Prisma {
     viewId: number
     columnIndex: number
     type: number
+    creationDate: number
     _all: number
   }
 
@@ -14315,6 +14331,7 @@ export namespace Prisma {
     viewId?: true
     columnIndex?: true
     type?: true
+    creationDate?: true
   }
 
   export type SortMaxAggregateInputType = {
@@ -14322,6 +14339,7 @@ export namespace Prisma {
     viewId?: true
     columnIndex?: true
     type?: true
+    creationDate?: true
   }
 
   export type SortCountAggregateInputType = {
@@ -14329,6 +14347,7 @@ export namespace Prisma {
     viewId?: true
     columnIndex?: true
     type?: true
+    creationDate?: true
     _all?: true
   }
 
@@ -14423,6 +14442,7 @@ export namespace Prisma {
     viewId: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate: Date
     _count: SortCountAggregateOutputType | null
     _avg: SortAvgAggregateOutputType | null
     _sum: SortSumAggregateOutputType | null
@@ -14449,6 +14469,7 @@ export namespace Prisma {
     viewId?: boolean
     columnIndex?: boolean
     type?: boolean
+    creationDate?: boolean
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["sort"]>
 
@@ -14457,6 +14478,7 @@ export namespace Prisma {
     viewId?: boolean
     columnIndex?: boolean
     type?: boolean
+    creationDate?: boolean
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["sort"]>
 
@@ -14465,6 +14487,7 @@ export namespace Prisma {
     viewId?: boolean
     columnIndex?: boolean
     type?: boolean
+    creationDate?: boolean
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["sort"]>
 
@@ -14473,9 +14496,10 @@ export namespace Prisma {
     viewId?: boolean
     columnIndex?: boolean
     type?: boolean
+    creationDate?: boolean
   }
 
-  export type SortOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "viewId" | "columnIndex" | "type", ExtArgs["result"]["sort"]>
+  export type SortOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "viewId" | "columnIndex" | "type" | "creationDate", ExtArgs["result"]["sort"]>
   export type SortInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     view?: boolean | ViewDefaultArgs<ExtArgs>
   }
@@ -14496,6 +14520,7 @@ export namespace Prisma {
       viewId: string
       columnIndex: number
       type: $Enums.SortType
+      creationDate: Date
     }, ExtArgs["result"]["sort"]>
     composites: {}
   }
@@ -14924,6 +14949,7 @@ export namespace Prisma {
     readonly viewId: FieldRef<"Sort", 'String'>
     readonly columnIndex: FieldRef<"Sort", 'Int'>
     readonly type: FieldRef<"Sort", 'SortType'>
+    readonly creationDate: FieldRef<"Sort", 'DateTime'>
   }
     
 
@@ -15472,7 +15498,8 @@ export namespace Prisma {
     viewId: 'viewId',
     columnIndex: 'columnIndex',
     type: 'type',
-    value: 'value'
+    value: 'value',
+    creationDate: 'creationDate'
   };
 
   export type FilterScalarFieldEnum = (typeof FilterScalarFieldEnum)[keyof typeof FilterScalarFieldEnum]
@@ -15482,7 +15509,8 @@ export namespace Prisma {
     id: 'id',
     viewId: 'viewId',
     columnIndex: 'columnIndex',
-    type: 'type'
+    type: 'type',
+    creationDate: 'creationDate'
   };
 
   export type SortScalarFieldEnum = (typeof SortScalarFieldEnum)[keyof typeof SortScalarFieldEnum]
@@ -16270,6 +16298,7 @@ export namespace Prisma {
     columnIndex?: IntFilter<"Filter"> | number
     type?: EnumFilterTypeFilter<"Filter"> | $Enums.FilterType
     value?: StringFilter<"Filter"> | string
+    creationDate?: DateTimeFilter<"Filter"> | Date | string
     view?: XOR<ViewScalarRelationFilter, ViewWhereInput>
   }
 
@@ -16279,6 +16308,7 @@ export namespace Prisma {
     columnIndex?: SortOrder
     type?: SortOrder
     value?: SortOrder
+    creationDate?: SortOrder
     view?: ViewOrderByWithRelationInput
   }
 
@@ -16291,6 +16321,7 @@ export namespace Prisma {
     columnIndex?: IntFilter<"Filter"> | number
     type?: EnumFilterTypeFilter<"Filter"> | $Enums.FilterType
     value?: StringFilter<"Filter"> | string
+    creationDate?: DateTimeFilter<"Filter"> | Date | string
     view?: XOR<ViewScalarRelationFilter, ViewWhereInput>
   }, "id">
 
@@ -16300,6 +16331,7 @@ export namespace Prisma {
     columnIndex?: SortOrder
     type?: SortOrder
     value?: SortOrder
+    creationDate?: SortOrder
     _count?: FilterCountOrderByAggregateInput
     _avg?: FilterAvgOrderByAggregateInput
     _max?: FilterMaxOrderByAggregateInput
@@ -16316,6 +16348,7 @@ export namespace Prisma {
     columnIndex?: IntWithAggregatesFilter<"Filter"> | number
     type?: EnumFilterTypeWithAggregatesFilter<"Filter"> | $Enums.FilterType
     value?: StringWithAggregatesFilter<"Filter"> | string
+    creationDate?: DateTimeWithAggregatesFilter<"Filter"> | Date | string
   }
 
   export type SortWhereInput = {
@@ -16326,6 +16359,7 @@ export namespace Prisma {
     viewId?: StringFilter<"Sort"> | string
     columnIndex?: IntFilter<"Sort"> | number
     type?: EnumSortTypeFilter<"Sort"> | $Enums.SortType
+    creationDate?: DateTimeFilter<"Sort"> | Date | string
     view?: XOR<ViewScalarRelationFilter, ViewWhereInput>
   }
 
@@ -16334,6 +16368,7 @@ export namespace Prisma {
     viewId?: SortOrder
     columnIndex?: SortOrder
     type?: SortOrder
+    creationDate?: SortOrder
     view?: ViewOrderByWithRelationInput
   }
 
@@ -16345,6 +16380,7 @@ export namespace Prisma {
     viewId?: StringFilter<"Sort"> | string
     columnIndex?: IntFilter<"Sort"> | number
     type?: EnumSortTypeFilter<"Sort"> | $Enums.SortType
+    creationDate?: DateTimeFilter<"Sort"> | Date | string
     view?: XOR<ViewScalarRelationFilter, ViewWhereInput>
   }, "id">
 
@@ -16353,6 +16389,7 @@ export namespace Prisma {
     viewId?: SortOrder
     columnIndex?: SortOrder
     type?: SortOrder
+    creationDate?: SortOrder
     _count?: SortCountOrderByAggregateInput
     _avg?: SortAvgOrderByAggregateInput
     _max?: SortMaxOrderByAggregateInput
@@ -16368,6 +16405,7 @@ export namespace Prisma {
     viewId?: StringWithAggregatesFilter<"Sort"> | string
     columnIndex?: IntWithAggregatesFilter<"Sort"> | number
     type?: EnumSortTypeWithAggregatesFilter<"Sort"> | $Enums.SortType
+    creationDate?: DateTimeWithAggregatesFilter<"Sort"> | Date | string
   }
 
   export type PostCreateInput = {
@@ -16999,6 +17037,7 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate?: Date | string
     view: ViewCreateNestedOneWithoutFiltersInput
   }
 
@@ -17008,6 +17047,7 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate?: Date | string
   }
 
   export type FilterUpdateInput = {
@@ -17015,6 +17055,7 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     view?: ViewUpdateOneRequiredWithoutFiltersNestedInput
   }
 
@@ -17024,6 +17065,7 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FilterCreateManyInput = {
@@ -17032,6 +17074,7 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate?: Date | string
   }
 
   export type FilterUpdateManyMutationInput = {
@@ -17039,6 +17082,7 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FilterUncheckedUpdateManyInput = {
@@ -17047,12 +17091,14 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SortCreateInput = {
     id?: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate?: Date | string
     view: ViewCreateNestedOneWithoutSortsInput
   }
 
@@ -17061,12 +17107,14 @@ export namespace Prisma {
     viewId: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate?: Date | string
   }
 
   export type SortUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     view?: ViewUpdateOneRequiredWithoutSortsNestedInput
   }
 
@@ -17075,6 +17123,7 @@ export namespace Prisma {
     viewId?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SortCreateManyInput = {
@@ -17082,12 +17131,14 @@ export namespace Prisma {
     viewId: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate?: Date | string
   }
 
   export type SortUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SortUncheckedUpdateManyInput = {
@@ -17095,6 +17146,7 @@ export namespace Prisma {
     viewId?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -17796,6 +17848,7 @@ export namespace Prisma {
     columnIndex?: SortOrder
     type?: SortOrder
     value?: SortOrder
+    creationDate?: SortOrder
   }
 
   export type FilterAvgOrderByAggregateInput = {
@@ -17808,6 +17861,7 @@ export namespace Prisma {
     columnIndex?: SortOrder
     type?: SortOrder
     value?: SortOrder
+    creationDate?: SortOrder
   }
 
   export type FilterMinOrderByAggregateInput = {
@@ -17816,6 +17870,7 @@ export namespace Prisma {
     columnIndex?: SortOrder
     type?: SortOrder
     value?: SortOrder
+    creationDate?: SortOrder
   }
 
   export type FilterSumOrderByAggregateInput = {
@@ -17844,6 +17899,7 @@ export namespace Prisma {
     viewId?: SortOrder
     columnIndex?: SortOrder
     type?: SortOrder
+    creationDate?: SortOrder
   }
 
   export type SortAvgOrderByAggregateInput = {
@@ -17855,6 +17911,7 @@ export namespace Prisma {
     viewId?: SortOrder
     columnIndex?: SortOrder
     type?: SortOrder
+    creationDate?: SortOrder
   }
 
   export type SortMinOrderByAggregateInput = {
@@ -17862,6 +17919,7 @@ export namespace Prisma {
     viewId?: SortOrder
     columnIndex?: SortOrder
     type?: SortOrder
+    creationDate?: SortOrder
   }
 
   export type SortSumOrderByAggregateInput = {
@@ -19455,6 +19513,7 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate?: Date | string
   }
 
   export type FilterUncheckedCreateWithoutViewInput = {
@@ -19462,6 +19521,7 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate?: Date | string
   }
 
   export type FilterCreateOrConnectWithoutViewInput = {
@@ -19478,12 +19538,14 @@ export namespace Prisma {
     id?: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate?: Date | string
   }
 
   export type SortUncheckedCreateWithoutViewInput = {
     id?: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate?: Date | string
   }
 
   export type SortCreateOrConnectWithoutViewInput = {
@@ -19554,6 +19616,7 @@ export namespace Prisma {
     columnIndex?: IntFilter<"Filter"> | number
     type?: EnumFilterTypeFilter<"Filter"> | $Enums.FilterType
     value?: StringFilter<"Filter"> | string
+    creationDate?: DateTimeFilter<"Filter"> | Date | string
   }
 
   export type SortUpsertWithWhereUniqueWithoutViewInput = {
@@ -19580,6 +19643,7 @@ export namespace Prisma {
     viewId?: StringFilter<"Sort"> | string
     columnIndex?: IntFilter<"Sort"> | number
     type?: EnumSortTypeFilter<"Sort"> | $Enums.SortType
+    creationDate?: DateTimeFilter<"Sort"> | Date | string
   }
 
   export type CellCreateWithoutRowInput = {
@@ -20081,12 +20145,14 @@ export namespace Prisma {
     columnIndex: number
     type: $Enums.FilterType
     value: string
+    creationDate?: Date | string
   }
 
   export type SortCreateManyViewInput = {
     id?: string
     columnIndex: number
     type: $Enums.SortType
+    creationDate?: Date | string
   }
 
   export type FilterUpdateWithoutViewInput = {
@@ -20094,6 +20160,7 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FilterUncheckedUpdateWithoutViewInput = {
@@ -20101,6 +20168,7 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FilterUncheckedUpdateManyWithoutViewInput = {
@@ -20108,24 +20176,28 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumFilterTypeFieldUpdateOperationsInput | $Enums.FilterType
     value?: StringFieldUpdateOperationsInput | string
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SortUpdateWithoutViewInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SortUncheckedUpdateWithoutViewInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type SortUncheckedUpdateManyWithoutViewInput = {
     id?: StringFieldUpdateOperationsInput | string
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
+    creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CellCreateManyRowInput = {

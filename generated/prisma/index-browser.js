@@ -211,14 +211,16 @@ exports.Prisma.FilterScalarFieldEnum = {
   viewId: 'viewId',
   columnIndex: 'columnIndex',
   type: 'type',
-  value: 'value'
+  value: 'value',
+  creationDate: 'creationDate'
 };
 
 exports.Prisma.SortScalarFieldEnum = {
   id: 'id',
   viewId: 'viewId',
   columnIndex: 'columnIndex',
-  type: 'type'
+  type: 'type',
+  creationDate: 'creationDate'
 };
 
 exports.Prisma.SortOrder = {
