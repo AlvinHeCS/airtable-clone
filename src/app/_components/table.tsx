@@ -53,10 +53,12 @@ export default function Table(tableProp: prop) {
       }
     );
     const table = getTableAndViewWithRowsAhead?.pages?.[0]?.table;
-    const { data: allViews, isLoading: viewsLoading } = api.table.getViews.useQuery(
+    // all views is here is used for adding rows, cols and editing cells so that all views are edited
+    const { data: allViews, isLoading: viewsLoading } = api.view.getViews.useQuery(
       { tableId: table?.id ?? "" }, 
       { enabled: !!table }           
     );
+    // this singlur view is the one passed into filter, sort, hide/sort as you only want to effect one view
     const view = getTableAndViewWithRowsAhead?.pages?.[0]?.view;
     const allRows = useMemo(() => {
       return getTableAndViewWithRowsAhead?.pages.flatMap((p) => p.rows) ?? [];
@@ -508,7 +510,7 @@ export default function Table(tableProp: prop) {
             ))}
           </div>
           {showShowHideColModal ? <ShowHideColModal tableHeaderTypes={table.headerTypes} view={view} tableName={table.name} baseId={table.baseId} localShowing={localShowing} setLocalShowing={setLocalShowing} tableHeaders={localHeaders} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
-          {showFilterModal ? <FilterModal view={view} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
+          {showFilterModal ? <FilterModal tableHeaderTypes={table.headerTypes} view={view} tableHeaders={table.headers} tableId={table.id} setData={setData} setModal={setShowFilterModal} tableName={table.name} baseId={table.baseId}/> : null}
           {showSortModal ? <SortModal tableHeaderTypes={table.headerTypes} view={view} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} tableName={table.name} baseId={table.baseId}/> : null}
           {showColumnModal ? <NewColModal views={allViews} view={view} id={table.id} tableName={table.name} baseId={table.baseId} setModal={setShowColumnModal} setData={setData} setLocalHeaders={setLocalHeaders} setLocalHeaderTypes={setLocalHeadersTypes} setLocalShowing={setLocalShowing}/> : null}
         </div>

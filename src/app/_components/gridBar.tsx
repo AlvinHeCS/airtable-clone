@@ -16,8 +16,8 @@ interface prop {
 export default function GridBar(GridBarProp: prop) {
     const utils = api.useUtils();
     const [localViews, setLocalViews] = useState<View[]>([]);
-    const {data: views, isLoading: loadingViews} = api.table.getViews.useQuery({tableId: GridBarProp.tableId});
-    const { mutateAsync: asynAddView } = api.table.addView.useMutation()
+    const {data: views, isLoading: loadingViews} = api.view.getViews.useQuery({tableId: GridBarProp.tableId});
+    const { mutateAsync: asynAddView } = api.view.addView.useMutation()
     useEffect(() => {
         if (!views) return;
         setLocalViews(views);
@@ -30,7 +30,7 @@ export default function GridBar(GridBarProp: prop) {
         });
 
         // and then update trpc for the different views
-        utils.table.getViews.setData({tableId: GridBarProp.tableId}, (prev) => {
+        utils.view.getViews.setData({tableId: GridBarProp.tableId}, (prev) => {
             if (!prev) return []
             return(
                 [...prev, newView]
