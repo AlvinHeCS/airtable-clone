@@ -44,7 +44,7 @@ export type Table = {
   name: string;
 };
 
-export type TableRow = Record<string, string> & { rowId: string };
+export type TableRow = Record<string, string> & { id: string };
 
 export type View = {
   id: string;
@@ -55,3 +55,32 @@ export type View = {
   showing: boolean[];
   creationDate: Date;
 };
+
+export type Augments = {
+  bool: boolean;
+  num: number;
+}
+
+export type Filtered = {
+  bool: boolean;
+  filterNames: string;
+}
+
+export type CellsFlat = (number | string | null)[]; 
+
+export type Cell = {
+    id: string;
+    colNum: number;
+    val: string;
+    numVal: number | null
+    rowId: string
+}
+
+export type Row = { 
+  id: string; 
+  rowNum: number; 
+  cellsFlat: CellsFlat; 
+  tableId: string; 
+  cells: Cell[];
+}
+

@@ -5,7 +5,7 @@ import { api } from "~/trpc/react"
 import Table from "~/app/_components/table"
 import BaseSideBar from "~/app/_components/baseSideBar"
 import BaseHeader from "~/app/_components/baseHeader"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import "./page.css"
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -13,21 +13,27 @@ export default function BasePage() {
   const utils = api.useUtils()
   const params = useParams()
   const baseId = String(params.baseId)
-  const [selectedTableName, setSelectedTableName] = useState<string>("Table 1")
+  const [selectedTableId, setSelectedTableId] = useState<string>("")
   const { data: tables, isLoading: loadingTables } = api.base.getTables.useQuery({ baseId })
+  
+  const { mutateAsync: addTableMutate } = api.base.addTables.useMutation()
 
-  const { mutateAsync: addTableMutate } = api.base.addTables.useMutation({
-    onSuccess: () => { 
-      utils.base.getTables.setData({baseId}, undefined);
-      utils.base.getTables.invalidate({ baseId });
-    }
-  })
-
-  function addTable() {
-    addTableMutate({ baseId })
+  async function addTable() {
+    const newTable = await addTableMutate({ baseId })
+    utils.base.getTables.setData({baseId}, (oldData) => {
+      if (!oldData) return oldData
+      return [...oldData, newTable]
+    })
   }
 
-  if (loadingTables) {
+  useEffect(() => {
+    if (!tables || !tables[0]) return
+    if (selectedTableId === "") {
+      setSelectedTableId(tables[0].id);
+    }
+  }, [tables])
+
+  if (!tables || loadingTables) {
     return(
         <div style={{display: "flex", width: "100%", height: "80vh", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading tables <CircularProgress size="20px"/></div>
     )
@@ -54,11 +60,11 @@ export default function BasePage() {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
-            {tables!.map((_, index) => {
+            {tables.map((table, index) => {
               const tableName = `Table ${index + 1}`
-              const isSelected = selectedTableName === tableName
+              const isSelected = selectedTableId === table.id
               return (
-                <div key={index}>
+                <div key={table.id}>
                   <button
                     style={{
                       width: isSelected ? "100px" : "80px",
@@ -75,7 +81,7 @@ export default function BasePage() {
                       background: isSelected ? "white" : "transparent",
                       borderRight: "solid grey 0.5px"
                     }}
-                    onClick={() => setSelectedTableName(tableName)}
+                    onClick={() => setSelectedTableId(table.id)}
                   >
                     Table {index + 1}
                     {isSelected && <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />}
@@ -122,7 +128,7 @@ export default function BasePage() {
           </button>
         </div>
         <div style={{width: "100%", height: "100%"}}>
-          <Table key={selectedTableName} tableName={selectedTableName} baseId={baseId}/>
+          <Table key={selectedTableId} tableId={selectedTableId}/>
         </div>
       </div>
     </div>

@@ -86,7 +86,8 @@ export const baseRouter = createTRPCRouter({
     .input(z.object({ baseId: z.string() }))
     .query(async ({ctx, input}) => {
       return await ctx.db.table.findMany({
-        where: {baseId: input.baseId}
+        where: {baseId: input.baseId},
+        orderBy: {creationDate: "asc"}
       })
     }),
 })

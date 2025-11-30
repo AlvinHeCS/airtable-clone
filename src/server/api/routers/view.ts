@@ -1,3 +1,4 @@
+import { SortType } from "generated/prisma";
 import { z } from "zod";
 
 import {
@@ -34,13 +35,23 @@ export const viewRouter = createTRPCRouter({
     });
   }),
   editFilterHeader: protectedProcedure
-  .input(z.object({ filterId: z.string(), newHeaderColIndex: z.number()}))
+  .input(z.object({ filterId: z.string(), newHeaderColIndex: z.number(), newValue: z.string(), newType: z.enum([
+        "contains",
+        "not_contains",
+        "eq",
+        "gt",
+        "lt",
+        "empty",
+        "not_empty",
+    ])}))
   .mutation(async ({ctx, input}) => {
     return await ctx.db.filter.update({
         where: {id: input.filterId},
         data: {
-            columnIndex: input.newHeaderColIndex
-        }
+            columnIndex: input.newHeaderColIndex,
+            type: input.newType,
+            value: input.newValue
+        } 
     })
   }),
   editFilterType: protectedProcedure
@@ -74,10 +85,9 @@ export const viewRouter = createTRPCRouter({
   removeFilter: protectedProcedure
   .input(z.object({filterId: z.string()}))
   .mutation(async ({ctx, input}) => {
-    const deleted = await ctx.db.filter.delete({
+    return await ctx.db.filter.delete({
       where: {id: input.filterId}
     })
-    return deleted;
   }),
   addSort: protectedProcedure
   .input(
@@ -124,12 +134,18 @@ export const viewRouter = createTRPCRouter({
     })
   }),
   editSortHeader: protectedProcedure
-  .input(z.object({sortId: z.string(), sortColIndex: z.number()}))
+  .input(z.object({sortId: z.string(), sortColIndex: z.number(), sortType: z.enum([
+        "sortA_Z",
+        "sortZ_A",
+        "sort1_9",
+        "sort9_1",
+      ])}))
   .mutation(async ({ctx, input}) => {
     return await ctx.db.sort.update({
       where: {id: input.sortId},
       data: {
-        columnIndex: input.sortColIndex
+        columnIndex: input.sortColIndex,
+        type: input.sortType
       }
     })
   }),
@@ -149,37 +165,6 @@ export const viewRouter = createTRPCRouter({
           showing: newShowing
         }
       })
-    })
-  }),
-  getViews: protectedProcedure
-  .input(z.object({tableId: z.string()}))
-  .query(async ({ctx, input}) => {
-    const table = await ctx.db.table.findUnique({
-      where: { id: input.tableId },
-      select: { 
-        views: {
-          orderBy: { creationDate: "asc" },
-          include: { filters: {
-            orderBy: {creationDate: "asc"}
-          }, sorts: {
-            orderBy: {creationDate: "asc"}
-          }}
-      } },
-    });
-    return table?.views ?? [];
-  }),
-  getViewFromTableIdViewName: protectedProcedure
-  .input(z.object({tableId: z.string(), viewName: z.string()}))
-  .query(async ({ctx, input}) => {
-    return await ctx.db.view.findFirst({
-      where: {
-        tableId: input.tableId,
-        name: input.viewName
-      },
-      include: {
-        filters: true,
-        sorts: true
-      }
     })
   }),
   addView: protectedProcedure
@@ -206,8 +191,8 @@ export const viewRouter = createTRPCRouter({
           showing: table.headers.map((h) => { return true})
         },
         include: {
-          filters: true,
-          sorts: true
+          filters: {orderBy: {creationDate: "asc"}},
+          sorts: {orderBy: {creationDate: "asc"}}
         }
       })
     })

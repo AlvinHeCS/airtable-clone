@@ -180,7 +180,8 @@ exports.Prisma.TableScalarFieldEnum = {
   headers: 'headers',
   headerTypes: 'headerTypes',
   numRows: 'numRows',
-  numViews: 'numViews'
+  numViews: 'numViews',
+  creationDate: 'creationDate'
 };
 
 exports.Prisma.ViewScalarFieldEnum = {

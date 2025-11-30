@@ -96,6 +96,7 @@ model Table {
     numRows       Int
     numViews      Int
     views         View[]
+    creationDate  DateTime  @default(now())
 }
 
 model View {

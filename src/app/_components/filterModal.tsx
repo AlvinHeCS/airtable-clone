@@ -1,32 +1,105 @@
+"use client"
+
 import { useState, useEffect, useRef} from "react";
-import { text } from "stream/consumers";
 import { api } from "~/trpc/react"
-import type { View, Filter, TableRow, OperatorType } from "~/types/types";
+import type { View, OperatorType, Row, Filter, Sort} from "~/types/types";
 
 interface prop {
     tableHeaders: string[];
     tableHeaderTypes: number[];
     tableId: string;
-    tableName: string;
-    baseId: string;
-    setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
-    view: View
+    view: View;
 }
 
-
 export default function FilterModal(FilterModalProps: prop) {
-    const filterTypes = [
-        "contains",
-        "not_contains",
-        "eq",
-        "gt",
-        "lt",
-        "empty",
-        "not_empty",
-    ];
 
-    // everytime filterModal is rendered this gets outputted
+
+    function sortRows(newRows: Row[], sorts: Sort[]) {
+        for (const s of sorts) {
+            switch(s.type) {
+                case "sort1_9": 
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (Number(aComparison) - Number(bComparison))
+                })
+                break;
+                case "sort9_1":
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (Number(bComparison) - Number(aComparison))
+                })
+                break;
+                case "sortA_Z":
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (String(aComparison).localeCompare(String(bComparison)))
+                })
+                break;
+                case "sortZ_A":
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (String(bComparison).localeCompare(String(aComparison)))
+                })
+                break;
+            }
+        }
+        return newRows
+    }
+
+    function filterRows(newRows: Row[], filters: Filter[]) {
+        return newRows.filter((row) => {
+            let passed = true
+            for (const f of filters) {
+                if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
+                switch(f.type) {
+                    case "contains":
+                        if (!(row.cells[f.columnIndex]!.val.includes(f.value))) {
+                            passed = false;
+                        }
+                        break
+                    case "not_contains":
+                        if (row.cells[f.columnIndex]!.val.includes(f.value)) {
+                            passed = false;
+                        }
+                        break
+                    case "empty":
+                        if (row.cells[f.columnIndex]!.val !== "") {
+                            passed = false;
+                        }
+                        break
+                    case "not_empty":
+                        if (row.cells[f.columnIndex]!.val === "") {
+                            passed = false;
+                        }
+                        break
+                    case "eq":
+                        if (row.cells[f.columnIndex]!.val !== f.value) {
+                            passed = false;
+                        }
+                        break
+                    case "gt":
+                        if (row.cells[f.columnIndex]!.numVal || -Infinity <= Number(f.value)) {
+                            passed = false
+                        }
+                        break
+                    case "lt":
+                        if (row.cells[f.columnIndex]!.numVal || Infinity >= Number(f.value)) {
+                            passed = false
+                        }
+                        break
+                }
+            }
+            return (passed)
+        })
+    }
+
+    const modalRef = useRef<HTMLDivElement>(null);
+    const utils = api.useUtils();    
     useEffect(() => {
     function handleClick(event: MouseEvent) {
         if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
@@ -38,100 +111,215 @@ export default function FilterModal(FilterModalProps: prop) {
     return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
-
-    const modalRef = useRef<HTMLDivElement>(null);
-    const utils = api.useUtils();    
-    // const [filters, setFilters] = useState<Filter[]>(FilterModalProps.view.filters);
-    const [val, setVal] = useState<string>("");
-    const [col, setCol] = useState<number>(0);
-    const [operator, setOperator] = useState<OperatorType>("contains");
-    const { mutateAsync: addFilterAsync } = api.view.addFilter.useMutation({
-        onSuccess: () => {
-            utils.table.getTableAndViewWithRowsAhead.reset({
-                baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName,
-                viewName: FilterModalProps.view.name
-            });
-          }
-    });
-    const { mutateAsync: deleteFilterAsync } = api.view.removeFilter.useMutation({
-        onSuccess: () => {
-            utils.table.getTableAndViewWithRowsAhead.reset({
-                baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName,
-                viewName: FilterModalProps.view.name
-            });
-          }
-    });
-    const { mutateAsync: editFilterHeaderAsync } = api.view.editFilterHeader.useMutation({
-        onSuccess: () => {
-            utils.table.getTableAndViewWithRowsAhead.reset({
-                baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName,
-                viewName: FilterModalProps.view.name
-            })
-        }
-    })
-    const { mutateAsync: editFilterTypeAsync } = api.view.editFilterType.useMutation({
-        onSuccess: () => {
-            utils.table.getTableAndViewWithRowsAhead.reset({
-                baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName,
-                viewName: FilterModalProps.view.name
-            })
-        }
-    })
-    const { mutateAsync: editFilterValAsync } = api.view.editFilterVal.useMutation({
-        onSuccess: () => {
-            utils.table.getTableAndViewWithRowsAhead.reset({
-                baseId: FilterModalProps.baseId,
-                tableName: FilterModalProps.tableName,
-                viewName: FilterModalProps.view.name
-            })
-        }
-    })
-    // useEffect(() => {
-    //     setFilters(FilterModalProps.view.filters);
-    // }, [])    
+    const { mutateAsync: addFilterAsync } = api.view.addFilter.useMutation();
+    const { mutateAsync: deleteFilterAsync } = api.view.removeFilter.useMutation();
+    const { mutateAsync: editFilterHeaderAsync } = api.view.editFilterHeader.useMutation();
+    const { mutateAsync: editFilterTypeAsync } = api.view.editFilterType.useMutation();
+    const { mutateAsync: editFilterValAsync } = api.view.editFilterVal.useMutation();
 
     async function addFilter() {
-        if (operator) {
-            const newFilter = await addFilterAsync({viewId: FilterModalProps.view.id, colNum: 0, filterType: "contains", filterVal: ""});
-            // setFilters([...filters, newFilter]);
-        }
+        const newFilter = await addFilterAsync({viewId: FilterModalProps.view.id, colNum: 0, filterType: "contains"});
+        // update views trpc cache with new filter
+        utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
+            if (!prev) return []
+            return prev.map((view) => {
+                if (view.id === FilterModalProps.view.id) {
+                    return {
+                        ...view,
+                        filters: [...view.filters, newFilter]
+                    }
+                } else {
+                    return view
+                }
+            })
+        })
+
+        // since making a filter does nothing to the rows no need to update
     }
 
     async function deleteFilter(filterId: string) {
-        await deleteFilterAsync({filterId});
-        // setFilters(filters.filter((filter) => {
-        //     return filter.id !== filterId;
-        // }))
-    }   
+        const deletedFilter = await deleteFilterAsync({filterId});
+        utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
+            if (!prev) return prev
+            return prev.map((view) => {
+                if (view.id === FilterModalProps.view.id) {
+                    return {
+                        ...view,
+                        filters: view.filters.filter((filter) => {
+                            return (filter.id !== deletedFilter.id) 
+                        })
+                    }
+                } else {
+                    return view
+                }
+            })
+        })
 
-    async function editFilterHeader(filterId: string, newHeaderCol: number) {
+        // update trpc getRows
+        const sorts = FilterModalProps.view.sorts;
+        const filters = FilterModalProps.view.filters.filter((filter) => {
+            return (filter.id !== deletedFilter.id)
+        })
+        utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
+            if (!oldData) return oldData
+            const newPages = oldData.pages.map((page) => {
+                // get unfiltered rows and filter them and sort them then return them
+                let newRows = filterRows([...page.unFilteredRows] as Row[], filters)
+                newRows = sortRows(newRows as Row[], sorts)
+                return {
+                    ...page,
+                    rows: newRows as Row[]
+                }
+            })
+            return {
+                ...oldData,
+                pages: newPages
+            } 
+        })
+    }
+
+    async function editFilterHeader(filterId: string, newHeaderCol: number, oldCol: number, filterVal: string, filterType: OperatorType) {
         // update backend
-        await editFilterHeaderAsync({filterId: filterId, newHeaderColIndex: newHeaderCol});
-        // update local state
-        // setFilters((prev) => {
-        //     return prev.map((filter) => {
-        //         if (filter.id === filterId) {
-        //             return newFilter
-        //         } else {
-        //             return filter
-        //         }
-        //     })
-        // })        
+        let newVal = filterVal;
+        let newType = filterType;
+        if (FilterModalProps.tableHeaderTypes[newHeaderCol] !== FilterModalProps.tableHeaderTypes[oldCol]) {
+            newVal = "";
+            if (FilterModalProps.tableHeaderTypes[newHeaderCol] === 0) {
+                newType = "contains";
+            } else {
+                newType = "eq";
+            }
+        }
+
+        const newFilter = await editFilterHeaderAsync({filterId: filterId, newHeaderColIndex: newHeaderCol, newType: newType, newValue: newVal});
+            console.log("new edited filter: ", newFilter)
+            utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
+                if (!prev) return prev
+                return prev.map((view) => {
+                    if (view.id === FilterModalProps.view.id) {
+                        return {
+                            ...view,
+                            filters: view.filters.map((filter) => {
+                                if (filter.id  === newFilter.id) {
+                                    return newFilter
+                                } else {
+                                    return filter
+                                }
+                            })
+                        }
+                    } else {
+                        return view
+                    }
+                })
+            })
+            const sorts = FilterModalProps.view.sorts
+            const filters = FilterModalProps.view.filters.map((filter) => {
+                if (filter.id === newFilter.id) return newFilter
+                return filter
+            })
+            utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
+                if (!oldData) return oldData
+                const newPages = oldData.pages.map((page) => {
+                    let newRows = filterRows([...page.unFilteredRows] as Row[], filters);
+                    newRows = sortRows(newRows as Row[], sorts);
+                    return {
+                        ...page,
+                        rows: newRows as Row[]
+                    }
+                })
+                return {
+                    ...oldData,
+                    pages: newPages
+                }
+            })
     }
 
     async function editFilterType(filterId: string, newType: OperatorType) {
         // update backend
-        await editFilterTypeAsync({filterId: filterId, newType: newType})
+        const newFilter = await editFilterTypeAsync({filterId: filterId, newType: newType})
+        utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
+            if (!prev) return prev
+            return prev.map((view) => {
+                if (view.id === FilterModalProps.view.id) {
+                    return {
+                        ...view,
+                        filters: view.filters.map((filter) => {
+                            if (filter.id === newFilter.id) {
+                                return newFilter
+                            } else {
+                                return filter
+                            }
+                        })
+                    }
+                } else {
+                    return view
+                }
+            })
+        })
+        const sorts = FilterModalProps.view.sorts
+        const filters = FilterModalProps.view.filters.map((filter) => {
+            if (filter.id === newFilter.id) return newFilter
+            return filter
+        })
+        utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
+            if (!oldData) return oldData
+            const newPages = oldData.pages.map((page) => {
+                let newRows = filterRows([...page.unFilteredRows] as Row[], filters);
+                newRows = sortRows(newRows as Row[], sorts);
+                return {
+                    ...page,
+                    rows: newRows as Row[]
+                }
+            })
+            return {
+                ...oldData,
+                pages: newPages
+            }
+        })
     }
 
     async function editFilterVal(filterId: string, val: string) {
-        console.log("this is new val: ", val);
         const newFilter = await editFilterValAsync({filterId: filterId, newFilterVal: val});
-        console.log("this is the newFilter returned: ", newFilter);
+        utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
+            if (!prev) return prev
+            return prev.map((view) => {
+                if (view.id === FilterModalProps.view.id) {
+                    return {
+                        ...view,
+                        filters: view.filters.map((filter) => {
+                            if (filter.id === newFilter.id) {
+                                return newFilter
+                            } else {
+                                return filter
+                            }
+                        })
+                    }
+                } else {
+                    return view
+                }
+            })
+        })
+        
+        const sorts = FilterModalProps.view.sorts
+        const filters = FilterModalProps.view.filters.map((filter) => {
+            if (filter.id === newFilter.id) return newFilter
+            return filter
+        })
+        utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
+            if (!oldData) return oldData
+            const newPages = oldData.pages.map((page) => {
+                let newRows = filterRows([...page.unFilteredRows] as Row[], filters);
+                newRows = sortRows(newRows as Row[], sorts);
+                return {
+                    ...page,
+                    rows: newRows as Row[]
+                }
+            })
+            return {
+                ...oldData,
+                pages: newPages
+            }
+        })
     }
 
     return(
@@ -139,10 +327,10 @@ export default function FilterModal(FilterModalProps: prop) {
             <span style={{fontSize: "14px", color: "grey"}}>In this view, show records</span>
             <div style={{padding: "10px", display: "flex", flexDirection: "column", gap: "10px"}}>
             {FilterModalProps.view.filters.map((filter, i) => {
-
-                return(<div style={{display: "flex"}}key={filter.id}>
+                console.log("filterId: ", filter.id);
+                return(<div style={{display: "flex"}} key={filter.id}>
                     {i === 0 ? <div style={{width: "50px", marginRight: "5px" , height: "30px", display: "flex", alignItems: "center", fontSize: "14px"}}>Where</div> : <div style={{fontSize: "14px", display: "flex", alignItems: "center", height: "30px", width: "50px", marginRight: "5px"}}>and</div>}
-                    <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => editFilterHeader(filter.id, Number(e.target.value))} value={filter.columnIndex}>
+                    <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => editFilterHeader(filter.id, Number(e.target.value), filter.columnIndex, filter.value, filter.type)} value={filter.columnIndex}>
                         {FilterModalProps.tableHeaders.map((header, i) => {
                             return(<option key={i} value={i}>{header}</option>)
                         })}
@@ -161,7 +349,10 @@ export default function FilterModal(FilterModalProps: prop) {
                             <option key={4} value="not_empty">is not empty</option>
                         </select>
                     }
-                    <input style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} onBlur={(e) => editFilterVal(filter.id, e.target.value)}></input>
+                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] ? 
+                    <input type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} value={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onChange={(e) => editFilterVal(filter.id, e.target.value)}></input>
+                    :
+                    <input style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} value={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onChange={(e) => editFilterVal(filter.id, e.target.value)}></input>}
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}onClick={() => (deleteFilter(filter.id))}><img src="/trash.svg" style={{width: "15px", height: "15px"}}></img></button>
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}><img src="/dots.svg" style={{width: "15px", height: "15px"}}></img></button>
                 </div>)

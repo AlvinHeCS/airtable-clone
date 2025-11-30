@@ -1,3 +1,5 @@
+"use client"
+
 import FormGroup from '@mui/material/FormGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
@@ -11,11 +13,7 @@ interface prop {
     tableHeaders: string[];
     tableHeaderTypes: number[];
     tableId: string;
-    tableName: string;
-    baseId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
-    localShowing: boolean[];
-    setLocalShowing: React.Dispatch<React.SetStateAction<boolean[]>>;
     view: View;
 }
 
@@ -40,7 +38,7 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
     useEffect(() => {
     function handleClick(event: MouseEvent) {
         if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
-        showHideColModalProp.setModal(false);
+            showHideColModalProp.setModal(false);
         }
     }
 
@@ -51,40 +49,22 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
     async function handleChange(colIndex: number, check: boolean) {
         //update backend first
         await mutateAsync({viewId: showHideColModalProp.view.id, check: check, colIndex: colIndex})
-        // update local state
-        showHideColModalProp.setLocalShowing((prev) => {
-            const newLocalShowing = [...prev];
-            newLocalShowing[colIndex] = check;
-
-            utils.table.getTableAndViewWithRowsAhead.setInfiniteData({baseId: showHideColModalProp.baseId, tableName: showHideColModalProp.tableName, viewName: showHideColModalProp.view.name}, 
-                (oldData) => {
-                    //   pages: {
-                    //     table: Table;
-                    //     rows: Row[]; size is 200 as long as theres more
-                    //     nextCursor: number | null;
-                    //     view: View
-                    //   }[],
-
-                    // if value has never been cached before
-                    if (!oldData) return oldData;
-                    // set all table 
-                    const newPages = oldData.pages.map((page) => {
-                        return ({
-                            ...page,
-                            view: {
-                                ...page.view,
-                                showing: newLocalShowing
-                            }
-                            }
-                        )
-                    })
+        // this should cause columns to regenerate
+        utils.table.getViews.setData({tableId: showHideColModalProp.tableId}, 
+        (prev) => {
+            if (!prev) return prev
+            return prev.map((view) => {
+                if (view.id === showHideColModalProp.view.id) {
+                    const newShowing = [...view.showing];
+                    newShowing[colIndex] = check;
                     return {
-                        ...oldData,
-                        pages: newPages
-                    }
-                }   
-            )
-            return newLocalShowing
+                        ...view,
+                        showing: newShowing
+                    } 
+                } else {
+                    return view
+                }
+            })
         })
     }
     
@@ -93,8 +73,8 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
             <span style={{color: "grey", fontSize: "12px", height: "35px", borderBottom: "solid rgba(210, 210, 210, 1) 1px", display: "flex", alignItems: "center", justifyContent: "space-between"}}>Find a field<img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img></span>
             <FormGroup>
                 {showHideColModalProp.tableHeaders.map((header, i) => {
-                    return (showHideColModalProp.tableHeaderTypes[i] ? <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.localShowing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} /> :
-                            <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.localShowing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/letter.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} />
+                    return (showHideColModalProp.tableHeaderTypes[i] ? <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.view.showing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} /> :
+                            <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.view.showing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/letter.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} />
                             )
                 })}
             </FormGroup>

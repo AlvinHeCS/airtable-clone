@@ -1,65 +1,134 @@
 "use client"
 
 import type { CellContext } from "@tanstack/react-table"
-import { useState } from "react" 
 import { api } from "~/trpc/react"
 import "./numCell.css";
-import type { TableRow, View } from "~/types/types";
+import type { TableRow, View, Row, Filter, Sort } from "~/types/types";
 
 interface CellProp {
   info: CellContext<TableRow, string>;
-  baseId: string;
-  tableName: string;
   tableId: string;
-  viewName: string;
   views: View[];
+  viewId: string;
 }
 
 export default function StringCell(prop: CellProp) {
   const utils = api.useUtils();
-  const colIndex = (prop.info.column.columnDef.meta as { colIndex: number }).colIndex;
-
-  const [cellValue, setCellValue] = useState<string>(prop.info.getValue() ?? "");
-
+  const meta = prop.info.column.columnDef.meta as { colIndex: number };
   const { mutateAsync } = api.table.editCell.useMutation();
+    function filterRows(newRows: Row[], filters: Filter[]) {
+        return newRows.filter((row) => {
+            let passed = true
+            for (const f of filters) {
+                if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
+                switch(f.type) {
+                    case "contains":
+                        if (!(row.cells[f.columnIndex]!.val.includes(f.value))) {
+                            passed = false;
+                        }
+                        break
+                    case "not_contains":
+                        if (row.cells[f.columnIndex]!.val.includes(f.value)) {
+                            passed = false;
+                        }
+                        break
+                    case "empty":
+                        if (row.cells[f.columnIndex]!.val !== "") {
+                            passed = false;
+                        }
+                        break
+                    case "not_empty":
+                        if (row.cells[f.columnIndex]!.val === "") {
+                            passed = false;
+                        }
+                        break
+                    case "eq":
+                        if (row.cells[f.columnIndex]!.val !== f.value) {
+                            passed = false;
+                        }
+                        break
+                    case "gt":
+                        if (row.cells[f.columnIndex]!.numVal || -Infinity <= Number(f.value)) {
+                            passed = false
+                        }
+                        break
+                    case "lt":
+                        if (row.cells[f.columnIndex]!.numVal || Infinity >= Number(f.value)) {
+                            passed = false
+                        }
+                        break
+                }
+            }
+            return (passed)
+        })
+    }
+
+    function sortRows(newRows: Row[], sorts: Sort[]) {
+        for (const s of sorts) {
+            switch(s.type) {
+                case "sort1_9": 
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (Number(aComparison) - Number(bComparison))
+                })
+                break;
+                case "sort9_1":
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (Number(bComparison) - Number(aComparison))
+                })
+                break;
+                case "sortA_Z":
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (String(aComparison).localeCompare(String(bComparison)))
+                })
+                break;
+                case "sortZ_A":
+                newRows.sort((a, b) => {
+                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
+                    return (String(bComparison).localeCompare(String(aComparison)))
+                })
+                break;
+            }
+        }
+        return newRows
+    }
   const handleChange = async (newVal: string) => {
-      setCellValue(newVal);
-  try {
+
     await mutateAsync({ 
-      rowId: prop.info.row.original.rowId, 
-      col: colIndex, 
+      rowId: prop.info.row.original.id, 
+      col: meta.colIndex, 
       newVal 
     });
     // Update the cached infinite query
     for (let view of prop.views) {
-      utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
-        { viewName: view.name, baseId: prop.baseId, tableName: prop.tableName },
-        //   pages: {
-        //     table: Table;
-        //     rows: Row[]; size is 200 as long as theres more
-        //     nextCursor: number | null;
-        //     view: View;
-        //   }[],
+      utils.table.rowsAhead.setInfiniteData(
+        { viewId: view.id, tableId: prop.tableId},
         (oldData) => {
           if (!oldData) return oldData;
-          // Update the correct cell in all pages
           const newPages = oldData.pages.map(page => {
-            return {
-              ...page,
-              rows: page.rows.map(row => {
+            let newRows = page.rows.map(row => {
                 if (row.id !== prop.info.row.original.rowId) return row;
-
                 return {
                   ...row,
                   cells: row.cells.map(cell => {
-                    if (cell.colNum !== colIndex) return cell;
+                    if (cell.colNum !== meta.colIndex) return cell;
                     return { ...cell, val: newVal };
                   }),
                 };
-              }),
+              })
+            newRows = filterRows(newRows as Row[], view.filters);
+            newRows = sortRows(newRows as Row[], view.sorts);
+            return {
+              ...page,
+              rows: newRows
             };
           });
-
           return {
             ...oldData,
             pages: newPages,
@@ -67,16 +136,13 @@ export default function StringCell(prop: CellProp) {
         }
       );
     }
-  } catch (err) {
-    console.error(err);
-  }
   };
 
   return (
       <input 
           type="number" 
-          value={cellValue} 
-          onChange={(e) => setCellValue(e.target.value)} 
+          defaultValue={prop.info.getValue()} 
+          // onChange={(e) => handleChange(e.target.value)} 
           onBlur={(e) => handleChange(e.target.value)}
           onKeyDown={(e) => {
               if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {

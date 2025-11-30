@@ -1,18 +1,13 @@
 "use client"
 
+import type { Cell } from "generated/prisma";
 import { useState } from "react"
 import { api } from "~/trpc/react"
-import type { TableRow, View } from "~/types/types";
+import type { View } from "~/types/types";
 
 interface prop {
-    id: string;
-    tableName: string;
-    baseId: string;
+    tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
-    setData: React.Dispatch<React.SetStateAction<TableRow[]>>;
-    setLocalHeaders: React.Dispatch<React.SetStateAction<string[]>>;
-    setLocalHeaderTypes: React.Dispatch<React.SetStateAction<number[]>>;
-    setLocalShowing: React.Dispatch<React.SetStateAction<boolean[]>>;
     view: View;
     views: View[];
 }
@@ -23,79 +18,70 @@ export default function NewColModal(NewColModalProp: prop) {
     const utils = api.useUtils();
     const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
     async function addCol() {
-      if (newHeaderVal !== "") {
-        // updatedRows.cells only contains the newley created cells for the last col
-        const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.id, type: newHeaderType, header: newHeaderVal, viewName: NewColModalProp.view.name });
-
-        // Update local states
-        NewColModalProp.setLocalHeaders((prev) => [...prev, newHeaderVal]);
-        NewColModalProp.setLocalHeaderTypes((prev) => [...prev, newHeaderType]);
-        NewColModalProp.setData((prev) =>
-          prev.map((row) => ({
-            ...row,
-            [newHeaderVal]: "",
-          }))
-        );
-        NewColModalProp.setLocalShowing((prev) => {
-          const newLocalShowing = [...prev];
-          newLocalShowing.push(true);
-          return newLocalShowing
-        })
-
-        // Update the tRPC cache for all views
-        for (let view of NewColModalProp.views) {
-          utils.table.getTableAndViewWithRowsAhead.setInfiniteData(
-            { baseId: NewColModalProp.baseId, tableName: NewColModalProp.tableName, viewName: view.name },
-            (oldData) => {
-              if (!oldData) return oldData;
-              //   pages: {
-              //     table: Table;
-              //     rows: Row[]; size is 200 as long as theres more
-              //     nextCursor: number | null;
-              //   }[],
-              const currView = view.name === NewColModalProp.view.name
-              const newPages = oldData.pages.map((page) => ({
-                ...page,
-                // overides the table from the spreaded ...page
-                view: {
-                  ...page.view,
-                  showing: [...page.view.showing, currView]
-                },
-                table: {
-                  ...page.table,
-                  headers: [...page.table.headers, newHeaderVal],
-                  headerTypes: [...page.table.headerTypes, newHeaderType],
-                },
-                rows: page.rows.map((row) => {
-                  // Find the new cell for this row
-                  const newCell = updatedRows.find((r) => r.id === row.id)?.cells[0];
-                  if (!newCell) return row;
-
-                  // Merge the new cell into the existing row.cells array
-                  return {
-                    ...row,
-                    cells: [...row.cells, {
-                      id: newCell.id,
-                      colNum: newCell.colNum,
-                      val: newCell.val,
-                      numVal: newCell.numVal ?? null,
-                      rowId: newCell.rowId,
-                    }],
-                  };
-                }),
-              }));
-
-              return {
-                ...oldData,
-                pages: newPages,
-              };
+      const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.tableId, type: newHeaderType, header: newHeaderVal, viewName: NewColModalProp.view.name });
+      // trpc update view
+      utils.table.getViews.setData({tableId: NewColModalProp.tableId}, (prev) => {
+        if (!prev) return prev
+        return prev.map((view) => {
+          if (view.id === NewColModalProp.view.id) {
+            return {
+              ...view,
+              showing: [...view.showing, true]
+            } 
+          } else {
+            return {
+              ...view,
+              showing: [...view.showing, false]
             }
-          );
-        }
+          }
+        })
+      })
+
+      // trpc update table
+      utils.table.getTable.setData({ tableId: NewColModalProp.tableId },
+        (prev) => {
+          if (!prev) return prev
+          return {
+            ...prev,
+            headers: [...prev.headers, newHeaderVal],
+            headerTypes: [...prev.headerTypes, newHeaderType]
+          }
+        } 
+      )
+
+      // trpc update rows
+      // need to update rowsAhead for all views
+      //update rows only has cells for the last column need to combine it with the new one to get full value 
+      for (let view of NewColModalProp.views) {
+        utils.table.rowsAhead.setInfiniteData({ tableId: NewColModalProp.tableId, viewId: view.id}, (oldData) => {
+          if (!oldData) return oldData
+          const newPages = oldData.pages.map((page) => {
+            const newRows = page.rows.map((row, i) => {
+              return {
+                ...row,
+                cells: [...row.cells, updatedRows[i]?.cells[0] as Cell]
+              }
+            })
+            const newUnfilteredRows = page.unFilteredRows.map((unFilteredRow, i) => {
+              return {
+                ...unFilteredRow,
+                cells: [...unFilteredRow.cells, updatedRows[i]?.cells[0] as Cell]
+              }
+            })
+            return {
+              ...page,
+              rows: newRows,
+              unFilteredRows: newUnfilteredRows
+            }
+          })
+          return {
+            ...oldData,
+            pages: newPages
+          }
+        })
       }
       NewColModalProp.setModal(false);
     }
-
 
     return (
         <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "20vw", height: "150px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", marginLeft: "70vw", marginTop: "260px"}}>
@@ -110,4 +96,4 @@ export default function NewColModal(NewColModalProp: prop) {
             </div>
         </div>
     )
-}
+  }

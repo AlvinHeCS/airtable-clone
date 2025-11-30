@@ -7,26 +7,44 @@ import {
 } from "~/server/api/trpc";
 
 export const tableRouter = createTRPCRouter({
-getTableAndViewWithRowsAhead: protectedProcedure
+
+getTable: protectedProcedure
+.input(z.object({tableId: z.string()}))
+.query(async ({ctx, input}) => {
+  return await ctx.db.table.findUnique({
+    where: {id: input.tableId},
+    include: {
+      views: {
+        orderBy: {creationDate: "asc"}
+      }
+    }
+  })
+}),
+getViews: protectedProcedure
+.input(z.object({tableId: z.string()}))
+.query(async({ctx, input}) => {
+  return await ctx.db.view.findMany({
+    where: {tableId: input.tableId},
+    orderBy: {creationDate: "asc"},
+    include: {
+      filters: {
+        orderBy: {creationDate: "asc"}
+      },
+      sorts: {
+        orderBy: {creationDate: "asc"}
+      }
+    }
+  })
+}),
+rowsAhead: protectedProcedure
   .input(z.object({
-    baseId: z.string(),
-    tableName: z.string(),
+    tableId: z.string(),
     cursor: z.number().optional(),
-    viewName: z.string(),
+    viewId: z.string(),
   }))
   .query(async ({ ctx, input }) => {
-
-    // get table
-    const table = await ctx.db.table.findFirst({
-      where: { baseId: input.baseId, name: input.tableName },
-    });
-    if (!table) throw new Error("Table not found");
-    
     const view = await ctx.db.view.findFirst({
-      where: {
-        name: input.viewName,
-        tableId: table.id
-      },
+      where: { id: input.viewId},
       include: {filters: {orderBy: {creationDate: "asc"}}, sorts: {orderBy: {creationDate: "asc"}}}
     })
     if (!view) throw new Error("View not found");
@@ -38,35 +56,59 @@ getTableAndViewWithRowsAhead: protectedProcedure
     const pageSize = 200;
     const rows = await ctx.db.row.findMany({
       where: { 
-        tableId: table.id,
-        AND: filters.map((f) => ({
-          cells: {
-            some: {
-              colNum: f.columnIndex,
-              ...(f.type === "contains" && {
-                val: { contains: f.value },
-              }),
-              ...(f.type === "not_contains" && {
-                val: { not: { contains: f.value } },
-              }),
-              ...(f.type === "empty" && {
-                val: "",
-              }),
-              ...(f.type === "not_empty" && {
-                val: { not: "" },
-              }),
-              ...(f.type === "eq" && {
-                val: f.value,
-              }),
-              ...(f.type === "lt" && {
-                numVal: { lt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
-              }),
-              ...(f.type === "gt" && {
-                numVal: { gt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
-              }),
-            }
+        tableId: input.tableId,
+        AND: filters.map((f) => {
+          const isBlank = f.value === "" && f.type !== "empty" && f.type !== "not_empty";
+          if (isBlank) {
+            return {
+              cells: {
+                some: {} 
+              }
+            };
           }
-        }))
+          return {
+            cells: {
+              some: {
+                colNum: f.columnIndex,
+                ...(f.type === "contains" && {
+                  val: { contains: f.value },
+                }),
+                ...(f.type === "not_contains" && {
+                  val: { not: { contains: f.value } },
+                }),
+                ...(f.type === "empty" && {
+                  val: "",
+                }),
+                ...(f.type === "not_empty" && {
+                  val: { not: "" },
+                }),
+                ...(f.type === "eq" && {
+                  val: f.value,
+                }),
+                ...(f.type === "lt" && {
+                  numVal: { lt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
+                }),
+                ...(f.type === "gt" && {
+                  numVal: { gt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
+                }),
+              }
+            }
+          };
+        })
+      },
+      orderBy: { rowNum: "asc" },
+      take: pageSize + 1,
+      skip: input.cursor ?? 0,
+      include: {
+        cells: {
+          orderBy: { colNum: "asc" },  
+        }
+      }
+    });
+
+    const unFilteredRows = await ctx.db.row.findMany({
+      where: { 
+        tableId: input.tableId,
       },
       orderBy: { rowNum: "asc" },
       take: pageSize + 1,
@@ -103,11 +145,9 @@ getTableAndViewWithRowsAhead: protectedProcedure
       sortedRows.pop();
       nextCursor = (input.cursor ?? 0) + pageSize;
     }
-
     return {
-      table,
-      view,
       rows: sortedRows,
+      unFilteredRows: unFilteredRows,
       nextCursor
     };
   }),
@@ -141,7 +181,7 @@ addRow: protectedProcedure
       }
     });
 
-    const newRow = await tx.row.create({
+    return await tx.row.create({
       data: {
         rowNum,
         tableId: input.tableId,
@@ -154,10 +194,8 @@ addRow: protectedProcedure
           })),
         },
       },
-      include: { cells: true },
+      include: { cells: {orderBy: {colNum: "asc"}}} 
     });
-
-    return newRow;
   });
 }),
   
@@ -207,10 +245,12 @@ addCol: protectedProcedure
     if (rows.length === 0) return [];
 
     // make the new cells
-    const newCells = rows.map((r) => ({
+    const newCells = rows.map((r, i) => ({
+      id: `cell_${i}_${crypto.randomUUID()}`,
       rowId: r.id,
       colNum: newColNum,
       val: "",
+      numVal: null,
     }));
 
     await ctx.db.cell.createMany({
@@ -223,7 +263,7 @@ addCol: protectedProcedure
       tableId: input.tableId,
       // for each row you want to give it the cell that matches the rowId
       cells: [
-        { ...newCells.find((c) => c.rowId === r.id) } as any,
+        { ...newCells.find((c) => c.rowId === r.id) },
       ],
     }));
     // rows return will like this
