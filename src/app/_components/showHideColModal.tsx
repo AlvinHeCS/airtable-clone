@@ -70,7 +70,7 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
     }
     
     return(
-        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${showHideColModalProp.position.left - 100}px`, top: `${showHideColModalProp.position.top + 40}px`, width: "300px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
+        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${showHideColModalProp.position.left - 400}px`, top: `${showHideColModalProp.position.top + 40}px`, width: "300px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
             <span style={{color: "grey", fontSize: "12px", height: "35px", borderBottom: "solid rgba(210, 210, 210, 1) 1px", display: "flex", alignItems: "center", justifyContent: "space-between"}}>Find a field<img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img></span>
             <FormGroup>
                 {showHideColModalProp.tableHeaders.map((header, i) => {

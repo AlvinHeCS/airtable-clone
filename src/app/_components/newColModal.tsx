@@ -10,6 +10,7 @@ interface prop {
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
     views: View[];
+    position: {top: number, left: number}
 }
 
 export default function NewColModal(NewColModalProp: prop) {
@@ -85,7 +86,7 @@ export default function NewColModal(NewColModalProp: prop) {
     }
 
     return (
-        <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "20vw", height: "150px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", marginLeft: "70vw", marginTop: "260px"}}>
+        <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "20vw", height: "150px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", left: `${NewColModalProp.position.left - 100}px`, top: `${NewColModalProp.position.top + 40}px`}}>
             <input placeholder="field name (optional)" style={{width: "100%", height: "35px", fontSize: "12px", borderRadius: "5px", padding: "5px", border: "solid grey 1px"}} type="text" value={newHeaderVal} onChange={(e) => setNewHeaderVal(e.target.value)}></input>
             <select style={{width: "100%", fontSize: "12px", border: "solid grey 1px", borderRadius: "5px", height: "35px"}} value={newHeaderType} onChange={(e) => setNewHeaderType(Number(e.target.value))}>
                 <option value="0">Single line text</option>

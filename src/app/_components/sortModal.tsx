@@ -15,6 +15,7 @@ interface prop {
     tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
+    position: {top: number, left: number}
 }
 
 export default function SortModal(SortModalProps: prop) {
@@ -206,7 +207,7 @@ export default function SortModal(SortModalProps: prop) {
     }
 
     return(
-        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", marginLeft: "40vw", minHeight: "140px", top: "139px", width: "500px", background: "white", position: "fixed"}}>
+        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${SortModalProps.position.left + 600}px`, top: `${SortModalProps.position.top + 140}px`, minHeight: "140px", width: "500px", background: "white", position: "fixed"}}>
             <div style={{paddingRight: "20px", paddingTop: "10px", paddingBottom: "10px", paddingLeft: "20px", gap: "10px", display: "flex", flexDirection: "column"}}>
                 <div style={{paddingBottom: "5px", borderBottom: "solid rgba(216, 216, 216, 1) 1px", fontSize: "14px", color: "grey", fontWeight: "500", display: "flex", alignItems: "center", gap: "5px"}}>
                     Sort by 

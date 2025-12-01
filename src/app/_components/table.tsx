@@ -30,7 +30,10 @@ export default function Table(tableProp: prop) {
     const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
     const [selectedView, setSelectedView] = useState<View | null>(null);
-    const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0})
+    const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [filterButtonPos, setFilterButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [sortButtonPos, setSortButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [newColButtonPos, setNewColButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
     const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -248,11 +251,23 @@ export default function Table(tableProp: prop) {
     cellElement?.focus();
   }
   const showHideButtonRef = useRef<HTMLButtonElement>(null);
+  const filterButtonRef = useRef<HTMLButtonElement>(null);
+  const sortButtonRef = useRef<HTMLButtonElement>(null);
+  const newColButtonRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
-    if (!showHideButtonRef.current) return;
-    const rect = showHideButtonRef.current.getBoundingClientRect();
-    setShowHideButtonPos({top: rect.top, left: rect.right})
-  }, [showShowHideColModal])
+    if (!showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current) return;
+    const showHideRect = showHideButtonRef.current.getBoundingClientRect();
+    const filterRect = filterButtonRef.current.getBoundingClientRect();
+    const sortRect = sortButtonRef.current.getBoundingClientRect();
+    const newColRect = newColButtonRef.current.getBoundingClientRect();
+    
+    setShowHideButtonPos({top: showHideRect.top, left: showHideRect.left});
+    setFilterButtonPos({top: filterRect.top, left: filterRect.left});
+    setShowHideButtonPos({top: sortRect.top, left: sortRect.left});
+    setNewColButtonPos({top: newColRect.top, left: newColRect.left});
+
+  }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal])
 
     function filterRows(newRows: Row[], filters: Filter[]) {
         return newRows.filter((row) => {
@@ -471,6 +486,7 @@ export default function Table(tableProp: prop) {
           </button>
           }
           <button
+            ref={filterButtonRef}
             className="bell"
             style={{
               width: filtered.bool ? "auto" : "80px",
@@ -516,6 +532,7 @@ export default function Table(tableProp: prop) {
 
 
           <button
+            ref={sortButtonRef}
             className="bell"
             style={{
               width: sorted.bool ? "150px":"80px",
@@ -575,9 +592,9 @@ export default function Table(tableProp: prop) {
           ))}
         </div>
         {showShowHideColModal ? <ShowHideColModal position={showHideButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
-        {showFilterModal ? <FilterModal tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
-        {showSortModal ? <SortModal tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
-        {showColumnModal ? <NewColModal views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
+        {showFilterModal ? <FilterModal position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
+        {showSortModal ? <SortModal position={sortButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
+        {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
       </div>
     <div style={{display: "flex", height: "100%"}}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
@@ -598,6 +615,7 @@ export default function Table(tableProp: prop) {
               {/* this header cell is for the add col one */}
               <th style={{ width: "200px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
                 <button
+                  ref={newColButtonRef}
                   onClick={() => setShowColumnModal(true)}
                   style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
                 >

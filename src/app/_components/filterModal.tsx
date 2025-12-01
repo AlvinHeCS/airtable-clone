@@ -10,6 +10,7 @@ interface prop {
     tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
+    position: {top: number, left: number}
 }
 
 export default function FilterModal(FilterModalProps: prop) {
@@ -264,11 +265,10 @@ export default function FilterModal(FilterModalProps: prop) {
     }
 
     return(
-        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", marginLeft: "15vw", top: "139px", width: "570px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
+        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${FilterModalProps.position.left - 400}px`, top: `${FilterModalProps.position.top + 40}px`, width: "570px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
             <span style={{fontSize: "14px", color: "grey"}}>In this view, show records</span>
             <div style={{padding: "10px", display: "flex", flexDirection: "column", gap: "10px"}}>
             {FilterModalProps.view.filters.map((filter, i) => {
-                console.log("filterId: ", filter.id);
                 return(<div style={{display: "flex"}} key={filter.id}>
                     {i === 0 ? <div style={{width: "50px", marginRight: "5px" , height: "30px", display: "flex", alignItems: "center", fontSize: "14px"}}>Where</div> : <div style={{fontSize: "14px", display: "flex", alignItems: "center", height: "30px", width: "50px", marginRight: "5px"}}>and</div>}
                     <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => editFilterHeader(filter.id, Number(e.target.value), filter.columnIndex, filter.value, filter.type)} value={filter.columnIndex}>
