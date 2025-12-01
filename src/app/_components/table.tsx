@@ -30,6 +30,7 @@ export default function Table(tableProp: prop) {
     const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
     const [selectedView, setSelectedView] = useState<View | null>(null);
+    const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0})
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
     const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -246,6 +247,13 @@ export default function Table(tableProp: prop) {
     ) as HTMLElement | null;
     cellElement?.focus();
   }
+  const showHideButtonRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!showHideButtonRef.current) return;
+    const rect = showHideButtonRef.current.getBoundingClientRect();
+    setShowHideButtonPos({top: rect.top, left: rect.right})
+  }, [showShowHideColModal])
+
     function filterRows(newRows: Row[], filters: Filter[]) {
         return newRows.filter((row) => {
             let passed = true
@@ -419,6 +427,7 @@ export default function Table(tableProp: prop) {
           </button>
           {hidden.bool ?            
           <button
+            ref={showHideButtonRef}
             className="bell"
             style={{
               width: "140px",
@@ -440,6 +449,7 @@ export default function Table(tableProp: prop) {
             </span>
           </button> :
           <button
+            ref={showHideButtonRef}
             className="bell"
             style={{
               width: "100px",
@@ -564,7 +574,7 @@ export default function Table(tableProp: prop) {
             </button>
           ))}
         </div>
-        {showShowHideColModal ? <ShowHideColModal tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
+        {showShowHideColModal ? <ShowHideColModal position={showHideButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
         {showFilterModal ? <FilterModal tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
         {showSortModal ? <SortModal tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
         {showColumnModal ? <NewColModal views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
