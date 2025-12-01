@@ -4,7 +4,7 @@ export default function BaseHeader() {
     return (
         <div style={{width: "100%", height: "60px", position: "sticky", top: "0", display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "solid grey 0.5px", padding: "10px", background: "white"}}>
             <div style={{display: "flex", gap: "10px", alignItems: "center"}}>
-                <div style={{background: "#63498D", width: "35px", height: "35px", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "5px"}}><img style={{width: "30px", height: "30px"}} src="/airtableP2.png"></img></div>
+                <div style={{background: "#63498D", width: "35px", height: "35px", display: "flex", justifyContent: "center", alignItems: "center", borderRadius: "5px"}}><img style={{width: "30px", height: "30px"}} src="/airtablep2.png"></img></div>
                 <span style={{fontSize: "16px"}}><b>Untitled Base</b></span>
                 <img style={{width: "10px", height: "10px"}} src="/arrowD.svg"></img>
             </div>
