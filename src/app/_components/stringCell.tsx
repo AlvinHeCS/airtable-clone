@@ -47,13 +47,13 @@ export default function StringCell(prop: CellProp) {
                         }
                         break
                     case "gt":
-                        if (row.cells[f.columnIndex]!.numVal || -Infinity <= Number(f.value)) {
-                            passed = false
+                        if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
+                            passed = false;
                         }
                         break
                     case "lt":
-                        if (row.cells[f.columnIndex]!.numVal || Infinity >= Number(f.value)) {
-                            passed = false
+                        if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
+                            passed = false;
                         }
                         break
                 }
@@ -112,9 +112,10 @@ export default function StringCell(prop: CellProp) {
           if (!oldData) return oldData;
           const newPages = oldData.pages.map(page => {
             let newRows = page.rows.map(row => {
-              if (row.id !== prop.info.row.original.rowId) {
+              if (row.id !== prop.info.row.original.id) {
                 return row;
               } else {
+                console.log("rowId matches")
                 return {
                   ...row,
                   cells: row.cells.map(cell => {
@@ -125,23 +126,10 @@ export default function StringCell(prop: CellProp) {
               }
             })
             newRows = filterRows(newRows as Row[], view.filters);
-            newRows = sortRows(newRows as Row[], view.sorts);
+            newRows = sortRows(newRows as Row[], view.sorts);            
             return {
               ...page, 
               rows: newRows,
-              unFilteredRows: page.unFilteredRows.map(row => {
-                if (row.id !== prop.info.row.original.rowId) {
-                  return row;
-                } else {
-                  return {
-                    ...row,
-                    cells: row.cells.map(cell => {
-                      if (cell.colNum !== meta.colIndex) return cell;
-                      return { ...cell, val: newVal };
-                    }),
-                  }
-                }
-              }),
             };
           });
           return {

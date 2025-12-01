@@ -67,6 +67,7 @@ export default function Table(tableProp: prop) {
     const rows: TableRow[] = useMemo(() => {
     if (!rowsAhead || !table) return []
     // array of rows now
+    console.log("this is rows", rowsAhead.pages.flatMap((p) => p.rows))
     const rows = rowsAhead.pages.flatMap((p) => p.rows);
     // turn it into array of objects with header as key and cell value as val
     const formattedRows: TableRow[] = rows.map(row => {
@@ -271,12 +272,12 @@ export default function Table(tableProp: prop) {
                         }
                         break
                     case "gt":
-                        if (row.cells[f.columnIndex]!.numVal || -Infinity <= Number(f.value)) {
+                        if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
                             passed = false
                         }
                         break
                     case "lt":
-                        if (row.cells[f.columnIndex]!.numVal || Infinity >= Number(f.value)) {
+                        if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
                             passed = false
                         }
                         break
@@ -324,7 +325,7 @@ export default function Table(tableProp: prop) {
   async function addRow() {
     if (!table || !selectedView || !views) return;
 
-    const newRow = await mutateAsyncRow({ tableId: table.id });
+    const newRow = await mutateAsyncRow({ tableId: table.id }) as Row;
     if (!newRow || !newRow.cellsFlat) throw new Error("row failed to be created");
     // need to check if it passes the filters
     for (let view of views) {
@@ -339,7 +340,6 @@ export default function Table(tableProp: prop) {
             return {
               ...page,
               rows: [...page.rows, newRow],
-              unFilteredRows: [...page.unFilteredRows, newRow]
             }
           })
           return {
@@ -459,7 +459,7 @@ export default function Table(tableProp: prop) {
           <button
             className="bell"
             style={{
-              width: filtered.bool ? undefined : "80px",
+              width: filtered.bool ? "auto" : "80px",
               flexShrink: 0,
               flexGrow: filtered.bool ? 1 : 0,
               height: "30px",

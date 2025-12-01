@@ -19,6 +19,7 @@ export default function NewColModal(NewColModalProp: prop) {
     const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
     async function addCol() {
       const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.tableId, type: newHeaderType, header: newHeaderVal, viewName: NewColModalProp.view.name });
+      
       // trpc update view
       utils.table.getViews.setData({tableId: NewColModalProp.tableId}, (prev) => {
         if (!prev) return prev
@@ -57,21 +58,21 @@ export default function NewColModal(NewColModalProp: prop) {
           if (!oldData) return oldData
           const newPages = oldData.pages.map((page) => {
             const newRows = page.rows.map((row, i) => {
+              const newCell: Cell= {
+                id: `cell_${i}_${crypto.randomUUID()}`,
+                colNum: row.cells.length,
+                val: "",
+                numVal: null,
+                rowId: row.id
+              }
               return {
                 ...row,
                 cells: [...row.cells, updatedRows[i]?.cells[0] as Cell]
               }
             })
-            const newUnfilteredRows = page.unFilteredRows.map((unFilteredRow, i) => {
-              return {
-                ...unFilteredRow,
-                cells: [...unFilteredRow.cells, updatedRows[i]?.cells[0] as Cell]
-              }
-            })
             return {
               ...page,
               rows: newRows,
-              unFilteredRows: newUnfilteredRows
             }
           })
           return {

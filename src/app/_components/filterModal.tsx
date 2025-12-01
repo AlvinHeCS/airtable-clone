@@ -52,8 +52,11 @@ export default function FilterModal(FilterModalProps: prop) {
     }
 
     function filterRows(newRows: Row[], filters: Filter[]) {
+        console.log("this is newRows in filter: ", newRows);
+        console.log("this is filter: ", filters)
         return newRows.filter((row) => {
             let passed = true
+            console.log("this is row: ", row);
             for (const f of filters) {
                 if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
                 switch(f.type) {
@@ -83,17 +86,18 @@ export default function FilterModal(FilterModalProps: prop) {
                         }
                         break
                     case "gt":
-                        if (row.cells[f.columnIndex]!.numVal || -Infinity <= Number(f.value)) {
+                        if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
                             passed = false
                         }
                         break
                     case "lt":
-                        if (row.cells[f.columnIndex]!.numVal || Infinity >= Number(f.value)) {
+                        if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
                             passed = false
                         }
                         break
                 }
             }
+            console.log("this is rows outcome: ", passed);
             return (passed)
         })
     }
@@ -111,11 +115,31 @@ export default function FilterModal(FilterModalProps: prop) {
     return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
-    const { mutateAsync: addFilterAsync } = api.view.addFilter.useMutation();
-    const { mutateAsync: deleteFilterAsync } = api.view.removeFilter.useMutation();
-    const { mutateAsync: editFilterHeaderAsync } = api.view.editFilterHeader.useMutation();
-    const { mutateAsync: editFilterTypeAsync } = api.view.editFilterType.useMutation();
-    const { mutateAsync: editFilterValAsync } = api.view.editFilterVal.useMutation();
+    const { mutateAsync: addFilterAsync } = api.view.addFilter.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id})
+        }
+    });
+    const { mutateAsync: deleteFilterAsync } = api.view.removeFilter.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id})
+        }
+    });
+    const { mutateAsync: editFilterHeaderAsync } = api.view.editFilterHeader.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id})
+        }
+    });
+    const { mutateAsync: editFilterTypeAsync } = api.view.editFilterType.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id})
+        }
+    });
+    const { mutateAsync: editFilterValAsync } = api.view.editFilterVal.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id})
+        }
+    });
 
     async function addFilter() {
         const newFilter = await addFilterAsync({viewId: FilterModalProps.view.id, colNum: 0, filterType: "contains"});
@@ -154,28 +178,6 @@ export default function FilterModal(FilterModalProps: prop) {
                 }
             })
         })
-
-        // update trpc getRows
-        const sorts = FilterModalProps.view.sorts;
-        const filters = FilterModalProps.view.filters.filter((filter) => {
-            return (filter.id !== deletedFilter.id)
-        })
-        utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
-            if (!oldData) return oldData
-            const newPages = oldData.pages.map((page) => {
-                // get unfiltered rows and filter them and sort them then return them
-                let newRows = filterRows([...page.unFilteredRows] as Row[], filters)
-                newRows = sortRows(newRows as Row[], sorts)
-                return {
-                    ...page,
-                    rows: newRows as Row[]
-                }
-            })
-            return {
-                ...oldData,
-                pages: newPages
-            } 
-        })
     }
 
     async function editFilterHeader(filterId: string, newHeaderCol: number, oldCol: number, filterVal: string, filterType: OperatorType) {
@@ -192,7 +194,6 @@ export default function FilterModal(FilterModalProps: prop) {
         }
 
         const newFilter = await editFilterHeaderAsync({filterId: filterId, newHeaderColIndex: newHeaderCol, newType: newType, newValue: newVal});
-            console.log("new edited filter: ", newFilter)
             utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
                 if (!prev) return prev
                 return prev.map((view) => {
@@ -211,26 +212,6 @@ export default function FilterModal(FilterModalProps: prop) {
                         return view
                     }
                 })
-            })
-            const sorts = FilterModalProps.view.sorts
-            const filters = FilterModalProps.view.filters.map((filter) => {
-                if (filter.id === newFilter.id) return newFilter
-                return filter
-            })
-            utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
-                if (!oldData) return oldData
-                const newPages = oldData.pages.map((page) => {
-                    let newRows = filterRows([...page.unFilteredRows] as Row[], filters);
-                    newRows = sortRows(newRows as Row[], sorts);
-                    return {
-                        ...page,
-                        rows: newRows as Row[]
-                    }
-                })
-                return {
-                    ...oldData,
-                    pages: newPages
-                }
             })
     }
 
@@ -256,30 +237,11 @@ export default function FilterModal(FilterModalProps: prop) {
                 }
             })
         })
-        const sorts = FilterModalProps.view.sorts
-        const filters = FilterModalProps.view.filters.map((filter) => {
-            if (filter.id === newFilter.id) return newFilter
-            return filter
-        })
-        utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
-            if (!oldData) return oldData
-            const newPages = oldData.pages.map((page) => {
-                let newRows = filterRows([...page.unFilteredRows] as Row[], filters);
-                newRows = sortRows(newRows as Row[], sorts);
-                return {
-                    ...page,
-                    rows: newRows as Row[]
-                }
-            })
-            return {
-                ...oldData,
-                pages: newPages
-            }
-        })
     }
 
-    async function editFilterVal(filterId: string, val: string) {
+    async function editFilterVal(filterId: string, val: string, filterOperator: OperatorType, filterColumnIndex: number, filterViewId: string) {
         const newFilter = await editFilterValAsync({filterId: filterId, newFilterVal: val});
+
         utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
             if (!prev) return prev
             return prev.map((view) => {
@@ -298,27 +260,6 @@ export default function FilterModal(FilterModalProps: prop) {
                     return view
                 }
             })
-        })
-        
-        const sorts = FilterModalProps.view.sorts
-        const filters = FilterModalProps.view.filters.map((filter) => {
-            if (filter.id === newFilter.id) return newFilter
-            return filter
-        })
-        utils.table.rowsAhead.setInfiniteData({tableId: FilterModalProps.tableId, viewId: FilterModalProps.view.id}, (oldData) => {
-            if (!oldData) return oldData
-            const newPages = oldData.pages.map((page) => {
-                let newRows = filterRows([...page.unFilteredRows] as Row[], filters);
-                newRows = sortRows(newRows as Row[], sorts);
-                return {
-                    ...page,
-                    rows: newRows as Row[]
-                }
-            })
-            return {
-                ...oldData,
-                pages: newPages
-            }
         })
     }
 
@@ -350,9 +291,9 @@ export default function FilterModal(FilterModalProps: prop) {
                         </select>
                     }
                     {FilterModalProps.tableHeaderTypes[filter.columnIndex] ? 
-                    <input type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} value={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onChange={(e) => editFilterVal(filter.id, e.target.value)}></input>
+                    <input type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>
                     :
-                    <input style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} value={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onChange={(e) => editFilterVal(filter.id, e.target.value)}></input>}
+                    <input style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>}
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}onClick={() => (deleteFilter(filter.id))}><img src="/trash.svg" style={{width: "15px", height: "15px"}}></img></button>
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}><img src="/dots.svg" style={{width: "15px", height: "15px"}}></img></button>
                 </div>)
@@ -360,11 +301,11 @@ export default function FilterModal(FilterModalProps: prop) {
             </div>
             <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
                 <div style={{display: "flex", gap: "15px", alignItems: "center"}}>
-                    <button style={{fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", color: "blue"}} onClick={addFilter}><span style={{fontSize: "18px"}}>+</span>Add condition</button>
-                    <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px"}}><span style={{fontSize: "18px"}}>+</span>Add condition group</button>
+                    <button style={{fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", color: "blue", width: "120px"}} onClick={addFilter}><span style={{fontSize: "18px"}}>+</span>Add condition</button>
+                    <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "150px"}}><span style={{fontSize: "18px"}}>+</span>Add condition group</button>
                     <img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img>
                 </div>
-                <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px"}}>Copy from another view</button>
+                <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px"}}>Copy from another view</button>
             </div>
         </div>
     );

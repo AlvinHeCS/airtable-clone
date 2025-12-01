@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { faker } from '@faker-js/faker';
+import type { Row } from "~/types/types";
 
 import {
   createTRPCRouter,
@@ -47,107 +48,83 @@ rowsAhead: protectedProcedure
       where: { id: input.viewId},
       include: {filters: {orderBy: {creationDate: "asc"}}, sorts: {orderBy: {creationDate: "asc"}}}
     })
+    const table = await ctx.db.table.findUnique({
+      where: {id: input.tableId}
+    })
     if (!view) throw new Error("View not found");
+    if (!table) throw new Error("Table not found");
+    
+    let whereClause = `"tableId" = '${input.tableId}'`
+    if (view.filters.length > 0) {
+      const formattedFilters = view.filters.map((filter) => {
+        const header = table.headerTypes[filter.columnIndex] 
+        ? `"cellsFlat"->>${filter.columnIndex}::int` 
+        : `"cellsFlat"->>${filter.columnIndex}` 
+        let sqlWhere = `${header} LIKE '%${filter.value}%'`
+        switch (filter.type) {
+          case "contains": 
+            sqlWhere = `${header} LIKE '%${filter.value}%'`
+            break
+          case "not_contains":
+            sqlWhere = `${header} NOT LIKE '%${filter.value}%'`
+            break
+          case "empty":
+            sqlWhere = `${header} = '${filter.value}'`
+            break
+          case "not_empty":
+            sqlWhere = `${header} != '${filter.value}'`
+            break
+          case "eq":
+            sqlWhere = `${header} = '${filter.value}'`
+            break
+          case "gt": 
+            sqlWhere = `${header} > '${filter.value}'`
+            break
+          case "lt":
+            sqlWhere = `${header} < '${filter.value}'`
+            break
+        }
+        return sqlWhere
+      })
+      whereClause = `"tableId" = '${input.tableId}' AND ${formattedFilters.join(" AND ")}`
+    }
 
-    const filters = view.filters;
-    const sorts = view.sorts;
-
-    // find rows that fit table.Id and fit applied filters
+    let orderByClause = `"rowNum" ASC`;
+    if (view.sorts.length !== 0) {
+      const formattedSorts = view.sorts.map(sort => {
+        const direction = (sort.type === "sort1_9" || sort.type === "sortA_Z") ? "ASC" : "DESC";
+        return table.headerTypes[sort.columnIndex]
+          ? `"cellsFlat"->>${sort.columnIndex}::int ${direction}`
+          : `"cellsFlat"->>${sort.columnIndex} ${direction}`;
+      });
+      formattedSorts.reverse()
+      orderByClause = formattedSorts.join(", ");
+    }
     const pageSize = 200;
-    const rows = await ctx.db.row.findMany({
-      where: { 
-        tableId: input.tableId,
-        AND: filters.map((f) => {
-          const isBlank = f.value === "" && f.type !== "empty" && f.type !== "not_empty";
-          if (isBlank) {
-            return {
-              cells: {
-                some: {} 
-              }
-            };
-          }
-          return {
-            cells: {
-              some: {
-                colNum: f.columnIndex,
-                ...(f.type === "contains" && {
-                  val: { contains: f.value },
-                }),
-                ...(f.type === "not_contains" && {
-                  val: { not: { contains: f.value } },
-                }),
-                ...(f.type === "empty" && {
-                  val: "",
-                }),
-                ...(f.type === "not_empty" && {
-                  val: { not: "" },
-                }),
-                ...(f.type === "eq" && {
-                  val: f.value,
-                }),
-                ...(f.type === "lt" && {
-                  numVal: { lt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
-                }),
-                ...(f.type === "gt" && {
-                  numVal: { gt: isNaN(Number(f.value)) ? Infinity : Number(f.value) },
-                }),
-              }
-            }
-          };
-        })
-      },
-      orderBy: { rowNum: "asc" },
-      take: pageSize + 1,
-      skip: input.cursor ?? 0,
-      include: {
-        cells: {
-          orderBy: { colNum: "asc" },  
-        }
-      }
-    });
 
-    const unFilteredRows = await ctx.db.row.findMany({
-      where: { 
-        tableId: input.tableId,
-      },
-      orderBy: { rowNum: "asc" },
-      take: pageSize + 1,
-      skip: input.cursor ?? 0,
-      include: {
-        cells: {
-          orderBy: { colNum: "asc" },  
-        }
-      }
-    });
 
-    // sort rows
-    const sortedRows = [...rows].sort((a, b) => {
-      for (let i = sorts.length - 1; i >= 0; i--) {
-        const col = sorts[i]!.columnIndex;
-        const dir = sorts[i]!.type === "sortA_Z" || sorts[i]!.type === "sort1_9" ? 1 : -1;
+    const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
+      SELECT 
+        r.*,
+        json_agg(c ORDER BY c."colNum" ASC) AS cells
+      FROM "Row" r
+      LEFT JOIN "Cell" c ON c."rowId" = r.id
+      WHERE ${whereClause}
+      GROUP BY r.id
+      ORDER BY ${orderByClause}
+      LIMIT ${pageSize + 1} OFFSET ${input.cursor ?? 0};
+    `);
+    console.log("this is sqlRows: ", sqlRows)
 
-        const aVal = (a.cellsFlat as (string | number)[])[col];
-        const bVal = (b.cellsFlat as (string | number)[])[col];
-        if (typeof aVal === "number" && typeof bVal === "number") {
-          if (aVal !== bVal) return (aVal - bVal) * dir;
-        } else {
-          const cmp = String(aVal).localeCompare(String(bVal));
-          if (cmp !== 0) return cmp * dir;
-        }
-      }
-      return 0;
-    });
-
-    // if sortedRows.length is greater then pageSize therefore uk theres still more rows to get
-    // set the nextCursor val
     let nextCursor: number | null = null;
-    if (sortedRows.length > pageSize) {
-      sortedRows.pop();
+    if (sqlRows.length > pageSize) {
+      sqlRows.pop();
       nextCursor = (input.cursor ?? 0) + pageSize;
     }
+    
     return {
-      rows: sortedRows,
-      unFilteredRows: unFilteredRows,
+      rows: sqlRows,
+      unFilteredRows: sqlRows,
       nextCursor
     };
   }),

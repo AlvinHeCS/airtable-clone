@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { api } from "~/trpc/react"
 import type { View, SortType, Row, Sort } from "~/types/types";
 import "./sortModal.css";
-import Switch from '@mui/material/Switch';
+import Switch from '@mui/material/Switch'; 
 import FormControlLabel from '@mui/material/FormControlLabel';
 import { alpha, styled } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
@@ -51,10 +51,26 @@ export default function SortModal(SortModalProps: prop) {
     return () => document.removeEventListener("mousedown", handleClick);
     }, []);
 
-    const { mutateAsync: addSortAsync } = api.view.addSort.useMutation();
-    const { mutateAsync: deleteSortAsync } = api.view.removeSort.useMutation();
-    const { mutateAsync: editSortTypeAsync } = api.view.editSortType.useMutation();
-    const { mutateAsync: editSortHeaderAsync } = api.view.editSortHeader.useMutation();
+    const { mutateAsync: addSortAsync } = api.view.addSort.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id})
+        }
+    });
+    const { mutateAsync: deleteSortAsync } = api.view.removeSort.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id})
+        }
+    });
+    const { mutateAsync: editSortTypeAsync } = api.view.editSortType.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id})
+        }
+    });
+    const { mutateAsync: editSortHeaderAsync } = api.view.editSortHeader.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id})
+        }
+    });
     
     function sortRows(newRows: Row[], sorts: Sort[]) {
         for (const s of sorts) {
@@ -93,11 +109,7 @@ export default function SortModal(SortModalProps: prop) {
     }
 
     async function addSort(col: number) {
-        let newSortType: SortType = "sort1_9";
-        if (SortModalProps.tableHeaderTypes[col] === 0) {
-            newSortType = "sortA_Z"
-        }
-
+        const newSortType: SortType = (SortModalProps.tableHeaderTypes[col] === 0) ? "sortA_Z" : "sort1_9"
         // backend 
         const newSort = await addSortAsync({viewId: SortModalProps.view.id, colNum: col, sortType: newSortType});
         // update trpc cache for views
@@ -113,33 +125,6 @@ export default function SortModal(SortModalProps: prop) {
                     return view
                 }
             })
-        })
-        // update trpc cache for rowsAhead
-        utils.table.rowsAhead.setInfiniteData({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id}, 
-            (oldData) => {
-                if (!oldData) return oldData
-                const newPages = oldData.pages.map((page) => {
-                    let newRows = [...page.rows].sort((a, b) => {
-                            const aComparison = (a.cellsFlat as (string | number | null)[])[col]
-                            const bComparison = (b.cellsFlat as (string | number | null)[])[col]
-                            return (Number(aComparison) - Number(bComparison))
-                        })
-                    if (SortModalProps.tableHeaderTypes[col] === 0) {
-                        newRows = [...page.rows].sort((a, b) => {
-                            const aComparison = (a.cellsFlat as (string | number | null)[])[col]
-                            const bComparison = (b.cellsFlat as (string | number | null)[])[col]
-                            return (String(aComparison).localeCompare(String(bComparison)))
-                        })
-                    }
-                    return {
-                        ...page,
-                        rows: newRows
-                    }
-                })                    
-                return {
-                    pages: newPages,
-                    pageParams: [...oldData.pageParams]
-                }
         })
         setNewSortModal(false)        
     }
@@ -165,45 +150,13 @@ export default function SortModal(SortModalProps: prop) {
             })
         })
 
-        // now to update table
-        utils.table.rowsAhead.setInfiniteData({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id}, (oldData) => {
-            if (!oldData) return oldData
-            // this filter may be redudant depending on if view.sorts gets updated in time from the previous trpc cache update but just in case im going to leave it here
-            const newSorts = SortModalProps.view.sorts.filter((sort) => {
-                if (sort.id !== sortId) {
-                    return sort
-                }
-            }) 
-            const newPages = oldData.pages.map((page) => {
-                // resort all the rows
-                const newRows = sortRows([...page.rows] as Row[], newSorts)
-                // give original order if no sorts
-                if (newSorts.length === 0) {
-                    newRows.sort((a,b) => {
-                        return (a.rowNum - b.rowNum)
-                    }) 
-                }
-                return {
-                    ...page,
-                    rows: newRows
-                }
-            })
-            return {
-                ...oldData,
-                pages: newPages
-            }
-        })
     }   
 
     async function changeSortHeader(sortId: string, newSortColIndex: number, oldCol: number, sortType: SortType) {
         // edit sort backend
         let newSortType = sortType;
         if (SortModalProps.tableHeaderTypes[newSortColIndex] !== SortModalProps.tableHeaderTypes[oldCol]) {
-            if (SortModalProps.tableHeaderTypes[newSortColIndex] === 0) {
-                newSortType = "sortA_Z"
-            } else {
-                newSortType = "sort1_9"
-            }
+            newSortType = SortModalProps.tableHeaderTypes[newSortColIndex] === 0 ? "sortA_Z" : "sort1_9";
         }
         const newSort = await editSortHeaderAsync({sortId: sortId, sortColIndex: newSortColIndex, sortType: newSortType});
         utils.table.getViews.setData({tableId: SortModalProps.tableId}, (prev) => {
@@ -226,31 +179,6 @@ export default function SortModal(SortModalProps: prop) {
                 }
             })
         })
-        utils.table.rowsAhead.setInfiniteData({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id}, (oldData) => {
-            if (!oldData) return oldData
-            // this map may be redudant depending on if view.sorts gets updated in time from the previous trpc cache update but just in case im going to leave it here
-            const newSorts = SortModalProps.view.sorts.map((sort) => {
-                if (sort.id === sortId) {
-                    return newSort
-                } else {
-                    return sort
-                }
-            }) 
-            const newPages = oldData.pages.map((page) => {
-                // resort all the rows
-                const newRows = sortRows([...page.rows] as Row[], newSorts)
-                return {
-                    ...page,
-                    rows: newRows
-                }
-            })
-            return {
-                ...oldData,
-                pages: newPages
-            }
-        })
-        
-
     }
     async function changeSortType(sortId: string, newSortType: SortType) {
         // edit sort backend
@@ -274,32 +202,7 @@ export default function SortModal(SortModalProps: prop) {
                     return view
                 }
             })
-        })
-        utils.table.rowsAhead.setInfiniteData({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id}, (oldData) => {
-            if (!oldData) return oldData
-            // this map may be redudant depending on if view.sorts gets updated in time from the previous trpc cache update but just in case im going to leave it here
-            const newSorts = SortModalProps.view.sorts.map((sort) => {
-                if (sort.id === sortId) {
-                    return newSort
-                } else {
-                    return sort
-                }
-            }) 
-            const newPages = oldData.pages.map((page) => {
-                // resort all the rows
-                const newRows = sortRows([...page.rows] as Row[], newSorts)
-                return {
-                    ...page,
-                    rows: newRows
-                }
-            })
-            return {
-                ...oldData,
-                pages: newPages
-            }
-        })
-        
-
+        })       
     }
 
     return(

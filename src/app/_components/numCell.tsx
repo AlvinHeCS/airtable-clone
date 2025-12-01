@@ -48,12 +48,12 @@ export default function StringCell(prop: CellProp) {
                         }
                         break
                     case "gt":
-                        if (row.cells[f.columnIndex]!.numVal || -Infinity <= Number(f.value)) {
+                        if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
                             passed = false
                         }
                         break
                     case "lt":
-                        if (row.cells[f.columnIndex]!.numVal || Infinity >= Number(f.value)) {
+                        if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
                             passed = false
                         }
                         break
@@ -113,7 +113,7 @@ export default function StringCell(prop: CellProp) {
           if (!oldData) return oldData;
           const newPages = oldData.pages.map(page => {
             let newRows = page.rows.map(row => {
-                if (row.id !== prop.info.row.original.rowId) return row;
+                if (row.id !== prop.info.row.original.id) return row;
                 return {
                   ...row,
                   cells: row.cells.map(cell => {
@@ -126,7 +126,7 @@ export default function StringCell(prop: CellProp) {
             newRows = sortRows(newRows as Row[], view.sorts);
             return {
               ...page,
-              rows: newRows
+              rows: newRows,
             };
           });
           return {

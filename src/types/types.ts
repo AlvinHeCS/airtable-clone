@@ -16,6 +16,7 @@ export type Filter = {
   value: string;
   viewId: string;
   columnIndex: number;
+  creationDate: Date;
 };
 
 export const sortTypes = [
@@ -32,6 +33,7 @@ export type Sort = {
   type: SortType;
   viewId: string;
   columnIndex: number;
+  creationDate: Date;
 };
 
 export type Table = {
