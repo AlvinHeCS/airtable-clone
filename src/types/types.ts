@@ -86,3 +86,10 @@ export type Row = {
   cells: Cell[];
 }
 
+type RowWithCells = {
+  id: string;
+  tableId: string;
+  rowNum: number;
+  cellsFlat: (string | number | null)[];
+  cells: { id: string; colNum: number; val: string; numVal: number, rowId: string; }[];
+};

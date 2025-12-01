@@ -13,7 +13,7 @@ interface CellProp {
 
 export default function StringCell(prop: CellProp) {
   const utils = api.useUtils();
-  const meta = prop.info.column.columnDef.meta as { colIndex: number };
+  const meta = prop.info.column.columnDef.meta as { colIndex: number, second: boolean, sortHighlight: boolean };
   const { mutateAsync } = api.table.editCell.useMutation();
     function filterRows(newRows: Row[], filters: Filter[]) {
         return newRows.filter((row) => {
@@ -115,7 +115,6 @@ export default function StringCell(prop: CellProp) {
               if (row.id !== prop.info.row.original.id) {
                 return row;
               } else {
-                console.log("rowId matches")
                 return {
                   ...row,
                   cells: row.cells.map(cell => {
@@ -145,8 +144,6 @@ export default function StringCell(prop: CellProp) {
       <input 
           type="text" 
           defaultValue={prop.info.getValue()} 
-          // test this out to cc if its too slow or not
-          // onChange={(e) => handleChange(e.target.value)} 
           onBlur={(e) => handleChange(e.target.value)}
       />
   );

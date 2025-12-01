@@ -121,10 +121,9 @@ rowsAhead: protectedProcedure
       sqlRows.pop();
       nextCursor = (input.cursor ?? 0) + pageSize;
     }
-    
+
     return {
       rows: sqlRows,
-      unFilteredRows: sqlRows,
       nextCursor
     };
   }),

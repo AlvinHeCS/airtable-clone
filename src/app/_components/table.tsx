@@ -13,6 +13,7 @@ import GridBar from "~/app/_components/gridBar"
 import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
+import "./table.css";
 import type { Augments, Table, TableRow, View, Filtered, Row, Sort, Filter } from "~/types/types";
 
 interface prop {
@@ -67,7 +68,6 @@ export default function Table(tableProp: prop) {
     const rows: TableRow[] = useMemo(() => {
     if (!rowsAhead || !table) return []
     // array of rows now
-    console.log("this is rows", rowsAhead.pages.flatMap((p) => p.rows))
     const rows = rowsAhead.pages.flatMap((p) => p.rows);
     // turn it into array of objects with header as key and cell value as val
     const formattedRows: TableRow[] = rows.map(row => {
@@ -101,12 +101,19 @@ export default function Table(tableProp: prop) {
             {info.row.index + 1}
           </div>
         ),
-        meta: { colIndex: -1 },
+        meta: { colIndex: -1, first: true },
         size: 40,
       };
 
       // table Columns
       // each accessorKey must be a unique value
+      const sortColIndexes: number[] = selectedView.sorts.map((sort) => {
+        return sort.columnIndex
+      })
+      const filterColIndexes: number[] = selectedView.filters.map((filter) => {
+        return filter.columnIndex
+      })
+
       let dataCols: ColumnDef<TableRow, string>[] = table.headers.map((header, i) => ({
         // acessorKey must match a key in my row object 
         accessorKey: String(i),
@@ -136,7 +143,7 @@ export default function Table(tableProp: prop) {
           }
         },
         colIndex: i,
-        meta: { colIndex: i, second: i === 0 ? true : false } as { colIndex: number},
+        meta: { colIndex: i, second: i === 0 ? true : false, sortHighlight:  sortColIndexes.includes(i) ? true : false, filterHighlight: filterColIndexes.includes(i) ? true: false} as { colIndex: number, second: boolean, sortHighlight: boolean, filterHighlight: boolean},
         // info.column.id = header
         // info.column.header = the react for the header 
         // info.column.columnDef.meta
@@ -193,7 +200,6 @@ export default function Table(tableProp: prop) {
         setSorted({bool: false, num: 0})
       }
       if (selectedView.filters.length > 0) {
-        console.log("filtered length is longer then 0")
         const filterNames = selectedView.filters.map((filter) => {
           return table?.headers[filter.columnIndex] || ""
         })
@@ -335,8 +341,6 @@ export default function Table(tableProp: prop) {
           if (!oldData) return oldData
           const newPages = oldData.pages.map((page) => {
             // wierd tantable bug is going on here
-            let newRows: Row[] = filterRows([...page.rows, newRow] as Row[], view.filters);
-            newRows = sortRows(newRows, view.sorts);
             return {
               ...page,
               rows: [...page.rows, newRow],
@@ -575,7 +579,7 @@ export default function Table(tableProp: prop) {
               {headerGroup.headers.map(header => (
                 // header cells for data
                 <th
-                  style={{ borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (header.column.columnDef.meta as { width?: number })?.width ?? 200, fontSize: "12px",  }}
+                  style={{ borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (header.column.columnDef.meta as { first: number }) ? 50 : 200, fontSize: "12px",  }}
                   key={header.id}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
@@ -595,15 +599,15 @@ export default function Table(tableProp: prop) {
         </thead>
         <tbody>
           {tanTable.getRowModel().rows.map(row => (
-            <tr key={row.id}>
+            <tr key={row.id} className="row">
               {row.getVisibleCells().map(cell => (
                 // body cells for data
                 <td
                   key={cell.id}
                   data-row={row.index}
-                  data-col={(cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0}
+                  data-col={(cell.column.columnDef.meta as { colIndex: number, second: boolean, sortHighlight: boolean })}
                   tabIndex={0}
-                  style={{ borderLeft: (cell.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (cell.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (cell.column.columnDef.meta as { width?: number })?.width ?? 200, fontSize: "12px", padding: "5px" }}
+                  style={{ background: ((cell.column.columnDef.meta as {sortHighlight: boolean, filterHighlight: boolean}).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean, filterHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (cell.column.columnDef.meta as { first: number }).first ? 50 : 200, fontSize: "12px", paddingLeft: "5px", paddingRight: "5px" }}
                   onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}

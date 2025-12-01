@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef} from "react";
+import { useEffect, useRef} from "react";
 import { api } from "~/trpc/react"
 import type { View, OperatorType, Row, Filter, Sort} from "~/types/types";
 
@@ -101,12 +101,12 @@ export default function FilterModal(FilterModalProps: prop) {
             return (passed)
         })
     }
-
+    const textInputRef = useRef<HTMLInputElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils();    
     useEffect(() => {
     function handleClick(event: MouseEvent) {
-        if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        if (modalRef.current && !(document.activeElement === textInputRef.current) && !modalRef.current.contains(event.target as Node)) {
         FilterModalProps.setModal(false);
         }
     }
@@ -290,10 +290,9 @@ export default function FilterModal(FilterModalProps: prop) {
                             <option key={4} value="not_empty">is not empty</option>
                         </select>
                     }
-                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] ? 
-                    <input type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>
-                    :
-                    <input style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>}
+                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] 
+                    ? <input ref={textInputRef} type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>
+                    : <input ref={textInputRef} style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>}
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}onClick={() => (deleteFilter(filter.id))}><img src="/trash.svg" style={{width: "15px", height: "15px"}}></img></button>
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}><img src="/dots.svg" style={{width: "15px", height: "15px"}}></img></button>
                 </div>)
