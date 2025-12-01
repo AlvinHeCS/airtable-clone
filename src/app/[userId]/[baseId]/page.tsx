@@ -33,6 +33,25 @@ export default function BasePage() {
     }
   }, [tables])
 
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+
+      if (e.key === "Tab") {
+        e.preventDefault();
+
+        if (!tables) return;
+        const index = tables.findIndex(t => t.id === selectedTableId);
+        const nextIndex = (index + 1) % tables.length;
+
+        setSelectedTableId(tables[nextIndex]?.id ?? "");
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [tables, selectedTableId]);
+
+
   if (!tables || loadingTables) {
     return(
         <div style={{display: "flex", width: "100%", height: "80vh", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading tables <CircularProgress size="20px"/></div>

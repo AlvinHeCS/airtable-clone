@@ -633,7 +633,7 @@ export default function Table(tableProp: prop) {
                 <td
                   key={cell.id}
                   data-row={row.index}
-                  data-col={(cell.column.columnDef.meta as { colIndex: number, second: boolean, sortHighlight: boolean })}
+                  data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}
                   tabIndex={0}
                   style={{ background: ((cell.column.columnDef.meta as {sortHighlight: boolean, filterHighlight: boolean}).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean, filterHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (cell.column.columnDef.meta as { first: number }).first ? 50 : 200, fontSize: "12px", paddingLeft: "5px", paddingRight: "5px" }}
                   onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
