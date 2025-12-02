@@ -49,7 +49,7 @@ export const userRouter = createTRPCRouter({
               {
                 name: "Table 1",
                 headers: ["Name", "Assignee", "Status", "Attachments"],
-                headerTypes: [0, 0, 1, 1],
+                headerTypes: ["string", "string", "number", "number"],
                 numRows: 1,
                 numViews: 1,
                 views: {

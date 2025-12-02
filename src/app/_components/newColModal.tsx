@@ -3,7 +3,7 @@
 import type { Cell } from "generated/prisma";
 import { useState } from "react"
 import { api } from "~/trpc/react"
-import type { View } from "~/types/types";
+import type { View, HeaderType } from "~/types/types";
 
 interface prop {
     tableId: string;
@@ -15,7 +15,7 @@ interface prop {
 
 export default function NewColModal(NewColModalProp: prop) {
     const [newHeaderVal, setNewHeaderVal] = useState<string>("");
-    const [newHeaderType, setNewHeaderType] = useState<number>(0);
+    const [newHeaderType, setNewHeaderType] = useState<HeaderType>("string");
     const utils = api.useUtils();
     const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
     async function addCol() {
@@ -88,9 +88,9 @@ export default function NewColModal(NewColModalProp: prop) {
     return (
         <div style={{padding: "10px", border: "solid grey 1px", position: "fixed", width: "20vw", height: "150px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", left: `${NewColModalProp.position.left - 100}px`, top: `${NewColModalProp.position.top + 40}px`}}>
             <input placeholder="field name (optional)" style={{width: "100%", height: "35px", fontSize: "12px", borderRadius: "5px", padding: "5px", border: "solid grey 1px"}} type="text" value={newHeaderVal} onChange={(e) => setNewHeaderVal(e.target.value)}></input>
-            <select style={{width: "100%", fontSize: "12px", border: "solid grey 1px", borderRadius: "5px", height: "35px"}} value={newHeaderType} onChange={(e) => setNewHeaderType(Number(e.target.value))}>
-                <option value="0">Single line text</option>
-                <option value="1">Number</option>
+            <select style={{width: "100%", fontSize: "12px", border: "solid grey 1px", borderRadius: "5px", height: "35px"}} value={newHeaderType} onChange={(e) => setNewHeaderType(e.target.value as HeaderType)}>
+                <option value="string">Single line text</option>
+                <option value="number">Number</option>
             </select>
             <div style={{display: "flex", justifyContent: "space-around"}}>
                 <button style={{background: "#rgb(169, 169, 169)", fontWeight: "400", fontSize: "12px", width: "100px", height: "30px", borderRadius: "5px"}} onClick={() => (NewColModalProp.setModal(false))}>Cancel</button>

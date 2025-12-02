@@ -6,12 +6,12 @@ import Switch from '@mui/material/Switch';
 import { alpha, styled } from '@mui/material/styles';
 import { green } from '@mui/material/colors';
 import { api } from "~/trpc/react";
-import type { View } from "~/types/types";
+import type { View, HeaderType } from "~/types/types";
 import { useRef, useEffect } from "react"
 
 interface prop {
     tableHeaders: string[];
-    tableHeaderTypes: number[];
+    tableHeaderTypes: HeaderType[];
     tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
@@ -74,7 +74,7 @@ export default function ShowHideColModal(showHideColModalProp: prop) {
             <span style={{color: "grey", fontSize: "12px", height: "35px", borderBottom: "solid rgba(210, 210, 210, 1) 1px", display: "flex", alignItems: "center", justifyContent: "space-between"}}>Find a field<img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img></span>
             <FormGroup>
                 {showHideColModalProp.tableHeaders.map((header, i) => {
-                    return (showHideColModalProp.tableHeaderTypes[i] ? <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.view.showing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} /> :
+                    return (showHideColModalProp.tableHeaderTypes[i] === "number" ? <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.view.showing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} /> :
                             <FormControlLabel sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} key={i} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} onChange={(e) => handleChange(i, e.target.checked)} checked={showHideColModalProp.view.showing[i]} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/letter.svg" style={{width: "10px", height: "10px"}}></img>{header}</div>} />
                             )
                 })}

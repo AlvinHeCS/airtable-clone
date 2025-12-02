@@ -44,7 +44,7 @@ export const baseRouter = createTRPCRouter({
       data: {
         name: `Table ${tableAmount + 1}`,
         headers: ["Name", "Assignee", "Status", "Attachments"],
-        headerTypes: [0, 0, 1, 1],
+        headerTypes: ["string", "string", "number", "number"],
         numRows: 1,
         numViews: 1,
         baseId: input.baseId,

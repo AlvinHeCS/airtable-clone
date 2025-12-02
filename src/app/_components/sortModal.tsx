@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { api } from "~/trpc/react"
-import type { View, SortType, Row, Sort } from "~/types/types";
+import type { View, SortType, Row, Sort, HeaderType } from "~/types/types";
 import "./sortModal.css";
 import Switch from '@mui/material/Switch'; 
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -11,7 +11,7 @@ import { green } from '@mui/material/colors';
 
 interface prop {
     tableHeaders: string[];
-    tableHeaderTypes: number[];
+    tableHeaderTypes: HeaderType[];
     tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
@@ -110,7 +110,7 @@ export default function SortModal(SortModalProps: prop) {
     }
 
     async function addSort(col: number) {
-        const newSortType: SortType = (SortModalProps.tableHeaderTypes[col] === 0) ? "sortA_Z" : "sort1_9"
+        const newSortType: SortType = (SortModalProps.tableHeaderTypes[col] === "string") ? "sortA_Z" : "sort1_9"
         // backend 
         const newSort = await addSortAsync({viewId: SortModalProps.view.id, colNum: col, sortType: newSortType});
         // update trpc cache for views
@@ -157,7 +157,7 @@ export default function SortModal(SortModalProps: prop) {
         // edit sort backend
         let newSortType = sortType;
         if (SortModalProps.tableHeaderTypes[newSortColIndex] !== SortModalProps.tableHeaderTypes[oldCol]) {
-            newSortType = SortModalProps.tableHeaderTypes[newSortColIndex] === 0 ? "sortA_Z" : "sort1_9";
+            newSortType = SortModalProps.tableHeaderTypes[newSortColIndex] === "string" ? "sortA_Z" : "sort1_9";
         }
         const newSort = await editSortHeaderAsync({sortId: sortId, sortColIndex: newSortColIndex, sortType: newSortType});
         utils.table.getViews.setData({tableId: SortModalProps.tableId}, (prev) => {
@@ -220,7 +220,7 @@ export default function SortModal(SortModalProps: prop) {
                                     return(<option key={i} value={i}>{header}</option>)
                                 })}
                             </select>
-                            {SortModalProps.tableHeaderTypes[sort.columnIndex] ?
+                            {SortModalProps.tableHeaderTypes[sort.columnIndex] === "number"?
                                 <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
                                     <option key={0} value="sort1_9">1-9</option>
                                     <option key={1} value="sort9_1">9-1</option>
@@ -243,7 +243,7 @@ export default function SortModal(SortModalProps: prop) {
                     <div ref={selectNewSortRef} style={{overflow: "scroll", position: "absolute", width: "450px", height: "200px", background: "white", zIndex: "999", display: "flex", flexDirection: "column", alignItems: "flex-start", border: "solid black 1px"}}>
                         <span style={{width: "100%", padding: "5px", color: "grey", fontSize: "14px", position: "sticky", top: 0, background: "white"}}>Find a field</span>
                         {SortModalProps.tableHeaders.map((header, i) => {
-                            return (SortModalProps.tableHeaderTypes[i] ? 
+                            return (SortModalProps.tableHeaderTypes[i] === "number" ? 
                             <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/hashtag.svg" style={{width: "15px", height: "15px"}}></img>{header}</button> :
                             <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/letter.svg" style={{width: "15px", height: "15px"}}></img>{header}</button>
                         )

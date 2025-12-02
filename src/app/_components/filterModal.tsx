@@ -2,11 +2,11 @@
 
 import { useEffect, useRef} from "react";
 import { api } from "~/trpc/react"
-import type { View, OperatorType, Row, Filter, Sort} from "~/types/types";
+import type { View, OperatorType, Row, Filter, Sort, HeaderType} from "~/types/types";
 
 interface prop {
     tableHeaders: string[];
-    tableHeaderTypes: number[];
+    tableHeaderTypes: HeaderType[];
     tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
@@ -53,11 +53,8 @@ export default function FilterModal(FilterModalProps: prop) {
     }
 
     function filterRows(newRows: Row[], filters: Filter[]) {
-        console.log("this is newRows in filter: ", newRows);
-        console.log("this is filter: ", filters)
         return newRows.filter((row) => {
             let passed = true
-            console.log("this is row: ", row);
             for (const f of filters) {
                 if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
                 switch(f.type) {
@@ -98,7 +95,6 @@ export default function FilterModal(FilterModalProps: prop) {
                         break
                 }
             }
-            console.log("this is rows outcome: ", passed);
             return (passed)
         })
     }
@@ -187,7 +183,7 @@ export default function FilterModal(FilterModalProps: prop) {
         let newType = filterType;
         if (FilterModalProps.tableHeaderTypes[newHeaderCol] !== FilterModalProps.tableHeaderTypes[oldCol]) {
             newVal = "";
-            if (FilterModalProps.tableHeaderTypes[newHeaderCol] === 0) {
+            if (FilterModalProps.tableHeaderTypes[newHeaderCol] === "string") {
                 newType = "contains";
             } else {
                 newType = "eq";
@@ -276,7 +272,7 @@ export default function FilterModal(FilterModalProps: prop) {
                             return(<option key={i} value={i}>{header}</option>)
                         })}
                     </select>
-                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] ?
+                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] === "number" ?
                         <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => (editFilterType(filter.id, e.target.value as OperatorType))} value={filter.type}>                             
                             <option key={0} value="eq">=</option>
                             <option key={1} value="gt">&gt;</option>
@@ -290,7 +286,7 @@ export default function FilterModal(FilterModalProps: prop) {
                             <option key={4} value="not_empty">is not empty</option>
                         </select>
                     }
-                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] 
+                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] === "number"
                     ? <input ref={textInputRef} type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>
                     : <input ref={textInputRef} style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>}
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}onClick={() => (deleteFilter(filter.id))}><img src="/trash.svg" style={{width: "15px", height: "15px"}}></img></button>

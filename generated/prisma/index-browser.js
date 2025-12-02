@@ -248,6 +248,11 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.HeaderType = exports.$Enums.HeaderType = {
+  string: 'string',
+  number: 'number'
+};
+
 exports.FilterType = exports.$Enums.FilterType = {
   contains: 'contains',
   not_contains: 'not_contains',

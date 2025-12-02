@@ -57,7 +57,7 @@ rowsAhead: protectedProcedure
     let whereClause = `"tableId" = '${input.tableId}'`
     if (view.filters.length > 0) {
       const formattedFilters = view.filters.map((filter) => {
-        const header = table.headerTypes[filter.columnIndex] 
+        const header = table.headerTypes[filter.columnIndex] === "number"
         ? `"cellsFlat"->>${filter.columnIndex}::int` 
         : `"cellsFlat"->>${filter.columnIndex}` 
         let sqlWhere = `${header} LIKE '%${filter.value}%'`
@@ -93,7 +93,7 @@ rowsAhead: protectedProcedure
     if (view.sorts.length !== 0) {
       const formattedSorts = view.sorts.map(sort => {
         const direction = (sort.type === "sort1_9" || sort.type === "sortA_Z") ? "ASC" : "DESC";
-        return table.headerTypes[sort.columnIndex]
+        return table.headerTypes[sort.columnIndex] === "number"
           ? `"cellsFlat"->>${sort.columnIndex}::int ${direction}`
           : `"cellsFlat"->>${sort.columnIndex} ${direction}`;
       });
@@ -101,7 +101,6 @@ rowsAhead: protectedProcedure
       orderByClause = formattedSorts.join(", ");
     }
     const pageSize = 200;
-
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
       SELECT 
@@ -114,7 +113,6 @@ rowsAhead: protectedProcedure
       ORDER BY ${orderByClause}
       LIMIT ${pageSize + 1} OFFSET ${input.cursor ?? 0};
     `);
-    console.log("this is sqlRows: ", sqlRows)
 
     let nextCursor: number | null = null;
     if (sqlRows.length > pageSize) {
@@ -145,7 +143,7 @@ addRow: protectedProcedure
     const cellsData: { colNum: number; val: string; numVal: number | null }[] = [];
     const cellsFlat: (string | number| null)[] = [];
     table.headers.forEach((_, i) => {
-      if (table.headerTypes[i] === 0) {
+      if (table.headerTypes[i] === "string") {
         const val = faker.person.fullName();
         cellsData.push({ colNum: i, val, numVal: null });
         cellsFlat.push(val)
@@ -176,7 +174,10 @@ addRow: protectedProcedure
 }),
   
 addCol: protectedProcedure
-.input(z.object({ tableId: z.string(), type: z.number(), header: z.string(), viewName: z.string() }))
+.input(z.object({ tableId: z.string(), type: z.enum([
+        "string",
+        "number"
+      ]), header: z.string(), viewName: z.string() }))
 .mutation(async ({ ctx, input }) => {
     const table = await ctx.db.table.update({
       where: { id: input.tableId },
@@ -205,8 +206,7 @@ addCol: protectedProcedure
 
     const newColNum = table.headers.length - 1;
 
-    const newCellFlatVal = input.type === 0 ? '""' : 'null'; // JSON string or null
-
+    const newCellFlatVal = input.type === "string" ? '""' : 'null';
     await ctx.db.$executeRaw`
       UPDATE "Row"
       SET "cellsFlat" = COALESCE("cellsFlat", '[]'::jsonb) || ${newCellFlatVal}::jsonb
@@ -284,7 +284,7 @@ addCol: protectedProcedure
       if (!table) throw new Error("Table not found");
       // update cellsFlat
       const newCellsFlat = [...row.cellsFlat as (string | number | null)[]]
-      if (table.headerTypes[input.col] === 0) {
+      if (table.headerTypes[input.col] === "string") {
         newCellsFlat[input.col] = input.newVal;
       } else {
         const newValNum = isNaN(Number(input.newVal)) ? null : Number(input.newVal);
@@ -325,7 +325,7 @@ add100kRow: protectedProcedure
     const cellsFlat: (string | number | null)[] = [];
     // create the cellValues, cells and add to cellsFlat
     for (let j = 0; j < headers.length; j++) {
-      const val = headerTypes[j] === 0 ? faker.person.fullName() : String(faker.number.int({ min: 1, max: 100 }));
+      const val = headerTypes[j] === "string" ? faker.person.fullName() : String(faker.number.int({ min: 1, max: 100 }));
       const numVal = isNaN(Number(val)) ? null : Number(val);
       cellsFlat.push(numVal ?? val);
       cells.push({

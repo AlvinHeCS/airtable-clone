@@ -78,12 +78,12 @@ export type Sort = $Result.DefaultSelection<Prisma.$SortPayload>
  * Enums
  */
 export namespace $Enums {
-  export const CellType: {
+  export const HeaderType: {
   string: 'string',
   number: 'number'
 };
 
-export type CellType = (typeof CellType)[keyof typeof CellType]
+export type HeaderType = (typeof HeaderType)[keyof typeof HeaderType]
 
 
 export const FilterType: {
@@ -110,9 +110,9 @@ export type SortType = (typeof SortType)[keyof typeof SortType]
 
 }
 
-export type CellType = $Enums.CellType
+export type HeaderType = $Enums.HeaderType
 
-export const CellType: typeof $Enums.CellType
+export const HeaderType: typeof $Enums.HeaderType
 
 export type FilterType = $Enums.FilterType
 
@@ -8691,13 +8691,11 @@ export namespace Prisma {
   }
 
   export type TableAvgAggregateOutputType = {
-    headerTypes: number | null
     numRows: number | null
     numViews: number | null
   }
 
   export type TableSumAggregateOutputType = {
-    headerTypes: number[]
     numRows: number | null
     numViews: number | null
   }
@@ -8734,13 +8732,11 @@ export namespace Prisma {
 
 
   export type TableAvgAggregateInputType = {
-    headerTypes?: true
     numRows?: true
     numViews?: true
   }
 
   export type TableSumAggregateInputType = {
-    headerTypes?: true
     numRows?: true
     numViews?: true
   }
@@ -8866,7 +8862,7 @@ export namespace Prisma {
     name: string
     baseId: string
     headers: string[]
-    headerTypes: number[]
+    headerTypes: $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate: Date
@@ -8967,7 +8963,7 @@ export namespace Prisma {
       name: string
       baseId: string
       headers: string[]
-      headerTypes: number[]
+      headerTypes: $Enums.HeaderType[]
       numRows: number
       numViews: number
       creationDate: Date
@@ -9401,7 +9397,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Table", 'String'>
     readonly baseId: FieldRef<"Table", 'String'>
     readonly headers: FieldRef<"Table", 'String[]'>
-    readonly headerTypes: FieldRef<"Table", 'Int[]'>
+    readonly headerTypes: FieldRef<"Table", 'HeaderType[]'>
     readonly numRows: FieldRef<"Table", 'Int'>
     readonly numViews: FieldRef<"Table", 'Int'>
     readonly creationDate: FieldRef<"Table", 'DateTime'>
@@ -15618,6 +15614,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'HeaderType[]'
+   */
+  export type ListEnumHeaderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HeaderType[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'HeaderType'
+   */
+  export type EnumHeaderTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'HeaderType'>
+    
+
+
+  /**
    * Reference to a field of type 'Boolean[]'
    */
   export type ListBooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean[]'>
@@ -16065,7 +16075,7 @@ export namespace Prisma {
     name?: StringFilter<"Table"> | string
     baseId?: StringFilter<"Table"> | string
     headers?: StringNullableListFilter<"Table">
-    headerTypes?: IntNullableListFilter<"Table">
+    headerTypes?: EnumHeaderTypeNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
     numViews?: IntFilter<"Table"> | number
     creationDate?: DateTimeFilter<"Table"> | Date | string
@@ -16096,7 +16106,7 @@ export namespace Prisma {
     name?: StringFilter<"Table"> | string
     baseId?: StringFilter<"Table"> | string
     headers?: StringNullableListFilter<"Table">
-    headerTypes?: IntNullableListFilter<"Table">
+    headerTypes?: EnumHeaderTypeNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
     numViews?: IntFilter<"Table"> | number
     creationDate?: DateTimeFilter<"Table"> | Date | string
@@ -16129,7 +16139,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Table"> | string
     baseId?: StringWithAggregatesFilter<"Table"> | string
     headers?: StringNullableListFilter<"Table">
-    headerTypes?: IntNullableListFilter<"Table">
+    headerTypes?: EnumHeaderTypeNullableListFilter<"Table">
     numRows?: IntWithAggregatesFilter<"Table"> | number
     numViews?: IntWithAggregatesFilter<"Table"> | number
     creationDate?: DateTimeWithAggregatesFilter<"Table"> | Date | string
@@ -16808,7 +16818,7 @@ export namespace Prisma {
     id?: string
     name: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -16822,7 +16832,7 @@ export namespace Prisma {
     name: string
     baseId: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -16834,7 +16844,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16848,7 +16858,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     baseId?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16861,7 +16871,7 @@ export namespace Prisma {
     name: string
     baseId: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -16871,7 +16881,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -16882,7 +16892,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     baseId?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17605,11 +17615,11 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
-  export type IntNullableListFilter<$PrismaModel = never> = {
-    equals?: number[] | ListIntFieldRefInput<$PrismaModel> | null
-    has?: number | IntFieldRefInput<$PrismaModel> | null
-    hasEvery?: number[] | ListIntFieldRefInput<$PrismaModel>
-    hasSome?: number[] | ListIntFieldRefInput<$PrismaModel>
+  export type EnumHeaderTypeNullableListFilter<$PrismaModel = never> = {
+    equals?: $Enums.HeaderType[] | ListEnumHeaderTypeFieldRefInput<$PrismaModel> | null
+    has?: $Enums.HeaderType | EnumHeaderTypeFieldRefInput<$PrismaModel> | null
+    hasEvery?: $Enums.HeaderType[] | ListEnumHeaderTypeFieldRefInput<$PrismaModel>
+    hasSome?: $Enums.HeaderType[] | ListEnumHeaderTypeFieldRefInput<$PrismaModel>
     isEmpty?: boolean
   }
 
@@ -17650,7 +17660,6 @@ export namespace Prisma {
   }
 
   export type TableAvgOrderByAggregateInput = {
-    headerTypes?: SortOrder
     numRows?: SortOrder
     numViews?: SortOrder
   }
@@ -17674,7 +17683,6 @@ export namespace Prisma {
   }
 
   export type TableSumOrderByAggregateInput = {
-    headerTypes?: SortOrder
     numRows?: SortOrder
     numViews?: SortOrder
   }
@@ -18268,7 +18276,7 @@ export namespace Prisma {
   }
 
   export type TableCreateheaderTypesInput = {
-    set: number[]
+    set: $Enums.HeaderType[]
   }
 
   export type RowCreateNestedManyWithoutTableInput = {
@@ -18311,8 +18319,8 @@ export namespace Prisma {
   }
 
   export type TableUpdateheaderTypesInput = {
-    set?: number[]
-    push?: number | number[]
+    set?: $Enums.HeaderType[]
+    push?: $Enums.HeaderType | $Enums.HeaderType[]
   }
 
   export type RowUpdateManyWithoutTableNestedInput = {
@@ -19244,7 +19252,7 @@ export namespace Prisma {
     id?: string
     name: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -19256,7 +19264,7 @@ export namespace Prisma {
     id?: string
     name: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -19325,7 +19333,7 @@ export namespace Prisma {
     name?: StringFilter<"Table"> | string
     baseId?: StringFilter<"Table"> | string
     headers?: StringNullableListFilter<"Table">
-    headerTypes?: IntNullableListFilter<"Table">
+    headerTypes?: EnumHeaderTypeNullableListFilter<"Table">
     numRows?: IntFilter<"Table"> | number
     numViews?: IntFilter<"Table"> | number
     creationDate?: DateTimeFilter<"Table"> | Date | string
@@ -19517,7 +19525,7 @@ export namespace Prisma {
     id?: string
     name: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -19530,7 +19538,7 @@ export namespace Prisma {
     name: string
     baseId: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -19607,7 +19615,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19620,7 +19628,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     baseId?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19710,7 +19718,7 @@ export namespace Prisma {
     id?: string
     name: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -19723,7 +19731,7 @@ export namespace Prisma {
     name: string
     baseId: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -19777,7 +19785,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19790,7 +19798,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     baseId?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20086,7 +20094,7 @@ export namespace Prisma {
     id?: string
     name: string
     headers?: TableCreateheadersInput | string[]
-    headerTypes?: TableCreateheaderTypesInput | number[]
+    headerTypes?: TableCreateheaderTypesInput | $Enums.HeaderType[]
     numRows: number
     numViews: number
     creationDate?: Date | string
@@ -20096,7 +20104,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20108,7 +20116,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20120,7 +20128,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     headers?: TableUpdateheadersInput | string[]
-    headerTypes?: TableUpdateheaderTypesInput | number[]
+    headerTypes?: TableUpdateheaderTypesInput | $Enums.HeaderType[]
     numRows?: IntFieldUpdateOperationsInput | number
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string

@@ -80,10 +80,12 @@ export default function Table(tableProp: prop) {
         table.headers.forEach((header, i) => {
         const cell = row.cells.find(c => c.colNum === i);
         if (!cell) throw new Error("no cell was found")
+        if (i === 0)console.log("this is cell value for the first column", cell.val);
         rowData[String(i)] = cell.val;
         });
         return rowData;
     }); 
+    console.log("this is formattedRows: ", formattedRows);
     return formattedRows
     }, [rowsAhead]);
 
@@ -122,7 +124,7 @@ export default function Table(tableProp: prop) {
         // acessorKey must match a key in my row object 
         accessorKey: String(i),
         header: () => {
-          if (table.headerTypes[i] === 0) {
+          if (table.headerTypes[i] === "string") {
             return (
               <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px" }}>
                 <img
@@ -153,7 +155,7 @@ export default function Table(tableProp: prop) {
         // info.column.columnDef.meta
         // info.row.original
         cell: (info: CellContext<TableRow, string>) => {
-          if (table.headerTypes[i] === 0) return <StringCell views={views} viewId={selectedView.id} info={info} tableId={table.id}/>;
+          if (table.headerTypes[i] === "string") return <StringCell views={views} viewId={selectedView.id} info={info} tableId={table.id}/>;
           else return <NumCell views={views} info={info} tableId={table.id} viewId={selectedView.id}/>;
         },
       }));

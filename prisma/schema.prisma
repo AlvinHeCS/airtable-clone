@@ -85,6 +85,11 @@ model Base {
     user          User      @relation(fields: [userId], references: [id])
 }
 
+enum HeaderType {
+  string
+  number
+}
+
 model Table {
     id            String    @id @default(cuid())
     name          String    
@@ -92,7 +97,7 @@ model Table {
     baseId        String
     base          Base      @relation(fields: [baseId], references: [id])
     headers       String[]
-    headerTypes   Int[]
+    headerTypes   HeaderType[]
     numRows       Int
     numViews      Int
     views         View[]
@@ -119,11 +124,6 @@ model Row {
     cellsFlat     Json
     @@index([tableId], name: "row_tableid_idx")
     @@index([tableId, rowNum], name: "row_table_rownum_idx")
-}
-
-enum CellType {
-  string
-  number
 }
 
 model Cell {

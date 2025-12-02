@@ -36,11 +36,19 @@ export type Sort = {
   creationDate: Date;
 };
 
+
+export const headerType = [
+  "string",
+  "number"
+] as const
+
+export type HeaderType = typeof headerType[number]
+
 export type Table = {
   id: string;
   baseId: string;
   headers: string[];
-  headerTypes: number[];
+  headerTypes: HeaderType[];
   numRows: number;
   numViews: number;
   name: string;
@@ -85,11 +93,3 @@ export type Row = {
   tableId: string; 
   cells: Cell[];
 }
-
-type RowWithCells = {
-  id: string;
-  tableId: string;
-  rowNum: number;
-  cellsFlat: (string | number | null)[];
-  cells: { id: string; colNum: number; val: string; numVal: number, rowId: string; }[];
-};
