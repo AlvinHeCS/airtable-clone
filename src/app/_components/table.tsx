@@ -691,7 +691,6 @@ export default function Table(tableProp: prop) {
       </table>
       </div>
       </div>
-      {/* {<copyAugmentsModal />} */}
     </div>             
  )
 }

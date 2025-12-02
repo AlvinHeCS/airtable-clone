@@ -6,16 +6,6 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 
-const filterTypes = z.enum([
-  "contains",
-  "not_contains",
-  "eq",
-  "gt",
-  "lt",
-  "empty",
-  "not_empty",
-]);
-
 export const baseRouter = createTRPCRouter({
   addTables: protectedProcedure
   .input(z.object({ baseId: z.string() }))

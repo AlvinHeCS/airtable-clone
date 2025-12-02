@@ -22,7 +22,6 @@ export default function SortModal(SortModalProps: prop) {
     const modalRef = useRef<HTMLDivElement>(null);
     const selectNewSortRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils();    
-    // const [sorts, setSorts] = useState<Sort[]>([]);
     const [newSortModal, setNewSortModal] = useState<boolean>(false);
 
     const GreenSwitch = styled(Switch)(({ theme }) => ({
@@ -207,7 +206,7 @@ export default function SortModal(SortModalProps: prop) {
     }
 
     return(
-        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${SortModalProps.position.left + 600}px`, top: `${SortModalProps.position.top + 140}px`, minHeight: "140px", width: "500px", background: "white", position: "fixed"}}>
+        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${SortModalProps.position.left - 300}px`, top: `${SortModalProps.position.top + 45}px`, minHeight: "140px", width: "500px", background: "white", position: "fixed"}}>
             <div style={{paddingRight: "20px", paddingTop: "10px", paddingBottom: "10px", paddingLeft: "20px", gap: "10px", display: "flex", flexDirection: "column"}}>
                 <div style={{paddingBottom: "5px", borderBottom: "solid rgba(216, 216, 216, 1) 1px", fontSize: "14px", color: "grey", fontWeight: "500", display: "flex", alignItems: "center", gap: "5px"}}>
                     Sort by 
