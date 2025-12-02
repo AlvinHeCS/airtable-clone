@@ -80,12 +80,10 @@ export default function Table(tableProp: prop) {
         table.headers.forEach((header, i) => {
         const cell = row.cells.find(c => c.colNum === i);
         if (!cell) throw new Error("no cell was found")
-        if (i === 0)console.log("this is cell value for the first column", cell.val);
         rowData[String(i)] = cell.val;
         });
         return rowData;
     }); 
-    console.log("this is formattedRows: ", formattedRows);
     return formattedRows
     }, [rowsAhead]);
 
@@ -601,14 +599,28 @@ export default function Table(tableProp: prop) {
     <div style={{display: "flex", height: "100%"}}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
       <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh"}}>
-      <table style={{ minWidth: "max-content", borderCollapse: "collapse" }}>
+      <table style={{ minWidth: "max-content", borderCollapse: "collapse", display: "block", position: "relative" }}>
         <thead>
           {tanTable.getHeaderGroups().map(headerGroup => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map(header => (
                 // header cells for data
                 <th
-                  style={{ borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (header.column.columnDef.meta as { first: number }) ? 50 : 200, fontSize: "12px",  }}
+                  style={{ 
+                    zIndex: (header.column.columnDef.meta as { first: boolean, second: boolean }).first ||(header.column.columnDef.meta as { first: boolean, second: boolean }).second ? 101 : 100, 
+                    background: "white", 
+                    position: "sticky", 
+                    left: (header.column.columnDef.meta as { first: boolean, second: boolean }).first 
+                    ? "0px"
+                    : (header.column.columnDef.meta as { first: boolean, second: boolean }).second
+                    ? "50px"
+                    : undefined,
+                    top: "0", 
+                    borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", 
+                    borderTop: "solid rgb(208, 208, 208) 1px", 
+                    borderBottom: "solid rgb(208, 208, 208) 1px",   
+                    borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", 
+                    height: "30px", width: (header.column.columnDef.meta as { first: number }) ? 50 : 200, fontSize: "12px",  }}
                   key={header.id}
                 >
                   {flexRender(header.column.columnDef.header, header.getContext())}
@@ -637,7 +649,22 @@ export default function Table(tableProp: prop) {
                   data-row={row.index}
                   data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}
                   tabIndex={0}
-                  style={{ background: ((cell.column.columnDef.meta as {sortHighlight: boolean, filterHighlight: boolean}).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean, filterHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", width: (cell.column.columnDef.meta as { first: number }).first ? 50 : 200, fontSize: "12px", paddingLeft: "5px", paddingRight: "5px" }}
+                  style={{ 
+                    zIndex: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first || (cell.column.columnDef.meta as { first: boolean; second: boolean }).second? 100 : 0,
+                    left: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first
+                    ? "0px"
+                    : (cell.column.columnDef.meta as { first: boolean; second: boolean }).second
+                    ? "50px"
+                    : undefined,                    
+                    position: (cell.column.columnDef.meta as { second: boolean }).second || (cell.column.columnDef.meta as { first: boolean }).first ? "sticky": "relative", 
+                    background: ((cell.column.columnDef.meta as { filterHighlight: boolean }).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), 
+                    borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", 
+                    borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   
+                    borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", 
+                    width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "200px", 
+                    fontSize: "12px", 
+                    paddingLeft: "5px", 
+                    paddingRight: "5px" }}
                   onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
                 >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
