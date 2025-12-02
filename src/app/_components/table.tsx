@@ -389,7 +389,7 @@ export default function Table(tableProp: prop) {
   }
 
   return(
-    <div style={{border: "solid red 1px", display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
+    <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
       <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px"}}>
           <button
