@@ -264,7 +264,7 @@ export default function Table(tableProp: prop) {
     
     setShowHideButtonPos({top: showHideRect.top, left: showHideRect.left});
     setFilterButtonPos({top: filterRect.top, left: filterRect.left});
-    setShowHideButtonPos({top: sortRect.top, left: sortRect.left});
+    setSortButtonPos({top: sortRect.top, left: sortRect.left});
     setNewColButtonPos({top: newColRect.top, left: newColRect.left});
 
   }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal])
@@ -389,7 +389,7 @@ export default function Table(tableProp: prop) {
   }
 
   return(
-    <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
+    <div style={{border: "solid red 1px", display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
       <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px"}}>
           <button
@@ -691,6 +691,7 @@ export default function Table(tableProp: prop) {
       </table>
       </div>
       </div>
+      {/* {<copyAugmentsModal />} */}
     </div>             
  )
 }

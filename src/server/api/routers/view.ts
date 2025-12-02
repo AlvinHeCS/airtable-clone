@@ -1,5 +1,5 @@
-import { SortType } from "generated/prisma";
 import { z } from "zod";
+import type { Filter, Sort } from "~/types/types";
 
 import {
   createTRPCRouter,
@@ -196,6 +196,61 @@ export const viewRouter = createTRPCRouter({
         }
       })
     })
+  }),
+  // from a view choose a view and pick to copy there filter, sorts, or hidden fields
+  copyViewAugments: protectedProcedure
+  .input(z.object({currentViewId: z.string(), targetViewId: z.string(), filterBool: z.boolean(), sortBool: z.boolean(), showHideBool: z.boolean()}))
+  .mutation(async ({ctx, input}) => {
+    const copyView = await ctx.db.view.findUnique({
+      where: {id: input.targetViewId},
+      include: {sorts: {orderBy: {creationDate: "asc"}}, filters: {orderBy: {creationDate: "asc"}}}
+    })
+    if (!copyView) throw new Error("copy view not found")
+    // delete old augments
+    if (input.filterBool) {
+      await ctx.db.filter.deleteMany({
+        where: {viewId: input.currentViewId},
+      })
+      // then add the copyView
+      const newFilters: Filter[] = copyView.filters.map((filter, i) => {
+        return {
+          id: `${i}_${crypto.randomUUID()}`,
+          viewId: input.currentViewId,
+          columnIndex: filter.columnIndex,
+          type: filter.type,
+          value: filter.value,
+          creationDate: new Date()
+        }
+      })
+      await ctx.db.filter.createMany({
+        data: newFilters,
+        skipDuplicates: true
+      })
+    } if (input.sortBool) {
+      await ctx.db.sort.deleteMany({
+        where: {viewId: input.currentViewId},
+      })
+      const newSorts: Sort[] = copyView.sorts.map((sort, i) => {
+        return {
+          id: `${i}_${crypto.randomUUID()}`,
+          viewId: input.currentViewId,
+          columnIndex: sort.columnIndex,
+          type: sort.type,
+          creationDate: new Date()
+        }
+      })
+      await ctx.db.sort.createMany({
+        data: newSorts,
+        skipDuplicates: true
+      })
+    } if (input.showHideBool) {
+      // update old showing
+      ctx.db.view.update({
+        where: {id: input.currentViewId},
+        data: {
+          showing: copyView.showing
+        }
+      })
+    }
   })
-
 })
