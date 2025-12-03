@@ -14,6 +14,7 @@ interface prop {
     view: View;
     tableId: string; 
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
+    setOpaqueBg: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 
@@ -140,40 +141,50 @@ export default function CopyAugment(CopyAugmentProp: prop) {
             })
         })
         CopyAugmentProp.setModal(false);
+        CopyAugmentProp.setOpaqueBg(false);
     }
     function chooseView(view: View) {
         setSelectedView(view);
         setShowSelectedViewModal(false);
     }
     return (
-    <div ref={modalRef} style={{height: "200px", border: "solid grey 1px", position: "absolute", top: "40%", left: "40%", padding: "10px", display: "flex", flexDirection: "column", width: "800xp", background: "white", zIndex: 1000}}>
-        <span style={{display: "flex", gap: "5px", alignItems: "center"}}>Copy configuration from 
+    <div ref={modalRef} style={{gap: "10px", height: "300px", border: "solid rgba(239, 239, 239, 1) 1px", position: "absolute", top: "25%", left: "32%", padding: "40px", display: "flex", flexDirection: "column", width: "800xp", background: "white", zIndex: 1000}}>
+        <span style={{display: "flex", gap: "5px", alignItems: "center"}}><span style={{fontSize: "18px", fontWeight: "600"}}>Copy configuration from </span>
             <div style={{position: "relative"}}>
-                <button onClick={() => setShowSelectedViewModal(true)}style={{width: "150px", height: "30px", border: "solid grey 1px", padding: "5px", display: "flex", gap: "10px", alignItems: "center", justifyContent: "center"}}>{<img style={{width: "10px", height: "10px"}} src="/arrowD.svg"></img>}{selectedView ? selectedView.name : "Choose a view"}<img style={{width: "10px", height: "10px"}} src="/arrowD.svg"></img></button>
+                <button onClick={() => setShowSelectedViewModal(true)} style={{fontSize: "18px", fontWeight: "600", width: "170px", height: "30px", border: "solid grey 1px", padding: "5px", display: "flex", gap: "10px", alignItems: "center", justifyContent: "space-between"}}>{selectedView ? <img style={{width: "20px", height: "20px", display: "flex", justifyContent: "center", alignItems: "center"}} src="/table.svg"></img>: null}{selectedView ? selectedView.name : "Choose a view"}<img style={{width: "10px", height: "10px"}} src="/arrowD.svg"></img></button>
                 {showSelectedViewModal && <div ref={selectModalRef} style={{display: "flex", flexDirection: "column", background: "white", position: "absolute", width: "170px", height: "100px", border: "solid grey 0.5px"}}>
-                    <span style={{padding: "5px"}}>Find a view</span>
-                    {CopyAugmentProp.views.map((view, id) => {
+                    <span style={{padding: "5px", fontSize: "14px", color: "grey"}}>Find a view</span>
+                    {CopyAugmentProp.views.map((view) => {
                         if (view.id !== CopyAugmentProp.view.id) {
-                            return <button key={view.id} onClick={() => chooseView(view)}style={{display: "flex", padding: "5px"}}>{view.name}</button>
+                            return <button key={view.id} onClick={() => chooseView(view)}style={{display: "flex", padding: "5px", alignItems: "center", gap: "5px"}}><img src="/bTable.png" style={{width:"15px", height: "15px"}}></img>{view.name}</button>
                         } else {
                             return null
                         }
                     })}
                 </div>}
             </div>
-            to this view
+            <span style={{fontSize: "18px", fontWeight: "600"}}>to this view</span>
         </span>
-        Select one or more configuration options to copy:
-        <FormGroup>
-            <FormControlLabel checked={showHideBool} onChange={() => setShowHideBool(!showHideBool)} sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Field Visibility</div>} />
-        </FormGroup>
-        <FormGroup>
-            <FormControlLabel checked={filterBool} onChange={() => setFilterBool(!filterBool)} sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Filter conditions</div>} />
-        </FormGroup>
-        <FormGroup>
-            <FormControlLabel checked={sortBool} onChange={() => setSortBool(!sortBool)} sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Sorts</div>} />
-        </FormGroup>
-        <button onClick={addAugments}>Confirm</button>
+        <div style={{display: "flex", flexDirection: "column", gap: "10px"}}>
+            <span style={{fontSize: "14px", color: "grey"}}>Select one or more configuration options to copy:</span>
+            <FormGroup>
+                <FormControlLabel checked={showHideBool} onChange={() => setShowHideBool(!showHideBool)} sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Field Visibility</div>} />
+            </FormGroup>
+            <FormGroup>
+                <FormControlLabel checked={filterBool} onChange={() => setFilterBool(!filterBool)} sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Filter conditions</div>} />
+            </FormGroup>
+            <FormGroup>
+                <FormControlLabel checked={sortBool} onChange={() => setSortBool(!sortBool)} sx={{'& .MuiFormControlLabel-label': { fontSize: '13px'}}} control={<GreenSwitch size="small" sx={{ transform: "scale(0.75)" }} />} label={<div style={{display: "flex", alignItems: "center", gap: "10px"}}><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Sorts</div>} />
+            </FormGroup>
+            <div style={{display: "flex", gap: "10px"}}>
+                <button style={{color: "grey", fontSize: "12px"}}>Select all</button>
+                <button style={{color: "grey", fontSize: "12px"}}>Clear all</button>
+            </div>
+        </div>
+        <div style={{display: "flex", justifyContent: "flex-end"}}>
+            <button onClick={addAugments} style={{fontSize: "14px", width: "100px", padding: "5px", borderRadius: "5px"}}>Cancel</button>
+            <button onClick={addAugments} style={{background: "rgba(109, 171, 251, 1)", fontSize: "14px", width: "150px", color: "white", padding: "5px", borderRadius: "5px"}}>Copy configuration</button>
+        </div>
     </div>
     )
 }

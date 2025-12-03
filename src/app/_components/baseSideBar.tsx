@@ -3,7 +3,7 @@
 
 export default function BaseSideBar() {
     return (
-        <div style={{height: "100vh", width: "5vw", borderRight: "solid grey 0.5px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", paddingLeft: "10px", paddingRight: "10px", paddingBottom: "20px", paddingTop: "20px", position: "sticky", top: "0"}}>
+        <div style={{height: "100vh", width: "60px", borderRight: "solid grey 0.5px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", paddingLeft: "10px", paddingRight: "10px", paddingBottom: "20px", paddingTop: "20px", position: "sticky", top: "0"}}>
             <div style={{display: "flex", flexDirection: "column", alignItems: "center", gap: "15px"}}>
                 <img style={{width: "25px", height: "25px"}} src="/airtableB.svg"></img>
                 <img style={{width: "30px", height: "30px"}} src="/omniB.png"></img>

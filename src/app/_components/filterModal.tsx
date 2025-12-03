@@ -13,6 +13,7 @@ interface prop {
     position: {top: number, left: number};
     setCopyModal: React.Dispatch<React.SetStateAction<boolean>>;
     copyModal: boolean;
+    setBgOpaque: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function FilterModal(FilterModalProps: prop) {
@@ -262,8 +263,13 @@ export default function FilterModal(FilterModalProps: prop) {
         })
     }
 
+    function copyFromAnotherViewClick() {
+        FilterModalProps.setCopyModal(true);
+        FilterModalProps.setBgOpaque(true);
+    }
+
     return(
-        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: "1000", left: `${FilterModalProps.position.left - 400}px`, top: `${FilterModalProps.position.top + 40}px`, width: "570px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
+        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: 899, left: `${FilterModalProps.position.left - 400}px`, top: `${FilterModalProps.position.top + 40}px`, width: "570px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
             <span style={{fontSize: "14px", color: "grey"}}>In this view, show records</span>
             <div style={{padding: "10px", display: "flex", flexDirection: "column", gap: "10px"}}>
             {FilterModalProps.view.filters.map((filter, i) => {
@@ -302,7 +308,7 @@ export default function FilterModal(FilterModalProps: prop) {
                     <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "150px"}}><span style={{fontSize: "18px"}}>+</span>Add condition group</button>
                     <img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img>
                 </div>
-                <button onClick={() => FilterModalProps.setCopyModal(true)} style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px"}}>Copy from another view</button>
+                <button onClick={copyFromAnotherViewClick} style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px"}}>Copy from another view</button>
             </div>
         </div>
     );

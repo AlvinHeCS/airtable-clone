@@ -31,6 +31,7 @@ export default function Table(tableProp: prop) {
     const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
     const [copyViewModal, setCopyViewModal] = useState<boolean>(false);
+    const [opaqueBg, setOpaqueBg] = useState<boolean>(false);
     const [selectedView, setSelectedView] = useState<View | null>(null);
     const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [filterButtonPos, setFilterButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
@@ -365,7 +366,6 @@ export default function Table(tableProp: prop) {
         (oldData) => {
           if (!oldData) return oldData
           const newPages = oldData.pages.map((page) => {
-            // wierd tantable bug is going on here
             return {
               ...page,
               rows: [...page.rows, newRow],
@@ -392,6 +392,7 @@ export default function Table(tableProp: prop) {
 
   return(
     <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
+      {opaqueBg && <div style={{transform: "translateY(-91px) translateX(-60px)", zIndex: 900, border: "solid green 1px", width: "100vw", height: "100vh", position: "fixed", opacity: "50%", background: "black"}}></div>}
       <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px"}}>
           <button
@@ -511,7 +512,6 @@ export default function Table(tableProp: prop) {
             </span>
           </button>
 
-
           <button
             className="bell"
             style={{
@@ -531,7 +531,6 @@ export default function Table(tableProp: prop) {
               Groups
             </span>
           </button>
-
 
           <button
             ref={sortButtonRef}
@@ -594,7 +593,7 @@ export default function Table(tableProp: prop) {
           ))}
         </div>
         {showShowHideColModal ? <ShowHideColModal position={showHideButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
-        {showFilterModal ? <FilterModal copyModal={copyViewModal} setCopyModal={setCopyViewModal} position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
+        {showFilterModal ? <FilterModal setBgOpaque={setOpaqueBg} copyModal={copyViewModal} setCopyModal={setCopyViewModal} position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
         {showSortModal ? <SortModal position={sortButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
         {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
       </div>
@@ -693,7 +692,7 @@ export default function Table(tableProp: prop) {
       </table>
       </div>
       </div>
-      {copyViewModal && <CopyAugment tableId={tableProp.tableId} setModal={setCopyViewModal} views={views} view={selectedView}/>}
+      {copyViewModal && <CopyAugment setOpaqueBg={setOpaqueBg} tableId={tableProp.tableId} setModal={setCopyViewModal} views={views} view={selectedView}/>}
     </div>             
  )
 }
