@@ -52,6 +52,7 @@ export default function CopyAugment(CopyAugmentProp: prop) {
             return
         }
         if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        CopyAugmentProp.setOpaqueBg(false)
         CopyAugmentProp.setModal(false);
         }
     }
@@ -78,6 +79,11 @@ export default function CopyAugment(CopyAugmentProp: prop) {
             if (!show) setShowHideBool(true);
         }) 
     }, [selectedView])
+
+    function cancel() {
+        CopyAugmentProp.setModal(false)
+        CopyAugmentProp.setOpaqueBg(false)
+    }
 
     async function addAugments() {
         if (!selectedView) return
@@ -182,7 +188,7 @@ export default function CopyAugment(CopyAugmentProp: prop) {
             </div>
         </div>
         <div style={{display: "flex", justifyContent: "flex-end"}}>
-            <button onClick={addAugments} style={{fontSize: "14px", width: "100px", padding: "5px", borderRadius: "5px"}}>Cancel</button>
+            <button onClick={cancel} style={{fontSize: "14px", width: "100px", padding: "5px", borderRadius: "5px"}}>Cancel</button>
             <button onClick={addAugments} style={{background: "rgba(109, 171, 251, 1)", fontSize: "14px", width: "150px", color: "white", padding: "5px", borderRadius: "5px"}}>Copy configuration</button>
         </div>
     </div>
