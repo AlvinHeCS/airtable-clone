@@ -199,7 +199,7 @@ export const viewRouter = createTRPCRouter({
   }),
   // from a view choose a view and pick to copy there filter, sorts, or hidden fields
   copyViewAugments: protectedProcedure
-  .input(z.object({currentViewId: z.string(), targetViewId: z.string(), filterBool: z.boolean(), sortBool: z.boolean(), showHideBool: z.boolean()}))
+  .input(z.object({currentViewId: z.string(), newFilterIds: z.array(z.string()).optional(), newSortIds: z.array(z.string()).optional(), targetViewId: z.string(), filterBool: z.boolean(), sortBool: z.boolean(), showHideBool: z.boolean()}))
   .mutation(async ({ctx, input}) => {
     const copyView = await ctx.db.view.findUnique({
       where: {id: input.targetViewId},
@@ -214,7 +214,7 @@ export const viewRouter = createTRPCRouter({
       // then add the copyView
       const newFilters: Filter[] = copyView.filters.map((filter, i) => {
         return {
-          id: `${i}_${crypto.randomUUID()}`,
+          id: input.newFilterIds![i] ?? "",
           viewId: input.currentViewId,
           columnIndex: filter.columnIndex,
           type: filter.type,

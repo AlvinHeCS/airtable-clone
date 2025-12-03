@@ -15,6 +15,7 @@ import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
 import "./table.css";
 import type { Augments, Table, TableRow, View, Filtered, Row, Sort, Filter } from "~/types/types";
+import CopyAugment from "./copyAugment";
 
 interface prop {
    tableId: string
@@ -29,6 +30,7 @@ export default function Table(tableProp: prop) {
     const [showFilterModal, setShowFilterModal] = useState<boolean>(false);
     const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
+    const [copyViewModal, setCopyViewModal] = useState<boolean>(false);
     const [selectedView, setSelectedView] = useState<View | null>(null);
     const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [filterButtonPos, setFilterButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
@@ -592,7 +594,7 @@ export default function Table(tableProp: prop) {
           ))}
         </div>
         {showShowHideColModal ? <ShowHideColModal position={showHideButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
-        {showFilterModal ? <FilterModal position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
+        {showFilterModal ? <FilterModal copyModal={copyViewModal} setCopyModal={setCopyViewModal} position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
         {showSortModal ? <SortModal position={sortButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
         {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
       </div>
@@ -691,6 +693,7 @@ export default function Table(tableProp: prop) {
       </table>
       </div>
       </div>
+      {copyViewModal && <CopyAugment tableId={tableProp.tableId} setModal={setCopyViewModal} views={views} view={selectedView}/>}
     </div>             
  )
 }

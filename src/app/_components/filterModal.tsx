@@ -10,7 +10,9 @@ interface prop {
     tableId: string;
     setModal: React.Dispatch<React.SetStateAction<boolean>>;
     view: View;
-    position: {top: number, left: number}
+    position: {top: number, left: number};
+    setCopyModal: React.Dispatch<React.SetStateAction<boolean>>;
+    copyModal: boolean;
 }
 
 export default function FilterModal(FilterModalProps: prop) {
@@ -103,14 +105,14 @@ export default function FilterModal(FilterModalProps: prop) {
     const utils = api.useUtils();    
     useEffect(() => {
     function handleClick(event: MouseEvent) {
-        if (modalRef.current && !(document.activeElement === textInputRef.current) && !modalRef.current.contains(event.target as Node)) {
+        if (modalRef.current && !(document.activeElement === textInputRef.current) && !modalRef.current.contains(event.target as Node) && !FilterModalProps.copyModal) {
         FilterModalProps.setModal(false);
         }
     }
 
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
-    }, []);
+    }, [FilterModalProps.copyModal]);
 
     const { mutateAsync: addFilterAsync } = api.view.addFilter.useMutation({
         onSuccess: () => {
@@ -300,7 +302,7 @@ export default function FilterModal(FilterModalProps: prop) {
                     <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "150px"}}><span style={{fontSize: "18px"}}>+</span>Add condition group</button>
                     <img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img>
                 </div>
-                <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px"}}>Copy from another view</button>
+                <button onClick={() => FilterModalProps.setCopyModal(true)} style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px"}}>Copy from another view</button>
             </div>
         </div>
     );

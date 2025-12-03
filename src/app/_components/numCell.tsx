@@ -122,8 +122,8 @@ export default function StringCell(prop: CellProp) {
                   }),
                 };
               })
-            newRows = filterRows(newRows as Row[], view.filters);
-            newRows = sortRows(newRows as Row[], view.sorts);
+            // newRows = filterRows(newRows as Row[], view.filters);
+            // newRows = sortRows(newRows as Row[], view.sorts);
             return {
               ...page,
               rows: newRows,

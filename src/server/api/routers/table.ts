@@ -58,7 +58,7 @@ rowsAhead: protectedProcedure
     if (view.filters.length > 0) {
       const formattedFilters = view.filters.map((filter) => {
         const header = table.headerTypes[filter.columnIndex] === "number"
-        ? `"cellsFlat"->>${filter.columnIndex}::int` 
+        ? `("cellsFlat"->>${filter.columnIndex})::int` 
         : `"cellsFlat"->>${filter.columnIndex}` 
         let sqlWhere = `${header} LIKE '%${filter.value}%'`
         switch (filter.type) {
@@ -75,18 +75,19 @@ rowsAhead: protectedProcedure
             sqlWhere = `${header} != '${filter.value}'`
             break
           case "eq":
-            sqlWhere = `${header} = '${filter.value}'`
+            sqlWhere = `${header} = ${filter.value}::int`
             break
           case "gt": 
-            sqlWhere = `${header} > '${filter.value}'`
+            sqlWhere = `${header} > ${filter.value}::int`
             break
           case "lt":
-            sqlWhere = `${header} < '${filter.value}'`
+            sqlWhere = `${header} < ${filter.value}::int`
             break
         }
         return sqlWhere
       })
       whereClause = `"tableId" = '${input.tableId}' AND ${formattedFilters.join(" AND ")}`
+      console.log("------------this is where clause: whereClause: ", whereClause)
     }
 
     let orderByClause = `"rowNum" ASC`;
@@ -94,7 +95,7 @@ rowsAhead: protectedProcedure
       const formattedSorts = view.sorts.map(sort => {
         const direction = (sort.type === "sort1_9" || sort.type === "sortA_Z") ? "ASC" : "DESC";
         return table.headerTypes[sort.columnIndex] === "number"
-          ? `"cellsFlat"->>${sort.columnIndex}::int ${direction}`
+          ? `("cellsFlat"->>${sort.columnIndex})::int ${direction}`
           : `"cellsFlat"->>${sort.columnIndex} ${direction}`;
       });
       formattedSorts.reverse()
