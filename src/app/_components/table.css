@@ -12,5 +12,11 @@
 }
 
 .bell:hover {
+    background-color: rgb(236, 236, 236) !important;
+}
+
+
+.bell:disabled {
+    cursor: not-allowed;
     background-color: rgb(236, 236, 236);
 }

@@ -14,7 +14,7 @@ import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
 import "./table.css";
-import type { Augments, Table, TableRow, View, Filtered, Row, Sort, Filter, CellsFlat, Cell } from "~/types/types";
+import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat, Cell } from "~/types/types";
 import CopyAugment from "./copyAugment";
 import { faker } from '@faker-js/faker';
 
@@ -396,7 +396,7 @@ const { rows: tableRows } = tanTable.getRowModel();
           <button              
           className="bell"
               style={{
-                width: "70px",
+                width: pending100k ? "100px":"70px",
                 flexShrink: 0,
                 height: "30px",
                 borderRadius: "5px",
@@ -407,7 +407,11 @@ const { rows: tableRows } = tanTable.getRowModel();
                 gap: "5px",
                 padding: "5px",
                 fontSize: "14px"
-              }} onClick={add100kRow}>100k
+              }} 
+              onClick={add100kRow}
+              disabled={pending100k}
+              >
+                {pending100k ? "adding rows":"100k"}
           </button>
           {hidden.bool ?            
           <button
@@ -661,7 +665,9 @@ const { rows: tableRows } = tanTable.getRowModel();
               const row = tableRows[virtualRow.index];
               if (!row)     
                 return (
-                  null
+                <tr key={`loading-${virtualRow.index}`} className="row">
+                  <td className="row" style={{height: `${virtualRow.size}px`, width:  "100%"}}>Loading Row...</td>
+                </tr>
                 );
               return(
                 <tr key={row.id} className="row" style={{height: `${virtualRow.size}px`}}>
