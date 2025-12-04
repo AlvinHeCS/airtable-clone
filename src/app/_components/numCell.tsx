@@ -145,7 +145,7 @@ export default function StringCell(prop: CellProp) {
           // onChange={(e) => handleChange(e.target.value)} 
           onBlur={(e) => handleChange(e.target.value)}
           onKeyDown={(e) => {
-              if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-") {
+              if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-" || e.key === "ArrowUp" || e.key === "ArrowDown") {
                 e.preventDefault();
               }
             }

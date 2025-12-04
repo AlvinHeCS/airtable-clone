@@ -246,6 +246,18 @@ const { rows: tableRows } = tanTable.getRowModel();
     let newCol = colIndex;
 
     switch (key) {
+      case "Tab":
+        if (newCol === table!.headers.length - 1 && newRow === rows.length - 1) {
+          newCol = 0;
+          newRow = 0;
+
+        } else if (newCol === table!.headers.length - 1) {
+          newCol = 0;
+          newRow = rowIndex + 1
+        } else {
+          newCol = colIndex + 1
+        }
+        break;
       case "ArrowUp":
         newRow = Math.max(0, rowIndex - 1);
         break;
@@ -264,7 +276,16 @@ const { rows: tableRows } = tanTable.getRowModel();
       const cellElement = document.querySelector(
       `td[data-row='${newRow}'][data-col='${newCol}']`
     ) as HTMLElement | null;
-    cellElement?.focus();
+    const inputElement = cellElement?.querySelector('input, textarea') as HTMLElement | null;
+
+    if (inputElement) {
+        inputElement.focus();
+      if (inputElement instanceof HTMLInputElement) {
+          inputElement.select();
+      } else {
+        cellElement?.focus();
+      }
+    }
   }
   const showHideButtonRef = useRef<HTMLButtonElement>(null);
   const filterButtonRef = useRef<HTMLButtonElement>(null);
@@ -696,7 +717,19 @@ const { rows: tableRows } = tanTable.getRowModel();
                         fontSize: "12px", 
                         paddingLeft: "5px", 
                         paddingRight: "5px" }}
-                      onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Tab") {
+                            e.preventDefault();      
+                            navigateBetweenCells("Tab", row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0);
+                            return;
+                          }
+
+                          // other keys
+                          if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                            e.preventDefault();
+                            navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0);
+                          }
+                        }}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>

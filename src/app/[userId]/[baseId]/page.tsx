@@ -33,24 +33,6 @@ export default function BasePage() {
     }
   }, [tables])
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-
-      if (e.key === "Tab") {
-        e.preventDefault();
-
-        if (!tables) return;
-        const index = tables.findIndex(t => t.id === selectedTableId);
-        const nextIndex = (index + 1) % tables.length;
-
-        setSelectedTableId(tables[nextIndex]?.id ?? "");
-      }
-    }
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [tables, selectedTableId]);
-
 
   if (!tables || loadingTables) {
     return(
@@ -141,7 +123,6 @@ export default function BasePage() {
               fontSize: "14px",
               color: "grey"
             }}
-            onClick={() => {router.push(`/test`)}}
           >
             Tools
             <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
