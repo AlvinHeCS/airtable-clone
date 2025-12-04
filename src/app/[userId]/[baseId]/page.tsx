@@ -1,6 +1,6 @@
 "use client"
 
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { api } from "~/trpc/react"
 import Table from "~/app/_components/table"
 import BaseSideBar from "~/app/_components/baseSideBar"
@@ -15,7 +15,7 @@ export default function BasePage() {
   const baseId = String(params.baseId)
   const [selectedTableId, setSelectedTableId] = useState<string>("")
   const { data: tables, isLoading: loadingTables } = api.base.getTables.useQuery({ baseId })
-  
+  const router = useRouter();
   const { mutateAsync: addTableMutate } = api.base.addTables.useMutation()
 
   async function addTable() {
@@ -130,7 +130,7 @@ export default function BasePage() {
               <span className="add">add or import</span>
             </button>
           </div>
-
+              
           <button
             style={{
               justifyContent: "center",
@@ -141,6 +141,7 @@ export default function BasePage() {
               fontSize: "14px",
               color: "grey"
             }}
+            onClick={() => {router.push(`/test`)}}
           >
             Tools
             <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />

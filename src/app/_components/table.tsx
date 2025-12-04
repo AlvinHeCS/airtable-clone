@@ -14,8 +14,9 @@ import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
 import "./table.css";
-import type { Augments, Table, TableRow, View, Filtered, Row, Sort, Filter } from "~/types/types";
+import type { Augments, Table, TableRow, View, Filtered, Row, Sort, Filter, CellsFlat, Cell } from "~/types/types";
 import CopyAugment from "./copyAugment";
+import { faker } from '@faker-js/faker';
 
 interface prop {
    tableId: string
@@ -39,8 +40,8 @@ export default function Table(tableProp: prop) {
     const [newColButtonPos, setNewColButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
-    const { mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
-    const { mutateAsync: mutateAsyncRow100k } = api.table.add100kRow.useMutation({
+    const { mutate: mutateRow, mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
+    const { mutateAsync: mutateAsyncRow100k, isPending: pending100k } = api.table.add100kRow.useMutation({
       onSuccess: () => {
         if (selectedView) {
         utils.table.rowsAhead.reset({ tableId: tableProp.tableId, viewId: selectedView.id});
@@ -60,7 +61,10 @@ export default function Table(tableProp: prop) {
       }
     }, [tableProp.tableId, views ?? []])
     // views is unstable needs to have a fallback []
-
+    // 
+    const localTable = useMemo(() => {
+      return table
+    }, [table])
 
     const {data: rowsAhead, fetchNextPage, hasNextPage, isFetchingNextPage} = api.table.rowsAhead.useInfiniteQuery(
       // need to define selectedView.id on render as it checks the arguments but will only fire the query when selectedView is defined due to enable
@@ -175,25 +179,34 @@ export default function Table(tableProp: prop) {
     getCoreRowModel: getCoreRowModel(),
   });
 
+const { rows: tableRows } = tanTable.getRowModel();
 
     const scrollingRef = useRef<HTMLDivElement>(null);
     const virtualizer = useVirtualizer({
-      count: rows.length,
+      count: hasNextPage ? table!.numRows + 1 : table?.numRows ?? rows.length,
       getScrollElement: () => scrollingRef.current ?? null,
       estimateSize: () => 30,
+      overscan: 50,
     });
+
     // the amount of rows that the visualiser expects has loaded
     const virtualRows = virtualizer.getVirtualItems();
+    const totalSize = virtualizer.getTotalSize();
+
+    const paddingTop = virtualRows.length > 0 ? virtualRows[0]?.start || 0 : 0;
+    const paddingBottom = virtualRows.length > 0 ? totalSize - (virtualRows[virtualRows.length - 1]?.end || 0) : 0;
 
     // get more rows
     useEffect(() => {
       const lastRow = virtualRows[virtualRows.length - 1];
-      if (!lastRow) return;
-      // if lastRow of expected rows is within -10 of actual loaded allRows and nextpage exist then fetch the next page
-      if (lastRow.index >= rows.length - 10 && hasNextPage && !isFetchingNextPage) {
+      if (!lastRow || !hasNextPage || isFetchingNextPage) return;
+
+      const totalRowCount = virtualizer.options.count; 
+
+      if (lastRow.index >= totalRowCount - 100) { 
         fetchNextPage();
       }
-    }, [virtualRows]);
+    }, [virtualRows, hasNextPage, isFetchingNextPage, fetchNextPage, virtualizer]);
     
     useEffect(() => {
       if (!selectedView || !table) return
@@ -272,103 +285,55 @@ export default function Table(tableProp: prop) {
 
   }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal])
 
-    function filterRows(newRows: Row[], filters: Filter[]) {
-        return newRows.filter((row) => {
-            let passed = true
-            for (const f of filters) {
-                if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
-                switch(f.type) {
-                    case "contains":
-                        if (!(row.cells[f.columnIndex]!.val.includes(f.value))) {
-                            passed = false;
-                        }
-                        break
-                    case "not_contains":
-                        if (row.cells[f.columnIndex]!.val.includes(f.value)) {
-                            passed = false;
-                        }
-                        break
-                    case "empty":
-                        if (row.cells[f.columnIndex]!.val !== "") {
-                            passed = false;
-                        }
-                        break
-                    case "not_empty":
-                        if (row.cells[f.columnIndex]!.val === "") {
-                            passed = false;
-                        }
-                        break
-                    case "eq":
-                        if (row.cells[f.columnIndex]!.val !== f.value) {
-                            passed = false;
-                        }
-                        break
-                    case "gt":
-                        if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
-                            passed = false
-                        }
-                        break
-                    case "lt":
-                        if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
-                            passed = false
-                        }
-                        break
-                }
-            }
-            return (passed)
-        })
-    }
 
-    function sortRows(newRows: Row[], sorts: Sort[]) {
-        for (const s of sorts) {
-            switch(s.type) {
-                case "sort1_9": 
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (Number(aComparison) - Number(bComparison))
-                })
-                break;
-                case "sort9_1":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (Number(bComparison) - Number(aComparison))
-                })
-                break;
-                case "sortA_Z":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (String(aComparison).localeCompare(String(bComparison)))
-                })
-                break;
-                case "sortZ_A":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (String(bComparison).localeCompare(String(aComparison)))
-                })
-                break;
-            }
-        }
-        return newRows
-    }
   async function addRow() {
     if (!table || !selectedView || !views) return;
 
-    const newRow = await mutateAsyncRow({ tableId: table.id }) as Row;
-    if (!newRow || !newRow.cellsFlat) throw new Error("row failed to be created");
-    // need to check if it passes the filters
+    const newRowId = `${crypto.randomUUID()}`
+    const newRowNum = (table.numRows ?? 1) - 1
+    const cellsData: Cell[] = [];
+    const cellsFlat: CellsFlat = [];
+    // create cells
+    table.headers.forEach((_, i) => {
+      if (table.headerTypes[i] === "string") {
+        const val = faker.person.fullName();
+        cellsData.push({ colNum: i, val, numVal: null, rowId: newRowId, id: `${i}_${crypto.randomUUID()}`});
+        cellsFlat.push(val)
+      } else {
+        const numVal = faker.number.int({ min: 1, max: 100 });
+        const val = String(numVal);
+        cellsData.push({ colNum: i, val, numVal, rowId: newRowId, id: `${i}_${crypto.randomUUID()}`});
+        cellsFlat.push(numVal)
+      }
+    });
+    // create row first
+    const newOptimisticRow: Row = {
+      id: newRowId,
+      tableId: table.id,
+      rowNum: newRowNum,
+      cellsFlat: cellsFlat,
+      cells: cellsData
+    }
+
+    // update table 
+    mutateRow({ cellsData: cellsData, tableId: table.id, cellsFlat: cellsFlat, rowId: newRowId, rowNum: newRowNum });
+    utils.table.getTable.setData({tableId: table.id}, (prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        numRows: prev.numRows + 1
+      }
+    })
+
+    // optimistically update rows
     for (let view of views) {
-        // set the row value for all views to be the cachedRow
       utils.table.rowsAhead.setInfiniteData({ tableId: tableProp.tableId, viewId: view.id },
         (oldData) => {
           if (!oldData) return oldData
           const newPages = oldData.pages.map((page) => {
             return {
               ...page,
-              rows: [...page.rows, newRow],
+              rows: [...page.rows, newOptimisticRow],
             }
           })
           return {
@@ -392,8 +357,8 @@ export default function Table(tableProp: prop) {
 
   return(
     <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
-      {opaqueBg && <div style={{transform: "translateY(-91px) translateX(-60px)", zIndex: 900, border: "solid green 1px", width: "100vw", height: "100vh", position: "fixed", opacity: "50%", background: "black"}}></div>}
-      <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+      {opaqueBg && <div style={{transform: "translateY(-91px) translateX(-60px)", zIndex: 900, width: "100vw", height: "100vh", position: "fixed", opacity: "50%", background: "black"}}></div>}
+      <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", border: "solid grey 0.5px"}}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px"}}>
           <button
             className="bell"
@@ -427,15 +392,16 @@ export default function Table(tableProp: prop) {
             <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
           </button>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", paddingLeft: "10px", paddingRight: "10px"}}>
           <button              
           className="bell"
               style={{
-                width: "100px",
+                width: "70px",
                 flexShrink: 0,
                 height: "30px",
                 borderRadius: "5px",
                 display: "flex",
+                color: "grey",
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "5px",
@@ -492,7 +458,7 @@ export default function Table(tableProp: prop) {
             ref={filterButtonRef}
             className="bell"
             style={{
-              width: filtered.bool ? "auto" : "80px",
+              width: filtered.bool ? "auto" : "70px",
               flexShrink: 0,
               flexGrow: filtered.bool ? 1 : 0,
               height: "30px",
@@ -536,7 +502,7 @@ export default function Table(tableProp: prop) {
             ref={sortButtonRef}
             className="bell"
             style={{
-              width: sorted.bool ? "150px":"80px",
+              width: sorted.bool ? "150px":"70px",
               flexShrink: 0,
               height: "30px",
               borderRadius: "5px",
@@ -555,42 +521,87 @@ export default function Table(tableProp: prop) {
             </span>
           </button>
 
+          <button
+            className="bell"
+            style={{
+              width: "70px",
+              flexShrink: 0,
+              height: "30px",
+              borderRadius: "5px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "5px",
+              padding: "5px",
+              background: "white",
+            }}
+          >
+            <img style={{ width: "20px", height: "20px" }} src="/color.svg" />
+            <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
+              Color
+            </span>
+          </button>
 
-          {[
-            { src: "/color.svg", label: "Color" },
-            { src: "/rowHeight.svg" },
-            { src: "/share.svg", label: "Share and sync", width: "130px" },
-            { src: "/search2.svg" },
-          ].map((btn, i) => (
-            <button
-              key={i}
-              className="bell"
-              style={{
-                width: btn.width || "80px",
-                flexShrink: 0,
-                height: "30px",
-                borderRadius: "5px",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "5px",
-                padding: "5px",
-              }}
-            >
-              <img style={{ width: "20px", height: "20px" }} src={btn.src} />
-              {btn.label && (
-                <span
-                  style={{
-                    fontWeight: "400",
-                    color: "grey",
-                    fontSize: "13px",
-                  }}
-                >
-                  {btn.label}
-                </span>
-              )}
-            </button>
-          ))}
+          <button
+            className="bell"
+            style={{
+              width: "40px",
+              flexShrink: 0,
+              height: "30px",
+              borderRadius: "5px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "5px",
+              padding: "5px",
+              background: "white",
+            }}
+          >
+            <img style={{ width: "20px", height: "20px" }} src="/rowHeight.svg" />
+            <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
+            </span>
+          </button>
+
+          <button
+            className="bell"
+            style={{
+              width: "130px",
+              flexShrink: 0,
+              height: "30px",
+              borderRadius: "5px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "5px",
+              padding: "5px",
+              background: "white",
+            }}
+          >
+            <img style={{ width: "20px", height: "20px" }} src="/share.svg" />
+            <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
+              Share and sync
+            </span>
+          </button>
+
+          <button
+            className="bell"
+            style={{
+              width: "30px",
+              flexShrink: 0,
+              height: "30px",
+              borderRadius: "5px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: "5px",
+              padding: "5px",
+              background: "white",
+            }}
+          >
+            <img style={{ width: "15px", height: "15px" }} src="/search2.svg" />
+            <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
+            </span>
+          </button>
         </div>
         {showShowHideColModal ? <ShowHideColModal position={showHideButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
         {showFilterModal ? <FilterModal setBgOpaque={setOpaqueBg} copyModal={copyViewModal} setCopyModal={setCopyViewModal} position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
@@ -600,96 +611,115 @@ export default function Table(tableProp: prop) {
     <div style={{display: "flex", height: "100%"}}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
       <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh"}}>
-      <table style={{ minWidth: "max-content", borderCollapse: "collapse", display: "block", position: "relative" }}>
-        <thead>
-          {tanTable.getHeaderGroups().map(headerGroup => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                // header cells for data
-                <th
-                  style={{ 
-                    zIndex: (header.column.columnDef.meta as { first: boolean, second: boolean }).first ||(header.column.columnDef.meta as { first: boolean, second: boolean }).second ? 101 : 100, 
-                    background: "white", 
-                    position: "sticky", 
-                    left: (header.column.columnDef.meta as { first: boolean, second: boolean }).first 
-                    ? "0px"
-                    : (header.column.columnDef.meta as { first: boolean, second: boolean }).second
-                    ? "50px"
-                    : undefined,
-                    top: "0", 
-                    borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", 
-                    borderTop: "solid rgb(208, 208, 208) 1px", 
-                    borderBottom: "solid rgb(208, 208, 208) 1px",   
-                    borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", 
-                    height: "30px", width: (header.column.columnDef.meta as { first: number }) ? 50 : 200, fontSize: "12px",  }}
-                  key={header.id}
-                >
-                  {flexRender(header.column.columnDef.header, header.getContext())}
+        <table style={{ minWidth: "max-content", borderCollapse: "collapse", display: "block", position: "relative", height: "100%"}}>
+          <thead>
+            {tanTable.getHeaderGroups().map(headerGroup => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  // header cells for data
+                  <th
+                    style={{ 
+                      zIndex: (header.column.columnDef.meta as { first: boolean, second: boolean }).first ||(header.column.columnDef.meta as { first: boolean, second: boolean }).second ? 101 : 100, 
+                      background: "white", 
+                      position: "sticky", 
+                      left: (header.column.columnDef.meta as { first: boolean, second: boolean }).first 
+                      ? "0px"
+                      : (header.column.columnDef.meta as { first: boolean, second: boolean }).second
+                      ? "50px"
+                      : undefined,
+                      top: "0", 
+                      borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", 
+                      borderTop: "solid rgb(208, 208, 208) 1px", 
+                      borderBottom: "solid rgb(208, 208, 208) 1px",   
+                      borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", 
+                      height: "30px", width: (header.column.columnDef.meta as { first: number }) ? 50 : 200, fontSize: "12px",  }}
+                    key={header.id}
+                  >
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+                {/* this header cell is for the add col one */}
+                <th style={{ width: "200px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
+                  <button
+                    ref={newColButtonRef}
+                    onClick={() => setShowColumnModal(true)}
+                    style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
+                  >
+                    <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+                  </button>
                 </th>
-              ))}
-              {/* this header cell is for the add col one */}
-              <th style={{ width: "200px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
-                <button
-                  ref={newColButtonRef}
-                  onClick={() => setShowColumnModal(true)}
-                  style={{ width: "100%", height: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}
-                >
-                  <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
-                </button>
-              </th>
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+          {paddingTop > 0 && (
+              <tr>
+                <td style={{ height: `${paddingTop}px` }} />
+              </tr>
+            )}
+            {virtualizer.getVirtualItems().map((virtualRow) => {
+              const row = tableRows[virtualRow.index];
+              if (!row)     
+                return (
+                  null
+                );
+              return(
+                <tr key={row.id} className="row" style={{height: `${virtualRow.size}px`}}>
+                  {row.getVisibleCells().map(cell => (
+                    // body cells for data
+                    <td
+                      key={cell.id}
+                      data-row={row.index}
+                      data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}
+                      tabIndex={0}
+                      style={{ 
+                        zIndex: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first || (cell.column.columnDef.meta as { first: boolean; second: boolean }).second? 100 : 0,
+                        left: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first
+                        ? "0px"
+                        : (cell.column.columnDef.meta as { first: boolean; second: boolean }).second
+                        ? "50px"
+                        : undefined,                    
+                        position: (cell.column.columnDef.meta as { second: boolean }).second || (cell.column.columnDef.meta as { first: boolean }).first ? "sticky": "relative", 
+                        background: ((cell.column.columnDef.meta as { filterHighlight: boolean }).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), 
+                        borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", 
+                        borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   
+                        borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", 
+                        height: `${virtualRow.size}px`, 
+                        width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "200px", 
+                        // transform: `translateY(${virtualRow.start}px)`,
+                        fontSize: "12px", 
+                        paddingLeft: "5px", 
+                        paddingRight: "5px" }}
+                      onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
+                    >
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+              </tr>
+            )
+            })}
+{paddingBottom > 0 && (
+    <tr>
+      <td style={{ height: `${paddingBottom}px` }} />
+    </tr>
+  )}
+          </tbody>
+          {/* add row */}
+          <tfoot>
+            <tr>
+              <td colSpan={selectedView.showing.filter(Boolean).length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
+                <div style={{ display: "flex", gap: "4px" }}>
+                  <button
+                    onClick={addRow}
+                    style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center"}}
+                  >
+                    <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+                  </button>
+                </div>
+              </td>
             </tr>
-          ))}
-        </thead>
-        <tbody>
-          {tanTable.getRowModel().rows.map(row => (
-            <tr key={row.id} className="row">
-              {row.getVisibleCells().map(cell => (
-                // body cells for data
-                <td
-                  key={cell.id}
-                  data-row={row.index}
-                  data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}
-                  tabIndex={0}
-                  style={{ 
-                    zIndex: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first || (cell.column.columnDef.meta as { first: boolean; second: boolean }).second? 100 : 0,
-                    left: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first
-                    ? "0px"
-                    : (cell.column.columnDef.meta as { first: boolean; second: boolean }).second
-                    ? "50px"
-                    : undefined,                    
-                    position: (cell.column.columnDef.meta as { second: boolean }).second || (cell.column.columnDef.meta as { first: boolean }).first ? "sticky": "relative", 
-                    background: ((cell.column.columnDef.meta as { filterHighlight: boolean }).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), 
-                    borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", 
-                    borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   
-                    borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", height: "30px", 
-                    width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "200px", 
-                    fontSize: "12px", 
-                    paddingLeft: "5px", 
-                    paddingRight: "5px" }}
-                  onKeyDown={(e) => navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0)}
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-        {/* add row */}
-        <tfoot>
-          <tr>
-            <td colSpan={selectedView.showing.filter(Boolean).length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
-              <div style={{ display: "flex", gap: "4px" }}>
-                <button
-                  onClick={addRow}
-                  style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center"}}
-                >
-                  <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tfoot>
-      </table>
+          </tfoot>
+        </table>
       </div>
       </div>
       {copyViewModal && <CopyAugment setOpaqueBg={setOpaqueBg} tableId={tableProp.tableId} setModal={setCopyViewModal} views={views} view={selectedView}/>}

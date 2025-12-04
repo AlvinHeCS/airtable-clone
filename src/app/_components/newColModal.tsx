@@ -19,6 +19,7 @@ export default function NewColModal(NewColModalProp: prop) {
     const utils = api.useUtils();
     const { mutateAsync: mutateAsyncCol } = api.table.addCol.useMutation();
     async function addCol() {
+
       const updatedRows = await mutateAsyncCol({ tableId: NewColModalProp.tableId, type: newHeaderType, header: newHeaderVal, viewName: NewColModalProp.view.name });
       
       // trpc update view

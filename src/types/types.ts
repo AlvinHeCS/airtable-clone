@@ -93,3 +93,10 @@ export type Row = {
   tableId: string; 
   cells: Cell[];
 }
+
+export type RowNoCell = {
+  id: string; 
+  rowNum: number; 
+  cellsFlat: CellsFlat; 
+  tableId: string; 
+}

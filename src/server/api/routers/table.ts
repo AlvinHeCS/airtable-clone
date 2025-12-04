@@ -87,7 +87,6 @@ rowsAhead: protectedProcedure
         return sqlWhere
       })
       whereClause = `"tableId" = '${input.tableId}' AND ${formattedFilters.join(" AND ")}`
-      console.log("------------this is where clause: whereClause: ", whereClause)
     }
 
     let orderByClause = `"rowNum" ASC`;
@@ -101,7 +100,7 @@ rowsAhead: protectedProcedure
       formattedSorts.reverse()
       orderByClause = formattedSorts.join(", ");
     }
-    const pageSize = 200;
+    const pageSize = 20000;
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
       SELECT 
@@ -128,7 +127,16 @@ rowsAhead: protectedProcedure
   }),
 
 addRow: protectedProcedure
-.input(z.object({ tableId: z.string() }))
+.input(z.object({ cellsData: z.array(z.object({
+  id: z.string(),
+  colNum: z.number(),
+  val: z.string(),
+  numVal: z.number().nullable(),
+  rowId: z.string()
+})), 
+tableId: z.string(), rowNum: z.number(), 
+cellsFlat: z.array(z.union([z.string(), z.number(), z.null()])), 
+rowId: z.string()}))
 .mutation(async ({ ctx, input }) => {
   return await ctx.db.$transaction(async (tx) => {
     const table = await tx.table.update({
@@ -137,32 +145,16 @@ addRow: protectedProcedure
       select: { numRows: true, headers: true, headerTypes: true },
     });
 
-    // make rowNum 0 indexed
-    const rowNum = (table.numRows ?? 1) - 1;
-
-    // create cellsData and cellsFlat
-    const cellsData: { colNum: number; val: string; numVal: number | null }[] = [];
-    const cellsFlat: (string | number| null)[] = [];
-    table.headers.forEach((_, i) => {
-      if (table.headerTypes[i] === "string") {
-        const val = faker.person.fullName();
-        cellsData.push({ colNum: i, val, numVal: null });
-        cellsFlat.push(val)
-      } else {
-        const numVal = faker.number.int({ min: 1, max: 100 });
-        const val = String(numVal);
-        cellsData.push({ colNum: i, val, numVal });
-        cellsFlat.push(numVal)
-      }
-    });
 
     return await tx.row.create({
       data: {
-        rowNum,
+        id: input.rowId, 
+        rowNum: input.rowNum,
         tableId: input.tableId,
-        cellsFlat,
+        cellsFlat: input.cellsFlat,
         cells: {
-          create: cellsData.map(cell => ({
+          create: input.cellsData.map(cell => ({
+            id: cell.id,
             colNum: cell.colNum,
             val: cell.val,
             numVal: cell.numVal,
@@ -313,54 +305,82 @@ add100kRow: protectedProcedure
 
   const { numRows, headers, headerTypes } = table;
   const NUM_TO_ADD = 100000;
+  const NUM_COLUMNS = headers.length; 
+  
+  // Define the batch size for rows. This should be a number your database handles well.
+  const ROW_BATCH_SIZE = 5000; 
 
+  console.log(`Starting bulk insert of ${NUM_TO_ADD} rows into table ${input.tableId}...`);
 
-  // create the rows and the cells for the 100k
-  const rows: { id: string; tableId: string; rowNum: number; cellsFlat: (string | number | null)[]}[] = [];
-  const cells: { rowId: string; colNum: number; val: string; numVal: number | null }[] = [];
-  for (let i = 0; i < NUM_TO_ADD; i++) {
-    // give it a random rowId because when you create cells it needs to point to a rowId but then since createMany doesnt return
-    // id therefore you need to assign the rowId urself so you know wut it is before using it 
-    const rowId = `row_${i}_${crypto.randomUUID()}`;
-    const rowNum = numRows + i;
-    const cellsFlat: (string | number | null)[] = [];
-    // create the cellValues, cells and add to cellsFlat
-    for (let j = 0; j < headers.length; j++) {
-      const val = headerTypes[j] === "string" ? faker.person.fullName() : String(faker.number.int({ min: 1, max: 100 }));
-      const numVal = isNaN(Number(val)) ? null : Number(val);
-      cellsFlat.push(numVal ?? val);
-      cells.push({
-        rowId,
-        colNum: j,
-        val: val,
-        numVal
-      });
+  // --- Combined Generation and Insertion Loop ---
+
+  for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
+    
+    // Arrays to hold only the data for the current batch
+    const batchRowsData = [];
+    const batchCellsData = [];
+
+    // Determine the exact size of the current batch (handles the final partial batch)
+    const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
+
+    // Generate data for the current batch
+    for (let j = 0; j < currentBatchSize; j++) {
+        const rowIdx = i + j;
+        
+        // Use a consistent ID generation for foreign key integrity
+        const rowId = `row_${rowIdx}_${crypto.randomUUID()}`;
+        const rowNum = numRows + rowIdx;
+        const cellsFlat: (string | number | null)[] = [];
+
+        // Generate cells for all columns in this specific row
+        for (let k = 0; k < NUM_COLUMNS; k++) {
+            const isString = headerTypes[k] === "string";
+            
+            // Generate mock data based on header type
+            const val = isString 
+                ? faker.person.fullName() 
+                : String(faker.number.int({ min: 1, max: 100 }));
+            
+            // Determine numeric value for numVal column
+            const numVal = isString ? null : Number(val);
+
+            // Populate the JSONB field data
+            cellsFlat.push(numVal ?? val);
+            
+            // Collect cell data for the batch
+            batchCellsData.push({
+                rowId,
+                colNum: k,
+                val: val,
+                numVal
+            });
+        }
+        
+        // Collect row data for the batch
+        batchRowsData.push({ id: rowId, tableId: input.tableId, rowNum, cellsFlat });
     }
-    rows.push({ id: rowId, tableId: input.tableId, rowNum, cellsFlat });
+
+    // ----------------------------------------------------
+    // Execute Writes for the current batch
+    // ----------------------------------------------------
+
+    // 1. Insert Rows
+    await ctx.db.row.createMany({ data: batchRowsData });
+    
+    // 2. Insert Cells (All cells generated for this batch's rows)
+    // Note: We use one large batch here, but if 25,000 cells is too much for your DB, 
+    // you would add a sub-loop to batch the cells array here.
+    await ctx.db.cell.createMany({ data: batchCellsData });
+
+    console.log(`Batch ${Math.ceil((i + currentBatchSize) / ROW_BATCH_SIZE)} written. Total rows: ${numRows + i + currentBatchSize}`);
+
+    // The temporary arrays (batchRowsData, batchCellsData) are now out of scope 
+    // and ready for garbage collection, freeing up memory before the next loop iteration.
   }
 
-  // Batch insert rows
-  const ROW_BATCH = 5000;
-  for (let i = 0; i < rows.length; i += ROW_BATCH) {
-    await ctx.db.row.createMany({
-      data: rows.slice(i, i + ROW_BATCH).map(r => ({
-        id: r.id,
-        tableId: r.tableId,
-        rowNum: r.rowNum,
-        cellsFlat: r.cellsFlat
-      }))
-    });
-  }
+  // --- Final Update ---
 
-  // Batch insert cells
-  const CELL_BATCH = 20000;
-  for (let i = 0; i < cells.length; i += CELL_BATCH) {
-    await ctx.db.cell.createMany({
-      data: cells.slice(i, i + CELL_BATCH),
-    });
-  }
-
-  // Update table's numRows
+  // Update table's numRows once after all insertions are complete
   return ctx.db.table.update({
     where: { id: input.tableId },
     data: { numRows: numRows + NUM_TO_ADD },
