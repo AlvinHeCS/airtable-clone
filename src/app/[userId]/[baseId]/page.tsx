@@ -41,7 +41,8 @@ export default function BasePage() {
   }
 
   return (
-    <div style={{ display: "flex", width: "100%", height: "100vh" }}>
+    <div style={{ display: "flex", width: "100%", height: "100vh"}}>
+      {/* <div className="background"></div> */}
       <BaseSideBar />
 
       <div style={{ display: "flex", flexDirection: "column", width: "100vw" }}>
@@ -62,7 +63,6 @@ export default function BasePage() {
         >
           <div style={{ display: "flex", alignItems: "center", height: "100%" }}>
             {tables.map((table, index) => {
-              const tableName = `Table ${index + 1}`
               const isSelected = selectedTableId === table.id
               return (
                 <div key={table.id}>

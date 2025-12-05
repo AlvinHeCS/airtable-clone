@@ -25,7 +25,7 @@ export default function GridBar(GridBarProp: prop) {
     }
 
     return (
-        <div style={{borderTop: "grey solid 0.5px", borderRight: "grey solid 0.5px", height: "100%", width: "300px", padding: "10px", position: "sticky", top: "0", background: "rgba(255, 255, 255, 1)", display: "flex", flexDirection: "column"}}>
+        <div style={{borderTop: "grey solid 0.5px", borderRight: "grey solid 0.5px", height: "100%", width: "280px", padding: "10px", position: "sticky", top: "0", background: "rgba(255, 255, 255, 1)", display: "flex", flexDirection: "column"}}>
             <button className="addGrid" onClick={addView}>
                 <img style={{ height: "16px", width: "16px" }} src="/plus2.svg" />
                 <div style={{fontSize: "13px"}}>Create new...</div>

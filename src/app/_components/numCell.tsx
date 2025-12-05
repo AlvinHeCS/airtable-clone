@@ -137,7 +137,9 @@ export default function StringCell(prop: CellProp) {
   };
 
   return (
+    <div style={{textAlign: "left", paddingLeft: "5px", color: "#1D1F26"}}>
       <input 
+          style={{width: "100%"}}
           type="number" 
           defaultValue={(prop.info.getValue() as Record<string, string | boolean>).val as string} 
           onBlur={(e) => handleChange(e.target.value)}
@@ -148,5 +150,6 @@ export default function StringCell(prop: CellProp) {
             }
           }
       />
+    </div>
   );
 }

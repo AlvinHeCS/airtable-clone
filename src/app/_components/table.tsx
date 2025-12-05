@@ -90,9 +90,6 @@ export default function Table(tableProp: prop) {
         table.headers.forEach((header, i) => {
         const cell = row.cells.find(c => c.colNum === i);
         if (!cell) throw new Error("no cell was found")
-        console.log("this is selectedView.search: ", selectedView.search);
-        console.log("this is cell.val: ", cell.val);
-        console.log("this is if cell includes search: ", (cell.val.includes(selectedView.search) && selectedView.search !== ""));
         rowData[String(i)] = {val: cell.val, searchHighlight: (cell.val.includes(selectedView.search) && selectedView.search !== "")};
         });
         return rowData;
@@ -108,13 +105,13 @@ export default function Table(tableProp: prop) {
         id: "rowNumber",
         header: () => {
           return(
-            <div style={{ textAlign: "left", padding: "5px"}}>
-              <img style={{width: "15px", height: "15px"}} src="/checkBox.svg"></img>
+            <div style={{ width: "81px", display: "flex", padding: "5px", paddingLeft: "15px", justifyContent: "flex-start"}}>
+              <img style={{width: "18px", height: "18px"}} src="/checkBox.svg"></img>
             </div>
           )
         },
         cell: (info) => (
-          <div style={{ textAlign: "left", padding: "5px"}}>
+          <div style={{ color: "#1D1F26", width: "81px", textAlign: "start", padding: "5px", paddingLeft: "20px"}}>
             {info.row.index + 1}
           </div>
         ),
@@ -135,29 +132,16 @@ export default function Table(tableProp: prop) {
         // acessorKey must match a key in my row object 
         accessorKey: String(i),
         header: () => {
-          if (table.headerTypes[i] === "string") {
-            return (
-              <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px" }}>
-                <img
-                  src="/letter.svg"
-                  alt="icon"
-                  style={{ width: "14px", height: "14px" }}
-                />
-                <span>{header}</span>
-              </div>
-            );
-          } else {
-            return (
-              <div style={{ display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px" }}>
-                <img
-                  src="/hashtag.svg"
-                  alt="icon"
-                  style={{ width: "14px", height: "14px" }}
-                />
-                <span>{header}</span>
-              </div>
-            );
-          }
+          return (
+            <div style={{ color: "#1D1F26", display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px", }}>
+              <img
+                src={table.headerTypes[i] === "string" ? "/letter.svg" : "/hashtag.svg"}
+                alt="icon"
+                style={{ width: "14px", height: "14px" }}
+              />
+              <span>{header}</span>
+            </div>
+          );
         },
         colIndex: i,
         meta: { colIndex: i, second: i === 0 ? true : false, sortHighlight:  sortColIndexes.includes(i) ? true : false, filterHighlight: filterColIndexes.includes(i) ? true: false} as { colIndex: number, second: boolean, sortHighlight: boolean, filterHighlight: boolean},
@@ -191,7 +175,7 @@ const { rows: tableRows } = tanTable.getRowModel();
     const virtualizer = useVirtualizer({
       count: hasNextPage ? rows.length + 1 : rows.length,
       getScrollElement: () => scrollingRef.current ?? null,
-      estimateSize: () => 30,
+      estimateSize: () => 32,
       overscan: 50,
     });
 
@@ -643,10 +627,11 @@ const { rows: tableRows } = tanTable.getRowModel();
         {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
         {searchModal ? <SearchModal setModal={setSearchModal} position={searchButtonPos} view={selectedView} tableId={table.id} /> : null}
       </div>
-    <div style={{display: "flex", height: "100%"}}>
+    <div style={{display: "flex", height: "100%" }}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
-      <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh"}}>
-        <table style={{ minWidth: "max-content", borderCollapse: "collapse", display: "block", position: "relative", height: "100%"}}>
+      <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh", background: "#F7F8FC"}}>
+        <div style={{paddingBottom: "50px", paddingRight: "70px", width: "fit-content", minWidth: "100%"}}>
+        <table style={{ minWidth: "max-content"}}>
           <thead>
             {tanTable.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
@@ -660,21 +645,25 @@ const { rows: tableRows } = tanTable.getRowModel();
                       left: (header.column.columnDef.meta as { first: boolean, second: boolean }).first 
                       ? "0px"
                       : (header.column.columnDef.meta as { first: boolean, second: boolean }).second
-                      ? "50px"
+                      ? "81px"
                       : undefined,
                       top: "0", 
-                      borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid rgb(208, 208, 208) 1px", 
-                      borderTop: "solid rgb(208, 208, 208) 1px", 
-                      borderBottom: "solid rgb(208, 208, 208) 1px",   
-                      borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid rgb(208, 208, 208) 1px", 
-                      height: "30px", width: (header.column.columnDef.meta as { first: number }) ? 50 : 200, fontSize: "12px",  }}
-                    key={header.id}
+                      borderLeft: (header.column.columnDef.meta as { second?: boolean })?.second ? "none" : "solid #DEE0E2 1px", 
+                      borderTop: "solid #DEE0E2 1px", 
+                      borderBottom: "solid #DEE0E2 1px",   
+                      borderRight: (header.column.columnDef.meta as { first?: boolean })?.first ? "none" : "solid #DEE0E2 1px", 
+                      boxShadow: (header.column.columnDef.meta as { second?: boolean })?.second ? "inset -4px 0 4px -4px rgba(0, 0, 0, 0.4)" : "none",
+                      height: "32px", 
+                      width: (header.column.columnDef.meta as { first: number }) ? "50px" : "180px", 
+                      fontSize: "12.5px",
+                    }}
+                      key={header.id}
                   >
                     {flexRender(header.column.columnDef.header, header.getContext())}
                   </th>
                 ))}
                 {/* this header cell is for the add col one */}
-                <th style={{ width: "200px", height: "30px", border: "solid rgb(208,208,208) 1px" }}>
+                <th style={{ width: "100px", height: "32px", border: "solid #DEE0E2 1px", background: "white" }}>
                   <button
                     ref={newColButtonRef}
                     onClick={() => setShowColumnModal(true)}
@@ -719,18 +708,19 @@ const { rows: tableRows } = tanTable.getRowModel();
                           left: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first
                           ? "0px"
                           : (cell.column.columnDef.meta as { first: boolean; second: boolean }).second
-                          ? "50px"
-                          : undefined,                    
+                          ? "81px"
+                          : undefined, 
                           position: (cell.column.columnDef.meta as { second: boolean }).second || (cell.column.columnDef.meta as { first: boolean }).first ? "sticky": "relative", 
                           background: isSearchHighlight ? "#FFF4D4" : ((cell.column.columnDef.meta as { filterHighlight: boolean }).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"),
-                          borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", 
-                          borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   
-                          borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", 
+                          borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid #DEE0E2 1px", 
+                          borderTop: "solid #DEE0E2 1px", borderBottom: "solid #DEE0E2 1px",   
+                          borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid #DEE0E2 1px", 
                           height: `${virtualRow.size}px`, 
-                          width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "200px", 
-                          fontSize: "12px", 
-                          paddingLeft: "5px", 
-                          paddingRight: "5px" }}
+                          boxShadow: (cell.column.columnDef.meta as { second?: boolean })?.second ? "inset -4px 0 4px -4px rgba(0, 0, 0, 0.4)" : "none",
+                          width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "180px", 
+                          textAlign: (cell.column.columnDef.meta as { first: number }) ? "center" : "left",
+                          fontSize: "12.5px", 
+                          }}
                           onKeyDown={(e) => {
                             if (e.key === "Tab") {
                               e.preventDefault();      
@@ -761,19 +751,21 @@ const { rows: tableRows } = tanTable.getRowModel();
           {/* add row */}
           <tfoot>
             <tr>
-              <td colSpan={selectedView.showing.filter(Boolean).length + 1} style={{ border: "solid rgb(208,208,208) 1px", padding: "5px" }}>
-                <div style={{ display: "flex", gap: "4px" }}>
+              <td colSpan={selectedView.showing.filter(Boolean).length + 1} style={{ border: "solid rgba(228, 228, 228, 1) 1px", padding: "5px", height: "32px", background: "white"}}>
+                <div style={{ display: "flex", gap: "4px", paddingLeft: "10px"}}>
                   <button
+                    className="addRowButton"
                     onClick={addRow}
-                    style={{ height: "31px", width: "81px", display: "flex", justifyContent: "center", alignItems: "center"}}
+                    style={{width: "100%", display: "flex", justifyContent: "flex-start", alignItems: "center"}}
                   >
-                    <img style={{ height: "20px", width: "20px" }} src="/plus2.svg" />
+                    <img style={{ height: "15px", width: "15px" }} src="/plus2.svg" />
                   </button>
                 </div>
               </td>
             </tr>
           </tfoot>
         </table>
+        </div>
       </div>
       </div>
       {copyViewModal && <CopyAugment setOpaqueBg={setOpaqueBg} tableId={tableProp.tableId} setModal={setCopyViewModal} views={views} view={selectedView}/>}
