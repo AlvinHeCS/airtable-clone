@@ -5,13 +5,14 @@ import { api } from "~/trpc/react"
 import type { TableRow, View, Row, Filter, Sort } from "~/types/types";
 
 interface CellProp {
-  info: CellContext<TableRow, string>;
+  info: CellContext<TableRow, Record<string, string | boolean> | string>;
   tableId: string;
   views: View[];
   viewId: string;
 }
 
 export default function StringCell(prop: CellProp) {
+
   const utils = api.useUtils();
   const meta = prop.info.column.columnDef.meta as { colIndex: number, second: boolean, sortHighlight: boolean };
   const { mutateAsync } = api.table.editCell.useMutation();
@@ -143,7 +144,7 @@ export default function StringCell(prop: CellProp) {
   return (
       <input 
           type="text" 
-          defaultValue={prop.info.getValue()} 
+          defaultValue={(prop.info.getValue() as Record<string, string | boolean>).val as string} 
           onBlur={(e) => handleChange(e.target.value)}
       />
   );

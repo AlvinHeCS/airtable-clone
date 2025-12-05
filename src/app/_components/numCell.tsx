@@ -6,7 +6,7 @@ import "./numCell.css";
 import type { TableRow, View, Row, Filter, Sort } from "~/types/types";
 
 interface CellProp {
-  info: CellContext<TableRow, string>;
+  info: CellContext<TableRow, Record<string, string | boolean> | string>;
   tableId: string;
   views: View[];
   viewId: string;
@@ -122,8 +122,6 @@ export default function StringCell(prop: CellProp) {
                   }),
                 };
               })
-            // newRows = filterRows(newRows as Row[], view.filters);
-            // newRows = sortRows(newRows as Row[], view.sorts);
             return {
               ...page,
               rows: newRows,
@@ -141,8 +139,7 @@ export default function StringCell(prop: CellProp) {
   return (
       <input 
           type="number" 
-          defaultValue={prop.info.getValue()} 
-          // onChange={(e) => handleChange(e.target.value)} 
+          defaultValue={(prop.info.getValue() as Record<string, string | boolean>).val as string} 
           onBlur={(e) => handleChange(e.target.value)}
           onKeyDown={(e) => {
               if (e.key === "e" || e.key === "E" || e.key === "+" || e.key === "-" || e.key === "ArrowUp" || e.key === "ArrowDown") {

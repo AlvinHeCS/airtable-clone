@@ -112,6 +112,7 @@ model View {
   sorts        Sort[]
   showing      Boolean[]
   creationDate DateTime  @default(now())
+  search       String    @default("")
 }
 
 model Row {

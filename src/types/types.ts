@@ -54,7 +54,7 @@ export type Table = {
   name: string;
 };
 
-export type TableRow = Record<string, string> & { id: string };
+export type TableRow = Record<string, Record<string, string | boolean> | string> & { id: string };
 
 export type View = {
   id: string;
@@ -63,6 +63,7 @@ export type View = {
   filters: Filter[];
   sorts: Sort[];
   showing: boolean[];
+  search: string;
   creationDate: Date;
 };
 

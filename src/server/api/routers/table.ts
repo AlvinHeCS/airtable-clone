@@ -75,18 +75,28 @@ rowsAhead: protectedProcedure
             sqlWhere = `${header} != '${filter.value}'`
             break
           case "eq":
+            if (!filter.value) return ""
             sqlWhere = `${header} = ${filter.value}::int`
             break
           case "gt": 
+            if (!filter.value) return ""
             sqlWhere = `${header} > ${filter.value}::int`
             break
           case "lt":
+            if (!filter.value) return ""
             sqlWhere = `${header} < ${filter.value}::int`
             break
         }
         return sqlWhere
       })
-      whereClause = `"tableId" = '${input.tableId}' AND ${formattedFilters.join(" AND ")}`
+      console.log("before filtering: ", formattedFilters)
+      const newFormattedFilters = formattedFilters.filter((filter) => {
+        return (filter !== "")
+      })
+      console.log("after filtering: ", newFormattedFilters)
+      if (newFormattedFilters.length > 0) {
+        whereClause = `"tableId" = '${input.tableId}' AND ${newFormattedFilters.join(" AND ")}`
+      }
     }
 
     let orderByClause = `"rowNum" ASC`;
@@ -307,47 +317,36 @@ add100kRow: protectedProcedure
   const NUM_TO_ADD = 100000;
   const NUM_COLUMNS = headers.length; 
   
-  // Define the batch size for rows. This should be a number your database handles well.
   const ROW_BATCH_SIZE = 5000; 
 
   console.log(`Starting bulk insert of ${NUM_TO_ADD} rows into table ${input.tableId}...`);
 
-  // --- Combined Generation and Insertion Loop ---
 
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
     
-    // Arrays to hold only the data for the current batch
     const batchRowsData = [];
     const batchCellsData = [];
 
-    // Determine the exact size of the current batch (handles the final partial batch)
     const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
 
-    // Generate data for the current batch
     for (let j = 0; j < currentBatchSize; j++) {
         const rowIdx = i + j;
         
-        // Use a consistent ID generation for foreign key integrity
         const rowId = `row_${rowIdx}_${crypto.randomUUID()}`;
         const rowNum = numRows + rowIdx;
         const cellsFlat: (string | number | null)[] = [];
 
-        // Generate cells for all columns in this specific row
         for (let k = 0; k < NUM_COLUMNS; k++) {
             const isString = headerTypes[k] === "string";
             
-            // Generate mock data based on header type
             const val = isString 
                 ? faker.person.fullName() 
                 : String(faker.number.int({ min: 1, max: 100 }));
             
-            // Determine numeric value for numVal column
             const numVal = isString ? null : Number(val);
 
-            // Populate the JSONB field data
             cellsFlat.push(numVal ?? val);
             
-            // Collect cell data for the batch
             batchCellsData.push({
                 rowId,
                 colNum: k,
@@ -356,31 +355,19 @@ add100kRow: protectedProcedure
             });
         }
         
-        // Collect row data for the batch
         batchRowsData.push({ id: rowId, tableId: input.tableId, rowNum, cellsFlat });
     }
 
-    // ----------------------------------------------------
-    // Execute Writes for the current batch
-    // ----------------------------------------------------
 
-    // 1. Insert Rows
     await ctx.db.row.createMany({ data: batchRowsData });
     
-    // 2. Insert Cells (All cells generated for this batch's rows)
-    // Note: We use one large batch here, but if 25,000 cells is too much for your DB, 
-    // you would add a sub-loop to batch the cells array here.
     await ctx.db.cell.createMany({ data: batchCellsData });
 
     console.log(`Batch ${Math.ceil((i + currentBatchSize) / ROW_BATCH_SIZE)} written. Total rows: ${numRows + i + currentBatchSize}`);
 
-    // The temporary arrays (batchRowsData, batchCellsData) are now out of scope 
-    // and ready for garbage collection, freeing up memory before the next loop iteration.
+
   }
 
-  // --- Final Update ---
-
-  // Update table's numRows once after all insertions are complete
   return ctx.db.table.update({
     where: { id: input.tableId },
     data: { numRows: numRows + NUM_TO_ADD },

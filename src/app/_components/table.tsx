@@ -13,6 +13,7 @@ import GridBar from "~/app/_components/gridBar"
 import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
+import SearchModal from "./searchModal";
 import "./table.css";
 import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat, Cell } from "~/types/types";
 import CopyAugment from "./copyAugment";
@@ -32,12 +33,14 @@ export default function Table(tableProp: prop) {
     const [showSortModal, setShowSortModal] = useState<boolean>(false);
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
     const [copyViewModal, setCopyViewModal] = useState<boolean>(false);
+    const [searchModal, setSearchModal] = useState<boolean>(false);
     const [opaqueBg, setOpaqueBg] = useState<boolean>(false);
     const [selectedView, setSelectedView] = useState<View | null>(null);
     const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [filterButtonPos, setFilterButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [sortButtonPos, setSortButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [newColButtonPos, setNewColButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [searchButtonPos, setSearchButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
     const { mutate: mutateRow, mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -77,7 +80,7 @@ export default function Table(tableProp: prop) {
 
     // Table Rows
     const rows: TableRow[] = useMemo(() => {
-    if (!rowsAhead || !table) return []
+    if (!rowsAhead || !table || !selectedView) return []
     // array of rows now
     const rows = rowsAhead.pages.flatMap((p) => p.rows);
     // turn it into array of objects with header as key and cell value as val
@@ -87,12 +90,15 @@ export default function Table(tableProp: prop) {
         table.headers.forEach((header, i) => {
         const cell = row.cells.find(c => c.colNum === i);
         if (!cell) throw new Error("no cell was found")
-        rowData[String(i)] = cell.val;
+        console.log("this is selectedView.search: ", selectedView.search);
+        console.log("this is cell.val: ", cell.val);
+        console.log("this is if cell includes search: ", (cell.val.includes(selectedView.search) && selectedView.search !== ""));
+        rowData[String(i)] = {val: cell.val, searchHighlight: (cell.val.includes(selectedView.search) && selectedView.search !== "")};
         });
         return rowData;
     }); 
     return formattedRows
-    }, [rowsAhead]);
+    }, [rowsAhead, selectedView]);
 
     // Table Columns
     const columns = useMemo<ColumnDef<TableRow, string>[]>(() => {
@@ -183,7 +189,7 @@ const { rows: tableRows } = tanTable.getRowModel();
 
     const scrollingRef = useRef<HTMLDivElement>(null);
     const virtualizer = useVirtualizer({
-      count: hasNextPage ? table!.numRows + 1 : table?.numRows ?? rows.length,
+      count: hasNextPage ? rows.length + 1 : rows.length,
       getScrollElement: () => scrollingRef.current ?? null,
       estimateSize: () => 30,
       overscan: 50,
@@ -291,20 +297,22 @@ const { rows: tableRows } = tanTable.getRowModel();
   const filterButtonRef = useRef<HTMLButtonElement>(null);
   const sortButtonRef = useRef<HTMLButtonElement>(null);
   const newColButtonRef = useRef<HTMLButtonElement>(null);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current) return;
+    if (!showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current || !searchButtonRef.current) return;
     const showHideRect = showHideButtonRef.current.getBoundingClientRect();
     const filterRect = filterButtonRef.current.getBoundingClientRect();
     const sortRect = sortButtonRef.current.getBoundingClientRect();
     const newColRect = newColButtonRef.current.getBoundingClientRect();
+    const searchRect = searchButtonRef.current.getBoundingClientRect();
     
     setShowHideButtonPos({top: showHideRect.top, left: showHideRect.left});
     setFilterButtonPos({top: filterRect.top, left: filterRect.left});
     setSortButtonPos({top: sortRect.top, left: sortRect.left});
     setNewColButtonPos({top: newColRect.top, left: newColRect.left});
-
-  }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal])
+    setSearchButtonPos({top: searchRect.top, left: searchRect.left})
+  }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal, searchModal])
 
 
   async function addRow() {
@@ -379,7 +387,7 @@ const { rows: tableRows } = tanTable.getRowModel();
   return(
     <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
       {opaqueBg && <div style={{transform: "translateY(-91px) translateX(-60px)", zIndex: 900, width: "100vw", height: "100vh", position: "fixed", opacity: "50%", background: "black"}}></div>}
-      <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", border: "solid grey 0.5px"}}>
+      <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", borderRight: "solid grey 0.2px", borderBottom:"solid rgba(234, 234, 234, 1) 0.5px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px"}}>
           <button
             className="bell"
@@ -618,10 +626,11 @@ const { rows: tableRows } = tanTable.getRowModel();
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              gap: "5px",
               padding: "5px",
               background: "white",
             }}
+            ref={searchButtonRef}
+            onClick={() => setSearchModal(true)}
           >
             <img style={{ width: "15px", height: "15px" }} src="/search2.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
@@ -632,6 +641,7 @@ const { rows: tableRows } = tanTable.getRowModel();
         {showFilterModal ? <FilterModal setBgOpaque={setOpaqueBg} copyModal={copyViewModal} setCopyModal={setCopyViewModal} position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
         {showSortModal ? <SortModal position={sortButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
         {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
+        {searchModal ? <SearchModal setModal={setSearchModal} position={searchButtonPos} view={selectedView} tableId={table.id} /> : null}
       </div>
     <div style={{display: "flex", height: "100%"}}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
@@ -692,56 +702,61 @@ const { rows: tableRows } = tanTable.getRowModel();
                 );
               return(
                 <tr key={row.id} className="row" style={{height: `${virtualRow.size}px`}}>
-                  {row.getVisibleCells().map(cell => (
+                  {row.getVisibleCells().map(cell => {
                     // body cells for data
-                    <td
-                      key={cell.id}
-                      data-row={row.index}
-                      data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}
-                      tabIndex={0}
-                      style={{ 
-                        zIndex: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first || (cell.column.columnDef.meta as { first: boolean; second: boolean }).second? 100 : 0,
-                        left: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first
-                        ? "0px"
-                        : (cell.column.columnDef.meta as { first: boolean; second: boolean }).second
-                        ? "50px"
-                        : undefined,                    
-                        position: (cell.column.columnDef.meta as { second: boolean }).second || (cell.column.columnDef.meta as { first: boolean }).first ? "sticky": "relative", 
-                        background: ((cell.column.columnDef.meta as { filterHighlight: boolean }).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"), 
-                        borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", 
-                        borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   
-                        borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", 
-                        height: `${virtualRow.size}px`, 
-                        width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "200px", 
-                        // transform: `translateY(${virtualRow.start}px)`,
-                        fontSize: "12px", 
-                        paddingLeft: "5px", 
-                        paddingRight: "5px" }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Tab") {
-                            e.preventDefault();      
-                            navigateBetweenCells("Tab", row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0);
-                            return;
-                          }
+                    const accessorKey = cell.column.id;
+                    const cellData = row.original[accessorKey];
+                    const isSearchHighlight = (cellData as Record<string, string | boolean>)?.searchHighlight as boolean || false;
 
-                          // other keys
-                          if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
-                            e.preventDefault();
-                            navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0);
-                          }
-                        }}
-                    >
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </td>
-                  ))}
+                    return (
+                      <td
+                        key={cell.id}
+                        data-row={row.index}
+                        data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}
+                        tabIndex={0}
+                        style={{ 
+                          zIndex: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first || (cell.column.columnDef.meta as { first: boolean; second: boolean }).second? 100 : 0,
+                          left: (cell.column.columnDef.meta as { first: boolean; second: boolean }).first
+                          ? "0px"
+                          : (cell.column.columnDef.meta as { first: boolean; second: boolean }).second
+                          ? "50px"
+                          : undefined,                    
+                          position: (cell.column.columnDef.meta as { second: boolean }).second || (cell.column.columnDef.meta as { first: boolean }).first ? "sticky": "relative", 
+                          background: isSearchHighlight ? "#FFF4D4" : ((cell.column.columnDef.meta as { filterHighlight: boolean }).filterHighlight ? "#E5F8E5" : (cell.column.columnDef.meta as {sortHighlight: boolean}).sortHighlight ? "#FFF3E9" : "white"),
+                          borderLeft: (cell.column.columnDef.meta as { second: boolean }).second ? "none" : "solid rgb(208, 208, 208) 1px", 
+                          borderTop: "solid rgb(208, 208, 208) 1px", borderBottom: "solid rgb(208, 208, 208) 1px",   
+                          borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid rgb(208, 208, 208) 1px", 
+                          height: `${virtualRow.size}px`, 
+                          width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "200px", 
+                          fontSize: "12px", 
+                          paddingLeft: "5px", 
+                          paddingRight: "5px" }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Tab") {
+                              e.preventDefault();      
+                              navigateBetweenCells("Tab", row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0);
+                              return;
+                            }
+
+                            // other keys
+                            if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+                              e.preventDefault();
+                              navigateBetweenCells(e.key, row.index, (cell.column.columnDef.meta as { colIndex: number })?.colIndex ?? 0);
+                            }
+                          }}
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    )
+                  })}
               </tr>
             )
             })}
-{paddingBottom > 0 && (
-    <tr>
-      <td style={{ height: `${paddingBottom}px` }} />
-    </tr>
-  )}
+          {paddingBottom > 0 && (
+              <tr>
+                <td style={{ height: `${paddingBottom}px` }} />
+              </tr>
+            )}
           </tbody>
           {/* add row */}
           <tfoot>

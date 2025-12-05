@@ -189,7 +189,8 @@ exports.Prisma.ViewScalarFieldEnum = {
   tableId: 'tableId',
   name: 'name',
   showing: 'showing',
-  creationDate: 'creationDate'
+  creationDate: 'creationDate',
+  search: 'search'
 };
 
 exports.Prisma.RowScalarFieldEnum = {

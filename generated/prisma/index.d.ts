@@ -9878,6 +9878,7 @@ export namespace Prisma {
     tableId: string | null
     name: string | null
     creationDate: Date | null
+    search: string | null
   }
 
   export type ViewMaxAggregateOutputType = {
@@ -9885,6 +9886,7 @@ export namespace Prisma {
     tableId: string | null
     name: string | null
     creationDate: Date | null
+    search: string | null
   }
 
   export type ViewCountAggregateOutputType = {
@@ -9893,6 +9895,7 @@ export namespace Prisma {
     name: number
     showing: number
     creationDate: number
+    search: number
     _all: number
   }
 
@@ -9902,6 +9905,7 @@ export namespace Prisma {
     tableId?: true
     name?: true
     creationDate?: true
+    search?: true
   }
 
   export type ViewMaxAggregateInputType = {
@@ -9909,6 +9913,7 @@ export namespace Prisma {
     tableId?: true
     name?: true
     creationDate?: true
+    search?: true
   }
 
   export type ViewCountAggregateInputType = {
@@ -9917,6 +9922,7 @@ export namespace Prisma {
     name?: true
     showing?: true
     creationDate?: true
+    search?: true
     _all?: true
   }
 
@@ -9998,6 +10004,7 @@ export namespace Prisma {
     name: string
     showing: boolean[]
     creationDate: Date
+    search: string
     _count: ViewCountAggregateOutputType | null
     _min: ViewMinAggregateOutputType | null
     _max: ViewMaxAggregateOutputType | null
@@ -10023,6 +10030,7 @@ export namespace Prisma {
     name?: boolean
     showing?: boolean
     creationDate?: boolean
+    search?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
     filters?: boolean | View$filtersArgs<ExtArgs>
     sorts?: boolean | View$sortsArgs<ExtArgs>
@@ -10035,6 +10043,7 @@ export namespace Prisma {
     name?: boolean
     showing?: boolean
     creationDate?: boolean
+    search?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["view"]>
 
@@ -10044,6 +10053,7 @@ export namespace Prisma {
     name?: boolean
     showing?: boolean
     creationDate?: boolean
+    search?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["view"]>
 
@@ -10053,9 +10063,10 @@ export namespace Prisma {
     name?: boolean
     showing?: boolean
     creationDate?: boolean
+    search?: boolean
   }
 
-  export type ViewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tableId" | "name" | "showing" | "creationDate", ExtArgs["result"]["view"]>
+  export type ViewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tableId" | "name" | "showing" | "creationDate" | "search", ExtArgs["result"]["view"]>
   export type ViewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     table?: boolean | TableDefaultArgs<ExtArgs>
     filters?: boolean | View$filtersArgs<ExtArgs>
@@ -10082,6 +10093,7 @@ export namespace Prisma {
       name: string
       showing: boolean[]
       creationDate: Date
+      search: string
     }, ExtArgs["result"]["view"]>
     composites: {}
   }
@@ -10513,6 +10525,7 @@ export namespace Prisma {
     readonly name: FieldRef<"View", 'String'>
     readonly showing: FieldRef<"View", 'Boolean[]'>
     readonly creationDate: FieldRef<"View", 'DateTime'>
+    readonly search: FieldRef<"View", 'String'>
   }
     
 
@@ -15476,7 +15489,8 @@ export namespace Prisma {
     tableId: 'tableId',
     name: 'name',
     showing: 'showing',
-    creationDate: 'creationDate'
+    creationDate: 'creationDate',
+    search: 'search'
   };
 
   export type ViewScalarFieldEnum = (typeof ViewScalarFieldEnum)[keyof typeof ViewScalarFieldEnum]
@@ -16154,6 +16168,7 @@ export namespace Prisma {
     name?: StringFilter<"View"> | string
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeFilter<"View"> | Date | string
+    search?: StringFilter<"View"> | string
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
     filters?: FilterListRelationFilter
     sorts?: SortListRelationFilter
@@ -16165,6 +16180,7 @@ export namespace Prisma {
     name?: SortOrder
     showing?: SortOrder
     creationDate?: SortOrder
+    search?: SortOrder
     table?: TableOrderByWithRelationInput
     filters?: FilterOrderByRelationAggregateInput
     sorts?: SortOrderByRelationAggregateInput
@@ -16179,6 +16195,7 @@ export namespace Prisma {
     name?: StringFilter<"View"> | string
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeFilter<"View"> | Date | string
+    search?: StringFilter<"View"> | string
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
     filters?: FilterListRelationFilter
     sorts?: SortListRelationFilter
@@ -16190,6 +16207,7 @@ export namespace Prisma {
     name?: SortOrder
     showing?: SortOrder
     creationDate?: SortOrder
+    search?: SortOrder
     _count?: ViewCountOrderByAggregateInput
     _max?: ViewMaxOrderByAggregateInput
     _min?: ViewMinOrderByAggregateInput
@@ -16204,6 +16222,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"View"> | string
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeWithAggregatesFilter<"View"> | Date | string
+    search?: StringWithAggregatesFilter<"View"> | string
   }
 
   export type RowWhereInput = {
@@ -16903,6 +16922,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     table: TableCreateNestedOneWithoutViewsInput
     filters?: FilterCreateNestedManyWithoutViewInput
     sorts?: SortCreateNestedManyWithoutViewInput
@@ -16914,6 +16934,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     filters?: FilterUncheckedCreateNestedManyWithoutViewInput
     sorts?: SortUncheckedCreateNestedManyWithoutViewInput
   }
@@ -16923,6 +16944,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     table?: TableUpdateOneRequiredWithoutViewsNestedInput
     filters?: FilterUpdateManyWithoutViewNestedInput
     sorts?: SortUpdateManyWithoutViewNestedInput
@@ -16934,6 +16956,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     filters?: FilterUncheckedUpdateManyWithoutViewNestedInput
     sorts?: SortUncheckedUpdateManyWithoutViewNestedInput
   }
@@ -16944,6 +16967,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
   }
 
   export type ViewUpdateManyMutationInput = {
@@ -16951,6 +16975,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
   }
 
   export type ViewUncheckedUpdateManyInput = {
@@ -16959,6 +16984,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
   }
 
   export type RowCreateInput = {
@@ -17726,6 +17752,7 @@ export namespace Prisma {
     name?: SortOrder
     showing?: SortOrder
     creationDate?: SortOrder
+    search?: SortOrder
   }
 
   export type ViewMaxOrderByAggregateInput = {
@@ -17733,6 +17760,7 @@ export namespace Prisma {
     tableId?: SortOrder
     name?: SortOrder
     creationDate?: SortOrder
+    search?: SortOrder
   }
 
   export type ViewMinOrderByAggregateInput = {
@@ -17740,6 +17768,7 @@ export namespace Prisma {
     tableId?: SortOrder
     name?: SortOrder
     creationDate?: SortOrder
+    search?: SortOrder
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -19420,6 +19449,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     filters?: FilterCreateNestedManyWithoutViewInput
     sorts?: SortCreateNestedManyWithoutViewInput
   }
@@ -19429,6 +19459,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     filters?: FilterUncheckedCreateNestedManyWithoutViewInput
     sorts?: SortUncheckedCreateNestedManyWithoutViewInput
   }
@@ -19519,6 +19550,7 @@ export namespace Prisma {
     name?: StringFilter<"View"> | string
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeFilter<"View"> | Date | string
+    search?: StringFilter<"View"> | string
   }
 
   export type TableCreateWithoutViewsInput = {
@@ -19854,6 +19886,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     table: TableCreateNestedOneWithoutViewsInput
     sorts?: SortCreateNestedManyWithoutViewInput
   }
@@ -19864,6 +19897,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     sorts?: SortUncheckedCreateNestedManyWithoutViewInput
   }
 
@@ -19888,6 +19922,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     table?: TableUpdateOneRequiredWithoutViewsNestedInput
     sorts?: SortUpdateManyWithoutViewNestedInput
   }
@@ -19898,6 +19933,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     sorts?: SortUncheckedUpdateManyWithoutViewNestedInput
   }
 
@@ -19906,6 +19942,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     table: TableCreateNestedOneWithoutViewsInput
     filters?: FilterCreateNestedManyWithoutViewInput
   }
@@ -19916,6 +19953,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
     filters?: FilterUncheckedCreateNestedManyWithoutViewInput
   }
 
@@ -19940,6 +19978,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     table?: TableUpdateOneRequiredWithoutViewsNestedInput
     filters?: FilterUpdateManyWithoutViewNestedInput
   }
@@ -19950,6 +19989,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     filters?: FilterUncheckedUpdateManyWithoutViewNestedInput
   }
 
@@ -20145,6 +20185,7 @@ export namespace Prisma {
     name: string
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
+    search?: string
   }
 
   export type RowUpdateWithoutTableInput = {
@@ -20172,6 +20213,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     filters?: FilterUpdateManyWithoutViewNestedInput
     sorts?: SortUpdateManyWithoutViewNestedInput
   }
@@ -20181,6 +20223,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
     filters?: FilterUncheckedUpdateManyWithoutViewNestedInput
     sorts?: SortUncheckedUpdateManyWithoutViewNestedInput
   }
@@ -20190,6 +20233,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    search?: StringFieldUpdateOperationsInput | string
   }
 
   export type FilterCreateManyViewInput = {
