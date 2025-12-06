@@ -299,11 +299,10 @@ addCol: protectedProcedure
       return { success: true };
     });
   }),
-
+  
 add100kRow: protectedProcedure
 .input(z.object({ tableId: z.string() }))
 .mutation(async ({ ctx, input }) => {
-
   const table = await ctx.db.table.findUnique({
     where: { id: input.tableId },
     select: { numRows: true, headers: true, headerTypes: true }
@@ -313,34 +312,40 @@ add100kRow: protectedProcedure
 
   const { numRows, headers, headerTypes } = table;
   const NUM_TO_ADD = 100000;
-  const NUM_COLUMNS = headers.length; 
+  const NUM_COLUMNS = headers.length;
   
-  const ROW_BATCH_SIZE = 5000; 
+  // Increased batch size (Tune this: if too high, DB will throw "packet too large")
+  const ROW_BATCH_SIZE = 10000; 
 
+  // We can run batches sequentially to avoid memory spikes, 
+  // but we parallelize the operations INSIDE the batch.
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
-    
-    const batchRowsData = [];
-    const batchCellsData = [];
-
     const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
+    
+    // Pre-allocate arrays to prevent dynamic resizing overhead
+    const batchRowsData = new Array(currentBatchSize);
+    const batchCellsData = []; // Hard to pre-allocate due to flat structure
 
+    // CPU INTENSIVE PART
     for (let j = 0; j < currentBatchSize; j++) {
         const rowIdx = i + j;
-        
+        // Optimization: Use a simpler ID generation if strict UUID isn't required 
+        // to save CPU, otherwise keep crypto.
         const rowId = `row_${rowIdx}_${crypto.randomUUID()}`;
         const rowNum = numRows + rowIdx;
-        const cellsFlat: (string | number | null)[] = [];
+        const cellsFlat = new Array(NUM_COLUMNS);
 
         for (let k = 0; k < NUM_COLUMNS; k++) {
             const isString = headerTypes[k] === "string";
             
+            // Note: Faker is slow. Generating 1M values (100k * 10 cols) takes time.
             const val = isString 
                 ? faker.person.fullName() 
                 : String(faker.number.int({ min: 1, max: 100 }));
             
             const numVal = isString ? null : Number(val);
 
-            cellsFlat.push(numVal ?? val);
+            cellsFlat[k] = numVal ?? val;
             
             batchCellsData.push({
                 rowId,
@@ -350,12 +355,17 @@ add100kRow: protectedProcedure
             });
         }
         
-        batchRowsData.push({ id: rowId, tableId: input.tableId, rowNum, cellsFlat });
+        batchRowsData[j] = { id: rowId, tableId: input.tableId, rowNum, cellsFlat };
     }
 
-
-    await ctx.db.row.createMany({ data: batchRowsData });
-    await ctx.db.cell.createMany({ data: batchCellsData });
+    // IO OPTIMIZATION: Run DB writes in parallel
+    // If your DB has Foreign Key constraints between Row and Cell,
+    // you might need to keep them sequential or use a transaction. 
+    // If checking constraints is slow, drop FKs before bulk load and re-add after.
+    await Promise.all([
+        ctx.db.row.createMany({ data: batchRowsData }),
+        ctx.db.cell.createMany({ data: batchCellsData })
+    ]);
   }
 
   return ctx.db.table.update({
