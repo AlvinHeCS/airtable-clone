@@ -108,7 +108,7 @@ rowsAhead: protectedProcedure
       formattedSorts.reverse()
       orderByClause = formattedSorts.join(", ");
     }
-    const pageSize = 000;
+    const pageSize = 5000;
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
       SELECT 
