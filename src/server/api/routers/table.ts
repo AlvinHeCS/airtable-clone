@@ -108,7 +108,7 @@ rowsAhead: protectedProcedure
       formattedSorts.reverse()
       orderByClause = formattedSorts.join(", ");
     }
-    const pageSize = 10000;
+    const pageSize = 5000;
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
       SELECT 
@@ -303,6 +303,7 @@ addCol: protectedProcedure
 add100kRow: protectedProcedure
 .input(z.object({ tableId: z.string() }))
 .mutation(async ({ ctx, input }) => {
+
   const table = await ctx.db.table.findUnique({
     where: { id: input.tableId },
     select: { numRows: true, headers: true, headerTypes: true }
@@ -312,31 +313,34 @@ add100kRow: protectedProcedure
 
   const { numRows, headers, headerTypes } = table;
   const NUM_TO_ADD = 100000;
-  const NUM_COLUMNS = headers.length;
+  const NUM_COLUMNS = headers.length; 
   
-  const ROW_BATCH_SIZE = 10000; 
+  const ROW_BATCH_SIZE = 5000; 
 
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
-    const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
     
-    const batchRowsData = new Array(currentBatchSize);
-    const batchCellsData = []; 
+    const batchRowsData = [];
+    const batchCellsData = [];
+
+    const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
 
     for (let j = 0; j < currentBatchSize; j++) {
         const rowIdx = i + j;
+        
         const rowId = `row_${rowIdx}_${crypto.randomUUID()}`;
         const rowNum = numRows + rowIdx;
-        const cellsFlat = new Array(NUM_COLUMNS);
+        const cellsFlat: (string | number | null)[] = [];
 
         for (let k = 0; k < NUM_COLUMNS; k++) {
             const isString = headerTypes[k] === "string";
+            
             const val = isString 
                 ? faker.person.fullName() 
                 : String(faker.number.int({ min: 1, max: 100 }));
             
             const numVal = isString ? null : Number(val);
 
-            cellsFlat[k] = numVal ?? val;
+            cellsFlat.push(numVal ?? val);
             
             batchCellsData.push({
                 rowId,
@@ -346,12 +350,12 @@ add100kRow: protectedProcedure
             });
         }
         
-        batchRowsData[j] = { id: rowId, tableId: input.tableId, rowNum, cellsFlat };
+        batchRowsData.push({ id: rowId, tableId: input.tableId, rowNum, cellsFlat });
     }
-    await Promise.all([
-        ctx.db.row.createMany({ data: batchRowsData }),
-        ctx.db.cell.createMany({ data: batchCellsData })
-    ]);
+
+
+    await ctx.db.row.createMany({ data: batchRowsData });
+    await ctx.db.cell.createMany({ data: batchCellsData });
   }
 
   return ctx.db.table.update({
