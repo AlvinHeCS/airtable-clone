@@ -299,7 +299,7 @@ addCol: protectedProcedure
       return { success: true };
     });
   }),
-  
+
 add100kRow: protectedProcedure
 .input(z.object({ tableId: z.string() }))
 .mutation(async ({ ctx, input }) => {
@@ -314,31 +314,22 @@ add100kRow: protectedProcedure
   const NUM_TO_ADD = 100000;
   const NUM_COLUMNS = headers.length;
   
-  // Increased batch size (Tune this: if too high, DB will throw "packet too large")
   const ROW_BATCH_SIZE = 10000; 
 
-  // We can run batches sequentially to avoid memory spikes, 
-  // but we parallelize the operations INSIDE the batch.
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
     const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
     
-    // Pre-allocate arrays to prevent dynamic resizing overhead
     const batchRowsData = new Array(currentBatchSize);
-    const batchCellsData = []; // Hard to pre-allocate due to flat structure
+    const batchCellsData = []; 
 
-    // CPU INTENSIVE PART
     for (let j = 0; j < currentBatchSize; j++) {
         const rowIdx = i + j;
-        // Optimization: Use a simpler ID generation if strict UUID isn't required 
-        // to save CPU, otherwise keep crypto.
         const rowId = `row_${rowIdx}_${crypto.randomUUID()}`;
         const rowNum = numRows + rowIdx;
         const cellsFlat = new Array(NUM_COLUMNS);
 
         for (let k = 0; k < NUM_COLUMNS; k++) {
             const isString = headerTypes[k] === "string";
-            
-            // Note: Faker is slow. Generating 1M values (100k * 10 cols) takes time.
             const val = isString 
                 ? faker.person.fullName() 
                 : String(faker.number.int({ min: 1, max: 100 }));
@@ -357,11 +348,6 @@ add100kRow: protectedProcedure
         
         batchRowsData[j] = { id: rowId, tableId: input.tableId, rowNum, cellsFlat };
     }
-
-    // IO OPTIMIZATION: Run DB writes in parallel
-    // If your DB has Foreign Key constraints between Row and Cell,
-    // you might need to keep them sequential or use a transaction. 
-    // If checking constraints is slow, drop FKs before bulk load and re-add after.
     await Promise.all([
         ctx.db.row.createMany({ data: batchRowsData }),
         ctx.db.cell.createMany({ data: batchCellsData })
