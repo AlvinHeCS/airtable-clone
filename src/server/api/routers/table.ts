@@ -89,11 +89,9 @@ rowsAhead: protectedProcedure
         }
         return sqlWhere
       })
-      console.log("before filtering: ", formattedFilters)
       const newFormattedFilters = formattedFilters.filter((filter) => {
         return (filter !== "")
       })
-      console.log("after filtering: ", newFormattedFilters)
       if (newFormattedFilters.length > 0) {
         whereClause = `"tableId" = '${input.tableId}' AND ${newFormattedFilters.join(" AND ")}`
       }
@@ -110,7 +108,7 @@ rowsAhead: protectedProcedure
       formattedSorts.reverse()
       orderByClause = formattedSorts.join(", ");
     }
-    const pageSize = 20000;
+    const pageSize = 10000;
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
       SELECT 
@@ -319,9 +317,6 @@ add100kRow: protectedProcedure
   
   const ROW_BATCH_SIZE = 5000; 
 
-  console.log(`Starting bulk insert of ${NUM_TO_ADD} rows into table ${input.tableId}...`);
-
-
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
     
     const batchRowsData = [];
@@ -360,12 +355,7 @@ add100kRow: protectedProcedure
 
 
     await ctx.db.row.createMany({ data: batchRowsData });
-    
     await ctx.db.cell.createMany({ data: batchCellsData });
-
-    console.log(`Batch ${Math.ceil((i + currentBatchSize) / ROW_BATCH_SIZE)} written. Total rows: ${numRows + i + currentBatchSize}`);
-
-
   }
 
   return ctx.db.table.update({
