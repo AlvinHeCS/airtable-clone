@@ -108,7 +108,7 @@ rowsAhead: protectedProcedure
       formattedSorts.reverse()
       orderByClause = formattedSorts.join(", ");
     }
-    const pageSize = 5000;
+    const pageSize = 000;
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
       SELECT 
@@ -354,8 +354,10 @@ add100kRow: protectedProcedure
     }
 
 
-    await ctx.db.row.createMany({ data: batchRowsData });
-    await ctx.db.cell.createMany({ data: batchCellsData });
+    await Promise.all([
+      ctx.db.row.createMany({ data: batchRowsData }),
+      ctx.db.cell.createMany({ data: batchCellsData })
+    ]);
   }
 
   return ctx.db.table.update({
