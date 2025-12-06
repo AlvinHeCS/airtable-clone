@@ -61,7 +61,6 @@ export default function Table(tableProp: prop) {
       } else {
         for (let view of views) {0
           if (view.id === selectedView.id) {
-            console.log("selected view got reset")
             setSelectedView(view);
           }
         }
@@ -175,21 +174,16 @@ const { rows: tableRows } = tanTable.getRowModel();
       count: hasNextPage ? rows.length + 1 : rows.length,
       getScrollElement: () => scrollingRef.current ?? null,
       estimateSize: () => {
-        console.log("estiamted size is being calculated")
         if (selectedView) {
           
           if (selectedView.cellHeight === "small") {
-            console.log("selectedView height is small")
             return 32
           } else if (selectedView.cellHeight === "medium") {
-            console.log("selectedView height is medium")
             return 52
           } else {
-            console.log("selectedView height is large")
             return 72
           }
         } else {
-          console.log("didnt trigger")
           return 32
         }
       },
