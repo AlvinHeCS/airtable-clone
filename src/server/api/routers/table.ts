@@ -354,10 +354,8 @@ add100kRow: protectedProcedure
     }
 
 
-    await Promise.all([
-      ctx.db.row.createMany({ data: batchRowsData }),
-      ctx.db.cell.createMany({ data: batchCellsData })
-    ]);
+    await ctx.db.row.createMany({ data: batchRowsData });
+    await ctx.db.cell.createMany({ data: batchCellsData });
   }
 
   return ctx.db.table.update({
