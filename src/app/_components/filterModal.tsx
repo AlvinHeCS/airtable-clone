@@ -269,7 +269,7 @@ export default function FilterModal(FilterModalProps: prop) {
     }
 
     return(
-        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: 899, left: `${FilterModalProps.position.left - 400}px`, top: `${FilterModalProps.position.top + 40}px`, width: "570px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
+        <div ref={modalRef} style={{boxShadow: "0 8px 12px rgba(0, 0, 0, 0.1)", zIndex: 899, left: `${FilterModalProps.position.left - 380}px`, top: `${FilterModalProps.position.top + 40}px`, width: "570px", background: "white", padding: "10px", position: "fixed", gap: "10px", display: "flex", flexDirection: "column"}}>
             <span style={{fontSize: "14px", color: "grey"}}>In this view, show records</span>
             <div style={{padding: "10px", display: "flex", flexDirection: "column", gap: "10px"}}>
             {FilterModalProps.view.filters.map((filter, i) => {
@@ -304,11 +304,11 @@ export default function FilterModal(FilterModalProps: prop) {
             </div>
             <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
                 <div style={{display: "flex", gap: "15px", alignItems: "center"}}>
-                    <button style={{fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", color: "blue", width: "120px"}} onClick={addFilter}><span style={{fontSize: "18px"}}>+</span>Add condition</button>
-                    <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "150px"}}><span style={{fontSize: "18px"}}>+</span>Add condition group</button>
+                    <button style={{fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", color: "blue", width: "120px", justifyContent: "center"}} onClick={addFilter}><span style={{fontSize: "18px"}}>+</span>Add condition</button>
+                    <button style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "150px", justifyContent: "center"}}><span style={{fontSize: "18px"}}>+</span>Add condition group</button>
                     <img src="/questionMark.svg" style={{width: "15px", height: "15px"}}></img>
                 </div>
-                <button onClick={copyFromAnotherViewClick} style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px"}}>Copy from another view</button>
+                <button onClick={copyFromAnotherViewClick} style={{color: "grey", fontSize: "14px", display: "flex", alignItems: "center", gap: "5px", width: "160px", justifyContent: "center"}}>Copy from another view</button>
             </div>
         </div>
     );

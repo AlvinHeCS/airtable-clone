@@ -68,24 +68,24 @@ export default function BasePage() {
                 <div key={table.id}>
                   <button
                     style={{
-                      width: isSelected ? "100px" : "80px",
+                      width: isSelected ? "90px" : "60px",
                       cursor: isSelected ? "default" : "pointer",
                       color: isSelected ? "black" : "grey",
                       display: "flex",
-                      fontSize: "14px",
+                      fontSize: "13px",
                       lineHeight: isSelected ? "33px" : "12px",
                       gap: "5px",
                       alignItems: "center",
                       height: isSelected ? "100%" : "60%",
-                      paddingLeft: "15px",
-                      paddingRight: "15px",
+                      justifyContent: "center",
                       background: isSelected ? "white" : "transparent",
-                      borderRight: "solid grey 0.5px"
+                      borderRight: "solid grey 0.5px",
+                      fontWeight: isSelected ? "600" : "400"
                     }}
                     onClick={() => setSelectedTableId(table.id)}
                   >
                     Table {index + 1}
-                    {isSelected && <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />}
+                    {isSelected && <img style={{ width: "10px", height: "10px"}} src="/arrowD.svg" />}
                   </button>
                 </div>
               )

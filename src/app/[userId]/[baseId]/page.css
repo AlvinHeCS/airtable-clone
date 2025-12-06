@@ -33,3 +33,7 @@ button:hover {
     background-position: center;         
     opacity: 40%;
 }
+
+.special:hover {
+    background: "none" !important;
+}

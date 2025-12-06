@@ -2,17 +2,8 @@
 
 .row:hover > td,
 .row:hover > th {
-  background-color: #f0f0f0 !important; /* A light gray color */
+  background-color: #F7F8FC !important;
 }
-
-.bell {
-
-}
-
-.bell:hover {
-    background-color: rgb(236, 236, 236) !important;
-}
-
 .augmentButtons:hover {
     background-color: rgb(236, 236, 236) !important;
 }

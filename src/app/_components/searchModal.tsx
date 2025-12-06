@@ -58,7 +58,7 @@ export default function SearchModal(SearchModalProp: prop) {
     }
 
     return (
-        <div style={{gap: "3px", alignItems: "center", display: "flex", border: "solid rgba(222, 222, 222, 1) 0.5px", padding: "5px", borderRadius: "5px", left: `${SearchModalProp.position.left - 280}px`, top: `${SearchModalProp.position.top + 40}px`, zIndex: 900, width: "300px", height: "40px", background: "white", position: "fixed"}}>
+        <div style={{gap: "3px", alignItems: "center", display: "flex", border: "solid rgba(222, 222, 222, 1) 0.5px", padding: "5px", borderRadius: "5px", left: `${SearchModalProp.position.left - 270}px`, top: `${SearchModalProp.position.top + 40}px`, zIndex: 900, width: "300px", height: "40px", background: "white", position: "fixed"}}>
             <input placeholder="Find in view" style={{ color: "grey", fontSize: "13px", height: "30px", width: "200px"}} type="text" value={searchVal} onChange={(e) => handleSearch(e.target.value)}></input>
             <button className="arrowButton"><img src="/arrowD.svg" style={{width: "6px", height: "6px"}}></img></button>
             <button className="arrowButton"><img src="/arrowU.svg" style={{width: "10px", height: "10px"}}></img></button>

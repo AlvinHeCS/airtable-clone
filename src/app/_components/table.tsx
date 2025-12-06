@@ -372,13 +372,13 @@ const { rows: tableRows } = tanTable.getRowModel();
     <div style={{display: "flex", width: "100%", flexDirection: "column", height: "100%"}}>
       {opaqueBg && <div style={{transform: "translateY(-91px) translateX(-60px)", zIndex: 900, width: "100vw", height: "100vh", position: "fixed", opacity: "50%", background: "black"}}></div>}
       <div style={{display: "flex", alignItems: "center", justifyContent: "space-between", borderRight: "solid grey 0.2px", borderBottom:"solid rgba(234, 234, 234, 1) 0.5px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px"}}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", height: "50px", paddingLeft: "10px"}}>
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "30px",
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center"
@@ -389,37 +389,38 @@ const { rows: tableRows } = tanTable.getRowModel();
 
 
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              gap: "5px",
-              padding: "5px"
+              gap: "10px",
+              padding: "5px",
+              width: "120px"
             }}
           >
-            <img style={{ width: "18px", height: "15px" }} src="/bTable.png" />
+            <img style={{ width: "15px", height: "12px" }} src="/bTable.png" />
             <span style={{ fontWeight: "500", fontSize: "13px" }}>Grid view</span>
             <img style={{ width: "10px", height: "10px" }} src="/arrowD.svg" />
           </button>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "5px", paddingLeft: "10px", paddingRight: "10px"}}>
           <button              
-          className="bell"
+          className="augmentButtons"
               style={{
                 width: pending100k ? "100px":"70px",
                 flexShrink: 0,
-                height: "30px",
-                borderRadius: "5px",
+                height: "27px",
+                borderRadius: "2px",
                 display: "flex",
                 color: "grey",
                 justifyContent: "center",
                 alignItems: "center",
                 gap: "5px",
                 padding: "5px",
-                fontSize: "14px"
+                fontSize: "14px",
               }} 
               onClick={add100kRow}
               disabled={pending100k}
@@ -429,18 +430,18 @@ const { rows: tableRows } = tanTable.getRowModel();
           {hidden.bool ?            
           <button
             ref={showHideButtonRef}
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "140px",
               flexShrink: 0,
-              height: "30px",
+              height: "27px",
               borderRadius: "5px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
               gap: "5px",
               padding: "5px",
-              background: "#C3EBFF"
+              background: "#C3EBFF",
             }}
             onClick={() => (setShowShowHideColModal(true))}
           >
@@ -451,21 +452,21 @@ const { rows: tableRows } = tanTable.getRowModel();
           </button> :
           <button
             ref={showHideButtonRef}
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "100px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              gap: "5px",
               padding: "5px",
+              gap: "5px",
             }}
             onClick={() => (setShowShowHideColModal(true))}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/hide.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/hide.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
               Hide fields
             </span>
@@ -473,13 +474,13 @@ const { rows: tableRows } = tanTable.getRowModel();
           }
           <button
             ref={filterButtonRef}
-            className="bell"
+            className="augmentButtons"
             style={{
               width: filtered.bool ? "auto" : "70px",
               flexShrink: 0,
               flexGrow: filtered.bool ? 1 : 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -489,19 +490,19 @@ const { rows: tableRows } = tanTable.getRowModel();
             }}
             onClick={() => setShowFilterModal(true)}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/filter.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/filter.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
               {filtered.bool ? `Filtered by ${filtered.filterNames}` : "Filter"}
             </span>
           </button>
 
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "80px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -509,7 +510,7 @@ const { rows: tableRows } = tanTable.getRowModel();
               padding: "5px",
             }}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/groupStuff.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/groupStuff.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
               Groups
             </span>
@@ -517,12 +518,12 @@ const { rows: tableRows } = tanTable.getRowModel();
 
           <button
             ref={sortButtonRef}
-            className="bell"
+            className="augmentButtons"
             style={{
               width: sorted.bool ? "150px":"70px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -532,19 +533,19 @@ const { rows: tableRows } = tanTable.getRowModel();
             }}
             onClick={() => setShowSortModal(true)}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/sort.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/sort.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
               {sorted.bool ? `Sorted by ${sorted.num} field` : "Sort"}
             </span>
           </button>
 
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "70px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -553,19 +554,19 @@ const { rows: tableRows } = tanTable.getRowModel();
               background: "white",
             }}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/color.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/color.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
               Color
             </span>
           </button>
 
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
-              width: "40px",
+              width: "30px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -574,18 +575,18 @@ const { rows: tableRows } = tanTable.getRowModel();
               background: "white",
             }}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/rowHeight.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/rowHeight.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
             </span>
           </button>
 
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "130px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
@@ -594,19 +595,19 @@ const { rows: tableRows } = tanTable.getRowModel();
               background: "white",
             }}
           >
-            <img style={{ width: "20px", height: "20px" }} src="/share.svg" />
+            <img style={{ width: "15px", height: "15px" }} src="/share.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
               Share and sync
             </span>
           </button>
 
           <button
-            className="bell"
+            className="augmentButtons"
             style={{
               width: "30px",
               flexShrink: 0,
-              height: "30px",
-              borderRadius: "5px",
+              height: "27px",
+              borderRadius: "2px",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
