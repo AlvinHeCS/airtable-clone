@@ -86,6 +86,15 @@ export namespace $Enums {
 export type HeaderType = (typeof HeaderType)[keyof typeof HeaderType]
 
 
+export const Height: {
+  small: 'small',
+  medium: 'medium',
+  large: 'large'
+};
+
+export type Height = (typeof Height)[keyof typeof Height]
+
+
 export const FilterType: {
   contains: 'contains',
   not_contains: 'not_contains',
@@ -113,6 +122,10 @@ export type SortType = (typeof SortType)[keyof typeof SortType]
 export type HeaderType = $Enums.HeaderType
 
 export const HeaderType: typeof $Enums.HeaderType
+
+export type Height = $Enums.Height
+
+export const Height: typeof $Enums.Height
 
 export type FilterType = $Enums.FilterType
 
@@ -9879,6 +9892,7 @@ export namespace Prisma {
     name: string | null
     creationDate: Date | null
     search: string | null
+    cellHeight: $Enums.Height | null
   }
 
   export type ViewMaxAggregateOutputType = {
@@ -9887,6 +9901,7 @@ export namespace Prisma {
     name: string | null
     creationDate: Date | null
     search: string | null
+    cellHeight: $Enums.Height | null
   }
 
   export type ViewCountAggregateOutputType = {
@@ -9896,6 +9911,7 @@ export namespace Prisma {
     showing: number
     creationDate: number
     search: number
+    cellHeight: number
     _all: number
   }
 
@@ -9906,6 +9922,7 @@ export namespace Prisma {
     name?: true
     creationDate?: true
     search?: true
+    cellHeight?: true
   }
 
   export type ViewMaxAggregateInputType = {
@@ -9914,6 +9931,7 @@ export namespace Prisma {
     name?: true
     creationDate?: true
     search?: true
+    cellHeight?: true
   }
 
   export type ViewCountAggregateInputType = {
@@ -9923,6 +9941,7 @@ export namespace Prisma {
     showing?: true
     creationDate?: true
     search?: true
+    cellHeight?: true
     _all?: true
   }
 
@@ -10005,6 +10024,7 @@ export namespace Prisma {
     showing: boolean[]
     creationDate: Date
     search: string
+    cellHeight: $Enums.Height
     _count: ViewCountAggregateOutputType | null
     _min: ViewMinAggregateOutputType | null
     _max: ViewMaxAggregateOutputType | null
@@ -10031,6 +10051,7 @@ export namespace Prisma {
     showing?: boolean
     creationDate?: boolean
     search?: boolean
+    cellHeight?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
     filters?: boolean | View$filtersArgs<ExtArgs>
     sorts?: boolean | View$sortsArgs<ExtArgs>
@@ -10044,6 +10065,7 @@ export namespace Prisma {
     showing?: boolean
     creationDate?: boolean
     search?: boolean
+    cellHeight?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["view"]>
 
@@ -10054,6 +10076,7 @@ export namespace Prisma {
     showing?: boolean
     creationDate?: boolean
     search?: boolean
+    cellHeight?: boolean
     table?: boolean | TableDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["view"]>
 
@@ -10064,9 +10087,10 @@ export namespace Prisma {
     showing?: boolean
     creationDate?: boolean
     search?: boolean
+    cellHeight?: boolean
   }
 
-  export type ViewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tableId" | "name" | "showing" | "creationDate" | "search", ExtArgs["result"]["view"]>
+  export type ViewOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "tableId" | "name" | "showing" | "creationDate" | "search" | "cellHeight", ExtArgs["result"]["view"]>
   export type ViewInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     table?: boolean | TableDefaultArgs<ExtArgs>
     filters?: boolean | View$filtersArgs<ExtArgs>
@@ -10094,6 +10118,7 @@ export namespace Prisma {
       showing: boolean[]
       creationDate: Date
       search: string
+      cellHeight: $Enums.Height
     }, ExtArgs["result"]["view"]>
     composites: {}
   }
@@ -10526,6 +10551,7 @@ export namespace Prisma {
     readonly showing: FieldRef<"View", 'Boolean[]'>
     readonly creationDate: FieldRef<"View", 'DateTime'>
     readonly search: FieldRef<"View", 'String'>
+    readonly cellHeight: FieldRef<"View", 'Height'>
   }
     
 
@@ -15490,7 +15516,8 @@ export namespace Prisma {
     name: 'name',
     showing: 'showing',
     creationDate: 'creationDate',
-    search: 'search'
+    search: 'search',
+    cellHeight: 'cellHeight'
   };
 
   export type ViewScalarFieldEnum = (typeof ViewScalarFieldEnum)[keyof typeof ViewScalarFieldEnum]
@@ -15652,6 +15679,20 @@ export namespace Prisma {
    * Reference to a field of type 'Boolean'
    */
   export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Height'
+   */
+  export type EnumHeightFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Height'>
+    
+
+
+  /**
+   * Reference to a field of type 'Height[]'
+   */
+  export type ListEnumHeightFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Height[]'>
     
 
 
@@ -16169,6 +16210,7 @@ export namespace Prisma {
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeFilter<"View"> | Date | string
     search?: StringFilter<"View"> | string
+    cellHeight?: EnumHeightFilter<"View"> | $Enums.Height
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
     filters?: FilterListRelationFilter
     sorts?: SortListRelationFilter
@@ -16181,6 +16223,7 @@ export namespace Prisma {
     showing?: SortOrder
     creationDate?: SortOrder
     search?: SortOrder
+    cellHeight?: SortOrder
     table?: TableOrderByWithRelationInput
     filters?: FilterOrderByRelationAggregateInput
     sorts?: SortOrderByRelationAggregateInput
@@ -16196,6 +16239,7 @@ export namespace Prisma {
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeFilter<"View"> | Date | string
     search?: StringFilter<"View"> | string
+    cellHeight?: EnumHeightFilter<"View"> | $Enums.Height
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
     filters?: FilterListRelationFilter
     sorts?: SortListRelationFilter
@@ -16208,6 +16252,7 @@ export namespace Prisma {
     showing?: SortOrder
     creationDate?: SortOrder
     search?: SortOrder
+    cellHeight?: SortOrder
     _count?: ViewCountOrderByAggregateInput
     _max?: ViewMaxOrderByAggregateInput
     _min?: ViewMinOrderByAggregateInput
@@ -16223,6 +16268,7 @@ export namespace Prisma {
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeWithAggregatesFilter<"View"> | Date | string
     search?: StringWithAggregatesFilter<"View"> | string
+    cellHeight?: EnumHeightWithAggregatesFilter<"View"> | $Enums.Height
   }
 
   export type RowWhereInput = {
@@ -16923,6 +16969,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     table: TableCreateNestedOneWithoutViewsInput
     filters?: FilterCreateNestedManyWithoutViewInput
     sorts?: SortCreateNestedManyWithoutViewInput
@@ -16935,6 +16982,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     filters?: FilterUncheckedCreateNestedManyWithoutViewInput
     sorts?: SortUncheckedCreateNestedManyWithoutViewInput
   }
@@ -16945,6 +16993,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     table?: TableUpdateOneRequiredWithoutViewsNestedInput
     filters?: FilterUpdateManyWithoutViewNestedInput
     sorts?: SortUpdateManyWithoutViewNestedInput
@@ -16957,6 +17006,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     filters?: FilterUncheckedUpdateManyWithoutViewNestedInput
     sorts?: SortUncheckedUpdateManyWithoutViewNestedInput
   }
@@ -16968,6 +17018,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
   }
 
   export type ViewUpdateManyMutationInput = {
@@ -16976,6 +17027,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
   }
 
   export type ViewUncheckedUpdateManyInput = {
@@ -16985,6 +17037,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
   }
 
   export type RowCreateInput = {
@@ -17721,6 +17774,13 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type EnumHeightFilter<$PrismaModel = never> = {
+    equals?: $Enums.Height | EnumHeightFieldRefInput<$PrismaModel>
+    in?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    not?: NestedEnumHeightFilter<$PrismaModel> | $Enums.Height
+  }
+
   export type TableScalarRelationFilter = {
     is?: TableWhereInput
     isNot?: TableWhereInput
@@ -17753,6 +17813,7 @@ export namespace Prisma {
     showing?: SortOrder
     creationDate?: SortOrder
     search?: SortOrder
+    cellHeight?: SortOrder
   }
 
   export type ViewMaxOrderByAggregateInput = {
@@ -17761,6 +17822,7 @@ export namespace Prisma {
     name?: SortOrder
     creationDate?: SortOrder
     search?: SortOrder
+    cellHeight?: SortOrder
   }
 
   export type ViewMinOrderByAggregateInput = {
@@ -17769,6 +17831,17 @@ export namespace Prisma {
     name?: SortOrder
     creationDate?: SortOrder
     search?: SortOrder
+    cellHeight?: SortOrder
+  }
+
+  export type EnumHeightWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Height | EnumHeightFieldRefInput<$PrismaModel>
+    in?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    not?: NestedEnumHeightWithAggregatesFilter<$PrismaModel> | $Enums.Height
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumHeightFilter<$PrismaModel>
+    _max?: NestedEnumHeightFilter<$PrismaModel>
   }
   export type JsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -18459,6 +18532,10 @@ export namespace Prisma {
     push?: boolean | boolean[]
   }
 
+  export type EnumHeightFieldUpdateOperationsInput = {
+    set?: $Enums.Height
+  }
+
   export type TableUpdateOneRequiredWithoutViewsNestedInput = {
     create?: XOR<TableCreateWithoutViewsInput, TableUncheckedCreateWithoutViewsInput>
     connectOrCreate?: TableCreateOrConnectWithoutViewsInput
@@ -18815,6 +18892,23 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedDateTimeNullableFilter<$PrismaModel>
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumHeightFilter<$PrismaModel = never> = {
+    equals?: $Enums.Height | EnumHeightFieldRefInput<$PrismaModel>
+    in?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    not?: NestedEnumHeightFilter<$PrismaModel> | $Enums.Height
+  }
+
+  export type NestedEnumHeightWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Height | EnumHeightFieldRefInput<$PrismaModel>
+    in?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Height[] | ListEnumHeightFieldRefInput<$PrismaModel>
+    not?: NestedEnumHeightWithAggregatesFilter<$PrismaModel> | $Enums.Height
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumHeightFilter<$PrismaModel>
+    _max?: NestedEnumHeightFilter<$PrismaModel>
   }
   export type NestedJsonFilter<$PrismaModel = never> =
     | PatchUndefined<
@@ -19450,6 +19544,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     filters?: FilterCreateNestedManyWithoutViewInput
     sorts?: SortCreateNestedManyWithoutViewInput
   }
@@ -19460,6 +19555,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     filters?: FilterUncheckedCreateNestedManyWithoutViewInput
     sorts?: SortUncheckedCreateNestedManyWithoutViewInput
   }
@@ -19551,6 +19647,7 @@ export namespace Prisma {
     showing?: BoolNullableListFilter<"View">
     creationDate?: DateTimeFilter<"View"> | Date | string
     search?: StringFilter<"View"> | string
+    cellHeight?: EnumHeightFilter<"View"> | $Enums.Height
   }
 
   export type TableCreateWithoutViewsInput = {
@@ -19887,6 +19984,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     table: TableCreateNestedOneWithoutViewsInput
     sorts?: SortCreateNestedManyWithoutViewInput
   }
@@ -19898,6 +19996,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     sorts?: SortUncheckedCreateNestedManyWithoutViewInput
   }
 
@@ -19923,6 +20022,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     table?: TableUpdateOneRequiredWithoutViewsNestedInput
     sorts?: SortUpdateManyWithoutViewNestedInput
   }
@@ -19934,6 +20034,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     sorts?: SortUncheckedUpdateManyWithoutViewNestedInput
   }
 
@@ -19943,6 +20044,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     table: TableCreateNestedOneWithoutViewsInput
     filters?: FilterCreateNestedManyWithoutViewInput
   }
@@ -19954,6 +20056,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
     filters?: FilterUncheckedCreateNestedManyWithoutViewInput
   }
 
@@ -19979,6 +20082,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     table?: TableUpdateOneRequiredWithoutViewsNestedInput
     filters?: FilterUpdateManyWithoutViewNestedInput
   }
@@ -19990,6 +20094,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     filters?: FilterUncheckedUpdateManyWithoutViewNestedInput
   }
 
@@ -20186,6 +20291,7 @@ export namespace Prisma {
     showing?: ViewCreateshowingInput | boolean[]
     creationDate?: Date | string
     search?: string
+    cellHeight: $Enums.Height
   }
 
   export type RowUpdateWithoutTableInput = {
@@ -20214,6 +20320,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     filters?: FilterUpdateManyWithoutViewNestedInput
     sorts?: SortUpdateManyWithoutViewNestedInput
   }
@@ -20224,6 +20331,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
     filters?: FilterUncheckedUpdateManyWithoutViewNestedInput
     sorts?: SortUncheckedUpdateManyWithoutViewNestedInput
   }
@@ -20234,6 +20342,7 @@ export namespace Prisma {
     showing?: ViewUpdateshowingInput | boolean[]
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     search?: StringFieldUpdateOperationsInput | string
+    cellHeight?: EnumHeightFieldUpdateOperationsInput | $Enums.Height
   }
 
   export type FilterCreateManyViewInput = {

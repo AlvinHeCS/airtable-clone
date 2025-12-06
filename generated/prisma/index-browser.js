@@ -190,7 +190,8 @@ exports.Prisma.ViewScalarFieldEnum = {
   name: 'name',
   showing: 'showing',
   creationDate: 'creationDate',
-  search: 'search'
+  search: 'search',
+  cellHeight: 'cellHeight'
 };
 
 exports.Prisma.RowScalarFieldEnum = {
@@ -252,6 +253,12 @@ exports.Prisma.JsonNullValueFilter = {
 exports.HeaderType = exports.$Enums.HeaderType = {
   string: 'string',
   number: 'number'
+};
+
+exports.Height = exports.$Enums.Height = {
+  small: 'small',
+  medium: 'medium',
+  large: 'large'
 };
 
 exports.FilterType = exports.$Enums.FilterType = {

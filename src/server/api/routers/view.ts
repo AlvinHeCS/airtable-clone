@@ -189,7 +189,8 @@ export const viewRouter = createTRPCRouter({
           name: `Grid ${viewAmount + 1}`,
           tableId: input.tableId,
           showing: table.headers.map((h) => { return true}),
-          search: ""
+          search: "",
+          cellHeight: "small"
         },
         include: {
           filters: {orderBy: {creationDate: "asc"}},
@@ -254,7 +255,7 @@ export const viewRouter = createTRPCRouter({
       })
     }
   }),
-  editSearch:protectedProcedure
+  editSearch: protectedProcedure
   .input(z.object({viewId: z.string(), search: z.string()}))
   .mutation(async({ctx, input}) => {
     return await ctx.db.view.update({
@@ -263,6 +264,22 @@ export const viewRouter = createTRPCRouter({
         search: input.search
       },
       include: {filters: {orderBy: {creationDate: "asc"}}, sorts: {orderBy: {creationDate: "asc"}}}
+    })
+  }),
+
+
+  editCellHeight: protectedProcedure
+  .input(z.object({viewId: z.string(), newCellHeight: z.enum([
+        "small",
+        "medium",
+        "large",
+      ])}))
+  .mutation(async ({ctx, input}) => {
+    return ctx.db.view.update({
+      where: {id: input.viewId},
+      data: {
+        cellHeight: input.newCellHeight
+      }
     })
   })
 })

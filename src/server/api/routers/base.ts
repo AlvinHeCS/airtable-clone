@@ -43,7 +43,8 @@ export const baseRouter = createTRPCRouter({
             {
               name: "Grid view",
               showing: [true, true, true, true],
-              search: ""
+              search: "",
+              cellHeight: "small"
             }
           ]
         },

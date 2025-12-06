@@ -104,6 +104,13 @@ model Table {
     creationDate  DateTime  @default(now())
 }
 
+enum Height {
+    small
+    medium
+    large
+}
+
+
 model View {
     id            String    @id @default(cuid())
     tableId       String
@@ -114,6 +121,7 @@ model View {
     showing       Boolean[]
     creationDate  DateTime  @default(now())
     search        String    @default("")
+    cellHeight    Height
 }
 
 model Row {

@@ -56,6 +56,14 @@ export type Table = {
 
 export type TableRow = Record<string, Record<string, string | boolean> | string> & { id: string };
 
+export const cellHeight = [
+  "small",
+  "medium",
+  "large"
+] as const
+
+export type CellHeight = typeof cellHeight[number]
+
 export type View = {
   id: string;
   name: string;
@@ -65,6 +73,7 @@ export type View = {
   showing: boolean[];
   search: string;
   creationDate: Date;
+  cellHeight: CellHeight;
 };
 
 export type Augments = {

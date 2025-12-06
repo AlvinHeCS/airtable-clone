@@ -14,6 +14,7 @@ import FilterModal from "./filterModal";
 import SortModal from "./sortModal";
 import ShowHideColModal from "./showHideColModal";
 import SearchModal from "./searchModal";
+import RowHeightModal from "./rowHeightModal";
 import "./table.css";
 import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat, Cell } from "~/types/types";
 import CopyAugment from "./copyAugment";
@@ -34,6 +35,7 @@ export default function Table(tableProp: prop) {
     const [showColumnModal, setShowColumnModal] = useState<boolean>(false);
     const [copyViewModal, setCopyViewModal] = useState<boolean>(false);
     const [searchModal, setSearchModal] = useState<boolean>(false);
+    const [rowHeightModal, setRowHeightModal] = useState<boolean>(false);
     const [opaqueBg, setOpaqueBg] = useState<boolean>(false);
     const [selectedView, setSelectedView] = useState<View | null>(null);
     const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
@@ -41,6 +43,7 @@ export default function Table(tableProp: prop) {
     const [sortButtonPos, setSortButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [newColButtonPos, setNewColButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [searchButtonPos, setSearchButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [rowHeightButtonPos, setRowHeightButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
     const { mutate: mutateRow, mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -58,16 +61,12 @@ export default function Table(tableProp: prop) {
       } else {
         for (let view of views) {0
           if (view.id === selectedView.id) {
+            console.log("selected view got reset")
             setSelectedView(view);
           }
         }
       }
     }, [tableProp.tableId, views ?? []])
-    // views is unstable needs to have a fallback []
-    // 
-    const localTable = useMemo(() => {
-      return table
-    }, [table])
 
     const {data: rowsAhead, fetchNextPage, hasNextPage, isFetchingNextPage} = api.table.rowsAhead.useInfiniteQuery(
       // need to define selectedView.id on render as it checks the arguments but will only fire the query when selectedView is defined due to enable
@@ -175,7 +174,25 @@ const { rows: tableRows } = tanTable.getRowModel();
     const virtualizer = useVirtualizer({
       count: hasNextPage ? rows.length + 1 : rows.length,
       getScrollElement: () => scrollingRef.current ?? null,
-      estimateSize: () => 32,
+      estimateSize: () => {
+        console.log("estiamted size is being calculated")
+        if (selectedView) {
+          
+          if (selectedView.cellHeight === "small") {
+            console.log("selectedView height is small")
+            return 32
+          } else if (selectedView.cellHeight === "medium") {
+            console.log("selectedView height is medium")
+            return 52
+          } else {
+            console.log("selectedView height is large")
+            return 72
+          }
+        } else {
+          console.log("didnt trigger")
+          return 32
+        }
+      },
       overscan: 50,
     });
 
@@ -282,21 +299,24 @@ const { rows: tableRows } = tanTable.getRowModel();
   const sortButtonRef = useRef<HTMLButtonElement>(null);
   const newColButtonRef = useRef<HTMLButtonElement>(null);
   const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const rowHeightButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current || !searchButtonRef.current) return;
+    if (!showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current || !searchButtonRef.current || !rowHeightButtonRef.current) return;
     const showHideRect = showHideButtonRef.current.getBoundingClientRect();
     const filterRect = filterButtonRef.current.getBoundingClientRect();
     const sortRect = sortButtonRef.current.getBoundingClientRect();
     const newColRect = newColButtonRef.current.getBoundingClientRect();
     const searchRect = searchButtonRef.current.getBoundingClientRect();
+    const rowHeightRect = rowHeightButtonRef.current.getBoundingClientRect();
     
     setShowHideButtonPos({top: showHideRect.top, left: showHideRect.left});
     setFilterButtonPos({top: filterRect.top, left: filterRect.left});
     setSortButtonPos({top: sortRect.top, left: sortRect.left});
     setNewColButtonPos({top: newColRect.top, left: newColRect.left});
     setSearchButtonPos({top: searchRect.top, left: searchRect.left})
-  }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal, searchModal])
+    setRowHeightButtonPos({top: rowHeightRect.top, left: rowHeightRect.left})
+  }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal, searchModal, rowHeightModal])
 
 
   async function addRow() {
@@ -574,6 +594,8 @@ const { rows: tableRows } = tanTable.getRowModel();
               padding: "5px",
               background: "white",
             }}
+            ref={rowHeightButtonRef}
+            onClick={() => setRowHeightModal(true)}
           >
             <img style={{ width: "15px", height: "15px" }} src="/rowHeight.svg" />
             <span style={{ fontWeight: "400", color: "grey", fontSize: "13px" }}>
@@ -627,6 +649,7 @@ const { rows: tableRows } = tanTable.getRowModel();
         {showSortModal ? <SortModal position={sortButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
         {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
         {searchModal ? <SearchModal setModal={setSearchModal} position={searchButtonPos} view={selectedView} tableId={table.id} /> : null}
+        {rowHeightModal ? <RowHeightModal virtualizer={virtualizer} view={selectedView} tableId={table.id} setModal={setRowHeightModal} position={rowHeightButtonPos}/> : null}
       </div>
     <div style={{display: "flex", height: "100%" }}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
@@ -752,12 +775,12 @@ const { rows: tableRows } = tanTable.getRowModel();
           {/* add row */}
           <tfoot>
             <tr>
-              <td colSpan={selectedView.showing.filter(Boolean).length + 1} style={{ border: "solid rgba(228, 228, 228, 1) 1px", padding: "5px", height: "32px", background: "white"}}>
+              <td colSpan={selectedView.showing.filter(Boolean).length + 1} style={{ border: "solid rgba(228, 228, 228, 1) 1px", paddingLeft: "5px", background: "white"}}>
                 <div style={{ display: "flex", gap: "4px", paddingLeft: "10px"}}>
                   <button
                     className="addRowButton"
                     onClick={addRow}
-                    style={{width: "100%", display: "flex", justifyContent: "flex-start", alignItems: "center"}}
+                    style={{width: "100%", display: "flex", height: "32px", justifyContent: "flex-start", alignItems: "center"}}
                   >
                     <img style={{ height: "15px", width: "15px" }} src="/plus2.svg" />
                   </button>
