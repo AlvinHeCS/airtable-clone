@@ -239,7 +239,7 @@ export default function SortModal(SortModalProps: prop) {
                     <div onClick={() => {setNewSortModal(true)}}>Add another sort</div>
                 </button>
                 {newSortModal && 
-                    <div ref={selectNewSortRef} style={{overflow: "scroll", position: "absolute", width: "450px", height: "200px", background: "white", zIndex: "999", display: "flex", flexDirection: "column", alignItems: "flex-start", border: "solid black 1px"}}>
+                    <div ref={selectNewSortRef} style={{overflow: "scroll", position: "absolute", width: "450px", height: "200px", background: "white", zIndex: "999", display: "flex", flexDirection: "column", alignItems: "flex-start", border: "solid rgba(196, 196, 196, 1) 0.5px"}}>
                         <span style={{width: "100%", padding: "5px", color: "grey", fontSize: "14px", position: "sticky", top: 0, background: "white"}}>Find a field</span>
                         {SortModalProps.tableHeaders.map((header, i) => {
                             return (SortModalProps.tableHeaderTypes[i] === "number" ? 

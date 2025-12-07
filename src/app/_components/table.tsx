@@ -44,6 +44,7 @@ export default function Table(tableProp: prop) {
     const [newColButtonPos, setNewColButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [searchButtonPos, setSearchButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [rowHeightButtonPos, setRowHeightButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [scrollingContainerPos, setScrollingContainerPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
     const { mutate: mutateRow, mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -295,20 +296,21 @@ const { rows: tableRows } = tanTable.getRowModel();
   const rowHeightButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (!showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current || !searchButtonRef.current || !rowHeightButtonRef.current) return;
+    if (!scrollingRef.current || !showHideButtonRef.current || !filterButtonRef.current || !sortButtonRef.current || !newColButtonRef.current || !searchButtonRef.current || !rowHeightButtonRef.current) return;
     const showHideRect = showHideButtonRef.current.getBoundingClientRect();
     const filterRect = filterButtonRef.current.getBoundingClientRect();
     const sortRect = sortButtonRef.current.getBoundingClientRect();
     const newColRect = newColButtonRef.current.getBoundingClientRect();
     const searchRect = searchButtonRef.current.getBoundingClientRect();
     const rowHeightRect = rowHeightButtonRef.current.getBoundingClientRect();
-    
+    const tableContainerRect = scrollingRef.current.getBoundingClientRect();
     setShowHideButtonPos({top: showHideRect.top, left: showHideRect.left});
     setFilterButtonPos({top: filterRect.top, left: filterRect.left});
     setSortButtonPos({top: sortRect.top, left: sortRect.left});
     setNewColButtonPos({top: newColRect.top, left: newColRect.left});
-    setSearchButtonPos({top: searchRect.top, left: searchRect.left})
-    setRowHeightButtonPos({top: rowHeightRect.top, left: rowHeightRect.left})
+    setSearchButtonPos({top: searchRect.top, left: searchRect.left});
+    setRowHeightButtonPos({top: rowHeightRect.top, left: rowHeightRect.left});
+    setScrollingContainerPos({top: tableContainerRect.top, left: tableContainerRect.left})
   }, [showShowHideColModal, showFilterModal, showSortModal, showColumnModal, searchModal, rowHeightModal])
 
 
@@ -636,13 +638,16 @@ const { rows: tableRows } = tanTable.getRowModel();
         {showShowHideColModal ? <ShowHideColModal position={showHideButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowShowHideColModal} /> : null}
         {showFilterModal ? <FilterModal setBgOpaque={setOpaqueBg} copyModal={copyViewModal} setCopyModal={setCopyViewModal} position={filterButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowFilterModal} /> : null}
         {showSortModal ? <SortModal position={sortButtonPos} tableHeaderTypes={table.headerTypes} view={selectedView} tableHeaders={table.headers} tableId={table.id} setModal={setShowSortModal} /> : null}
-        {showColumnModal ? <NewColModal position={newColButtonPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
+        {showColumnModal ? <NewColModal position={scrollingContainerPos} views={views} view={selectedView} tableId={table.id} setModal={setShowColumnModal} /> : null}
         {searchModal ? <SearchModal setModal={setSearchModal} position={searchButtonPos} view={selectedView} tableId={table.id} /> : null}
         {rowHeightModal ? <RowHeightModal virtualizer={virtualizer} view={selectedView} tableId={table.id} setModal={setRowHeightModal} position={rowHeightButtonPos}/> : null}
       </div>
     <div style={{display: "flex", height: "100%" }}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
       <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh", background: "#F7F8FC"}}>
+        {!rowsAhead 
+        ? (<div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading rows<CircularProgress size="20px"/></div>) 
+        : 
         <div style={{paddingBottom: "50px", paddingRight: "70px", width: "fit-content", minWidth: "100%"}}>
         <table style={{ minWidth: "max-content"}}>
           <thead>
@@ -699,7 +704,7 @@ const { rows: tableRows } = tanTable.getRowModel();
               if (!row)     
                 return (
                 <tr key={`loading-${virtualRow.index}`} className="row">
-                  <td className="row" style={{height: `${virtualRow.size}px`, width:  "100%"}}>Loading Row...</td>
+                  <td className="row" style={{height: `${virtualRow.size}px`, display: "flex", width: "100%", justifyContent: "center", alignItems: "center"}}><CircularProgress size="20px"/></td>
                 </tr>
                 );
               return(
@@ -779,6 +784,7 @@ const { rows: tableRows } = tanTable.getRowModel();
           </tfoot>
         </table>
         </div>
+        }
       </div>
       </div>
       {copyViewModal && <CopyAugment setOpaqueBg={setOpaqueBg} tableId={tableProp.tableId} setModal={setCopyViewModal} views={views} view={selectedView}/>}
