@@ -201,14 +201,6 @@ exports.Prisma.RowScalarFieldEnum = {
   cellsFlat: 'cellsFlat'
 };
 
-exports.Prisma.CellScalarFieldEnum = {
-  id: 'id',
-  colNum: 'colNum',
-  val: 'val',
-  numVal: 'numVal',
-  rowId: 'rowId'
-};
-
 exports.Prisma.FilterScalarFieldEnum = {
   id: 'id',
   viewId: 'viewId',
@@ -288,7 +280,6 @@ exports.Prisma.ModelName = {
   Table: 'Table',
   View: 'View',
   Row: 'Row',
-  Cell: 'Cell',
   Filter: 'Filter',
   Sort: 'Sort'
 };

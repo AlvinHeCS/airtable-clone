@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { faker } from '@faker-js/faker';
-import type { Row } from "~/types/types";
+import { headerType, type Row } from "~/types/types";
 
 import {
   createTRPCRouter,
@@ -53,7 +53,7 @@ rowsAhead: protectedProcedure
     })
     if (!view) throw new Error("View not found");
     if (!table) throw new Error("Table not found");
-    
+
     let whereClause = `"tableId" = '${input.tableId}'`
     if (view.filters.length > 0) {
       const formattedFilters = view.filters.map((filter) => {
@@ -97,6 +97,19 @@ rowsAhead: protectedProcedure
       }
     }
 
+    const search = view.search
+    let tmp = []
+    
+    if (search !== "") {
+      for (let i = 0; i <  table.headerTypes.length; i++) {
+        const header = `"cellsFlat"->>${i}` 
+        tmp.push(`${header} LIKE '%${search}%'`)
+      }
+      let searchString = tmp.join(" OR ")
+      searchString = "(" + searchString + ")";
+      whereClause = whereClause + " AND " + searchString
+    }
+
     let orderByClause = `"rowNum" ASC`;
     if (view.sorts.length !== 0) {
       const formattedSorts = view.sorts.map(sort => {
@@ -111,11 +124,8 @@ rowsAhead: protectedProcedure
     const pageSize = 5000;
 
     const sqlRows: Row[] = await ctx.db.$queryRawUnsafe(`
-      SELECT 
-        r.*,
-        json_agg(c ORDER BY c."colNum" ASC) AS cells
+      SELECT *
       FROM "Row" r
-      LEFT JOIN "Cell" c ON c."rowId" = r.id
       WHERE ${whereClause}
       GROUP BY r.id
       ORDER BY ${orderByClause}
@@ -135,16 +145,7 @@ rowsAhead: protectedProcedure
   }),
 
 addRow: protectedProcedure
-.input(z.object({ cellsData: z.array(z.object({
-  id: z.string(),
-  colNum: z.number(),
-  val: z.string(),
-  numVal: z.number().nullable(),
-  rowId: z.string()
-})), 
-tableId: z.string(), rowNum: z.number(), 
-cellsFlat: z.array(z.union([z.string(), z.number(), z.null()])), 
-rowId: z.string()}))
+.input(z.object({tableId: z.string(), rowNum: z.number(), cellsFlat: z.array(z.union([z.string(), z.number(), z.null()])), rowId: z.string()}))
 .mutation(async ({ ctx, input }) => {
   return await ctx.db.$transaction(async (tx) => {
     const table = await tx.table.update({
@@ -160,16 +161,7 @@ rowId: z.string()}))
         rowNum: input.rowNum,
         tableId: input.tableId,
         cellsFlat: input.cellsFlat,
-        cells: {
-          create: input.cellsData.map(cell => ({
-            id: cell.id,
-            colNum: cell.colNum,
-            val: cell.val,
-            numVal: cell.numVal,
-          })),
-        },
       },
-      include: { cells: {orderBy: {colNum: "asc"}}} 
     });
   });
 }),
@@ -208,49 +200,13 @@ addCol: protectedProcedure
     const newColNum = table.headers.length - 1;
 
     const newCellFlatVal = input.type === "string" ? '""' : 'null';
-    await ctx.db.$executeRaw`
+    return await ctx.db.$executeRaw`
       UPDATE "Row"
       SET "cellsFlat" = COALESCE("cellsFlat", '[]'::jsonb) || ${newCellFlatVal}::jsonb
       WHERE "tableId" = ${input.tableId};
     `;
-
-    const rows = await ctx.db.row.findMany({
-      where: { tableId: input.tableId },
-      select: { id: true, rowNum: true, cellsFlat: true },
-    });
-
-    if (rows.length === 0) return [];
-
-    // make the new cells
-    const newCells = rows.map((r, i) => ({
-      id: `cell_${i}_${crypto.randomUUID()}`,
-      rowId: r.id,
-      colNum: newColNum,
-      val: "",
-      numVal: null,
-    }));
-
-    await ctx.db.cell.createMany({
-      data: newCells,
-      skipDuplicates: true,
-    });
-
-    const updatedRows = rows.map((r) => ({
-      ...r,
-      tableId: input.tableId,
-      // for each row you want to give it the cell that matches the rowId
-      cells: [
-        { ...newCells.find((c) => c.rowId === r.id) },
-      ],
-    }));
-    // rows return will like this
-    // ({id, rowNum, cellsFlat, tableId, cells})[]
-    // where cells only contains the cell that was created for the new col
-    return updatedRows;
 }),
 
-  // since editing cells doesnt use cellId (probs should but i ceebs rewriting it now) addCol doesnt need to return the cellId's
-  // also good because add100k rows doesnt need when it uses createMany to make cells to return cellId's
   editCell: protectedProcedure
   .input(z.object({
     rowId: z.string(),
@@ -259,24 +215,10 @@ addCol: protectedProcedure
   }))
   .mutation(async ({ ctx, input }) => {
     return await ctx.db.$transaction(async (tx) => {
-      await tx.cell.updateMany({
-        where: {
-          rowId: input.rowId,
-          colNum: input.col
-        },
-        data: {
-          val: input.newVal,
-          numVal: isNaN(Number(input.newVal)) ? null : Number(input.newVal),
-        }
-      });
-
       const row = await tx.row.findUnique({
         where: { id: input.rowId },
         select: { cellsFlat: true, tableId: true }
       });
-
-
-
       if (!row) throw new Error("Row not found");
       const table = await tx.table.findUnique({
         where: {id: row.tableId},
@@ -291,7 +233,6 @@ addCol: protectedProcedure
         const newValNum = isNaN(Number(input.newVal)) ? null : Number(input.newVal);
         newCellsFlat[input.col] = newValNum;
       }
-
       await tx.row.update({
         where: { id: input.rowId },
         data: { cellsFlat: newCellsFlat }
@@ -320,7 +261,6 @@ add100kRow: protectedProcedure
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
     
     const batchRowsData = [];
-    const batchCellsData = [];
 
     const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
 
@@ -341,21 +281,11 @@ add100kRow: protectedProcedure
             const numVal = isString ? null : Number(val);
 
             cellsFlat.push(numVal ?? val);
-            
-            batchCellsData.push({
-                rowId,
-                colNum: k,
-                val: val,
-                numVal
-            });
         }
         
         batchRowsData.push({ id: rowId, tableId: input.tableId, rowNum, cellsFlat });
     }
-
-
     await ctx.db.row.createMany({ data: batchRowsData });
-    await ctx.db.cell.createMany({ data: batchCellsData });
   }
 
   return ctx.db.table.update({

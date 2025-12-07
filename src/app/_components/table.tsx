@@ -16,7 +16,7 @@ import ShowHideColModal from "./showHideColModal";
 import SearchModal from "./searchModal";
 import RowHeightModal from "./rowHeightModal";
 import "./table.css";
-import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat, Cell } from "~/types/types";
+import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat } from "~/types/types";
 import CopyAugment from "./copyAugment";
 import { faker } from '@faker-js/faker';
 
@@ -85,10 +85,9 @@ export default function Table(tableProp: prop) {
     const formattedRows: TableRow[] = rows.map(row => {
         const rowData: TableRow = { id: row.id };
         // Map each header to the corresponding cell value
-        table.headers.forEach((header, i) => {
-        const cell = row.cells.find(c => c.colNum === i);
-        if (!cell) throw new Error("no cell was found")
-        rowData[String(i)] = {val: cell.val, searchHighlight: (cell.val.includes(selectedView.search) && selectedView.search !== "")};
+        const cellsFlat = row.cellsFlat as CellsFlat
+        table.headers.forEach((_, i) => {
+        rowData[String(i)] = {val: String(cellsFlat[i]), searchHighlight: String(cellsFlat[i]).includes(selectedView.search) && selectedView.search !== ""}
         });
         return rowData;
     }); 
@@ -318,18 +317,15 @@ const { rows: tableRows } = tanTable.getRowModel();
 
     const newRowId = `${crypto.randomUUID()}`
     const newRowNum = (table.numRows ?? 1) - 1
-    const cellsData: Cell[] = [];
     const cellsFlat: CellsFlat = [];
     // create cells
     table.headers.forEach((_, i) => {
       if (table.headerTypes[i] === "string") {
         const val = faker.person.fullName();
-        cellsData.push({ colNum: i, val, numVal: null, rowId: newRowId, id: `${i}_${crypto.randomUUID()}`});
         cellsFlat.push(val)
       } else {
         const numVal = faker.number.int({ min: 1, max: 100 });
         const val = String(numVal);
-        cellsData.push({ colNum: i, val, numVal, rowId: newRowId, id: `${i}_${crypto.randomUUID()}`});
         cellsFlat.push(numVal)
       }
     });
@@ -339,11 +335,10 @@ const { rows: tableRows } = tanTable.getRowModel();
       tableId: table.id,
       rowNum: newRowNum,
       cellsFlat: cellsFlat,
-      cells: cellsData
     }
 
     // update table 
-    mutateRow({ cellsData: cellsData, tableId: table.id, cellsFlat: cellsFlat, rowId: newRowId, rowNum: newRowNum });
+    mutateRow({ tableId: table.id, cellsFlat: cellsFlat, rowId: newRowId, rowNum: newRowNum });
     utils.table.getTable.setData({tableId: table.id}, (prev) => {
       if (!prev) return prev
       return {

@@ -53,19 +53,12 @@ export const baseRouter = createTRPCRouter({
             {
               rowNum: 0,
               cellsFlat: cellsFlat,
-              cells: {
-                create: fakeCellsData,
-              },
             },
           ],
         },
       },
       include: {
-        rows: {
-          include: {
-            cells: true,
-          },
-        },
+        rows: true
       },
     });
     await ctx.db.base.update({

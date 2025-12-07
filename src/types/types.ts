@@ -88,20 +88,11 @@ export type Filtered = {
 
 export type CellsFlat = (number | string | null)[]; 
 
-export type Cell = {
-    id: string;
-    colNum: number;
-    val: string;
-    numVal: number | null
-    rowId: string
-}
-
 export type Row = { 
   id: string; 
   rowNum: number; 
   cellsFlat: CellsFlat; 
   tableId: string; 
-  cells: Cell[];
 }
 
 export type RowNoCell = {

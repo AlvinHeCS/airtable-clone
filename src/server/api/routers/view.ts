@@ -275,7 +275,7 @@ export const viewRouter = createTRPCRouter({
         "large",
       ])}))
   .mutation(async ({ctx, input}) => {
-    return ctx.db.view.update({
+    return await ctx.db.view.update({
       where: {id: input.viewId},
       data: {
         cellHeight: input.newCellHeight

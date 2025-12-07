@@ -55,52 +55,52 @@ export default function FilterModal(FilterModalProps: prop) {
         return newRows
     }
 
-    function filterRows(newRows: Row[], filters: Filter[]) {
-        return newRows.filter((row) => {
-            let passed = true
-            for (const f of filters) {
-                if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
-                switch(f.type) {
-                    case "contains":
-                        if (!(row.cells[f.columnIndex]!.val.includes(f.value))) {
-                            passed = false;
-                        }
-                        break
-                    case "not_contains":
-                        if (row.cells[f.columnIndex]!.val.includes(f.value)) {
-                            passed = false;
-                        }
-                        break
-                    case "empty":
-                        if (row.cells[f.columnIndex]!.val !== "") {
-                            passed = false;
-                        }
-                        break
-                    case "not_empty":
-                        if (row.cells[f.columnIndex]!.val === "") {
-                            passed = false;
-                        }
-                        break
-                    case "eq":
-                        if (row.cells[f.columnIndex]!.val !== f.value) {
-                            passed = false;
-                        }
-                        break
-                    case "gt":
-                        if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
-                            passed = false
-                        }
-                        break
-                    case "lt":
-                        if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
-                            passed = false
-                        }
-                        break
-                }
-            }
-            return (passed)
-        })
-    }
+    // function filterRows(newRows: Row[], filters: Filter[]) {
+    //     return newRows.filter((row) => {
+    //         let passed = true
+    //         for (const f of filters) {
+    //             if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
+    //             switch(f.type) {
+    //                 case "contains":
+    //                     if (!(row.cells[f.columnIndex]!.val.includes(f.value))) {
+    //                         passed = false;
+    //                     }
+    //                     break
+    //                 case "not_contains":
+    //                     if (row.cells[f.columnIndex]!.val.includes(f.value)) {
+    //                         passed = false;
+    //                     }
+    //                     break
+    //                 case "empty":
+    //                     if (row.cells[f.columnIndex]!.val !== "") {
+    //                         passed = false;
+    //                     }
+    //                     break
+    //                 case "not_empty":
+    //                     if (row.cells[f.columnIndex]!.val === "") {
+    //                         passed = false;
+    //                     }
+    //                     break
+    //                 case "eq":
+    //                     if (row.cells[f.columnIndex]!.val !== f.value) {
+    //                         passed = false;
+    //                     }
+    //                     break
+    //                 case "gt":
+    //                     if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
+    //                         passed = false
+    //                     }
+    //                     break
+    //                 case "lt":
+    //                     if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
+    //                         passed = false
+    //                     }
+    //                     break
+    //             }
+    //         }
+    //         return (passed)
+    //     })
+    // }
     const textInputRef = useRef<HTMLInputElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils();    

@@ -67,9 +67,6 @@ export const userRouter = createTRPCRouter({
                     {
                       rowNum: 0,
                       cellsFlat: cellsFlat,
-                      cells: {
-                        create: fakeCellsData,
-                      },
                     },
                   ],
                 },
@@ -80,11 +77,7 @@ export const userRouter = createTRPCRouter({
         include: {
           tables: {
             include: {
-              rows: {
-                include: {
-                  cells: true,
-                },
-              },
+              rows: true
             },
           },
         },

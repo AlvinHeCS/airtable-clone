@@ -59,11 +59,6 @@ export type View = $Result.DefaultSelection<Prisma.$ViewPayload>
  */
 export type Row = $Result.DefaultSelection<Prisma.$RowPayload>
 /**
- * Model Cell
- * 
- */
-export type Cell = $Result.DefaultSelection<Prisma.$CellPayload>
-/**
  * Model Filter
  * 
  */
@@ -342,16 +337,6 @@ export class PrismaClient<
     * ```
     */
   get row(): Prisma.RowDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.cell`: Exposes CRUD operations for the **Cell** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Cells
-    * const cells = await prisma.cell.findMany()
-    * ```
-    */
-  get cell(): Prisma.CellDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.filter`: Exposes CRUD operations for the **Filter** model.
@@ -822,7 +807,6 @@ export namespace Prisma {
     Table: 'Table',
     View: 'View',
     Row: 'Row',
-    Cell: 'Cell',
     Filter: 'Filter',
     Sort: 'Sort'
   };
@@ -843,7 +827,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "base" | "table" | "view" | "row" | "cell" | "filter" | "sort"
+      modelProps: "post" | "account" | "session" | "user" | "verificationToken" | "base" | "table" | "view" | "row" | "filter" | "sort"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1513,80 +1497,6 @@ export namespace Prisma {
           }
         }
       }
-      Cell: {
-        payload: Prisma.$CellPayload<ExtArgs>
-        fields: Prisma.CellFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.CellFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.CellFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>
-          }
-          findFirst: {
-            args: Prisma.CellFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.CellFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>
-          }
-          findMany: {
-            args: Prisma.CellFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>[]
-          }
-          create: {
-            args: Prisma.CellCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>
-          }
-          createMany: {
-            args: Prisma.CellCreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.CellCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>[]
-          }
-          delete: {
-            args: Prisma.CellDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>
-          }
-          update: {
-            args: Prisma.CellUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>
-          }
-          deleteMany: {
-            args: Prisma.CellDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.CellUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.CellUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>[]
-          }
-          upsert: {
-            args: Prisma.CellUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$CellPayload>
-          }
-          aggregate: {
-            args: Prisma.CellAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateCell>
-          }
-          groupBy: {
-            args: Prisma.CellGroupByArgs<ExtArgs>
-            result: $Utils.Optional<CellGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.CellCountArgs<ExtArgs>
-            result: $Utils.Optional<CellCountAggregateOutputType> | number
-          }
-        }
-      }
       Filter: {
         payload: Prisma.$FilterPayload<ExtArgs>
         fields: Prisma.FilterFieldRefs
@@ -1840,7 +1750,6 @@ export namespace Prisma {
     table?: TableOmit
     view?: ViewOmit
     row?: RowOmit
-    cell?: CellOmit
     filter?: FilterOmit
     sort?: SortOmit
   }
@@ -2084,37 +1993,6 @@ export namespace Prisma {
    */
   export type ViewCountOutputTypeCountSortsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SortWhereInput
-  }
-
-
-  /**
-   * Count Type RowCountOutputType
-   */
-
-  export type RowCountOutputType = {
-    cells: number
-  }
-
-  export type RowCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    cells?: boolean | RowCountOutputTypeCountCellsArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * RowCountOutputType without action
-   */
-  export type RowCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RowCountOutputType
-     */
-    select?: RowCountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * RowCountOutputType without action
-   */
-  export type RowCountOutputTypeCountCellsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CellWhereInput
   }
 
 
@@ -11200,9 +11078,7 @@ export namespace Prisma {
     rowNum?: boolean
     tableId?: boolean
     cellsFlat?: boolean
-    cells?: boolean | Row$cellsArgs<ExtArgs>
     table?: boolean | TableDefaultArgs<ExtArgs>
-    _count?: boolean | RowCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["row"]>
 
   export type RowSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -11230,9 +11106,7 @@ export namespace Prisma {
 
   export type RowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "rowNum" | "tableId" | "cellsFlat", ExtArgs["result"]["row"]>
   export type RowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    cells?: boolean | Row$cellsArgs<ExtArgs>
     table?: boolean | TableDefaultArgs<ExtArgs>
-    _count?: boolean | RowCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type RowIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     table?: boolean | TableDefaultArgs<ExtArgs>
@@ -11244,7 +11118,6 @@ export namespace Prisma {
   export type $RowPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Row"
     objects: {
-      cells: Prisma.$CellPayload<ExtArgs>[]
       table: Prisma.$TablePayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
@@ -11646,7 +11519,6 @@ export namespace Prisma {
    */
   export interface Prisma__RowClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    cells<T extends Row$cellsArgs<ExtArgs> = {}>(args?: Subset<T, Row$cellsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     table<T extends TableDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TableDefaultArgs<ExtArgs>>): Prisma__TableClient<$Result.GetResult<Prisma.$TablePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -12077,30 +11949,6 @@ export namespace Prisma {
   }
 
   /**
-   * Row.cells
-   */
-  export type Row$cellsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    where?: CellWhereInput
-    orderBy?: CellOrderByWithRelationInput | CellOrderByWithRelationInput[]
-    cursor?: CellWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: CellScalarFieldEnum | CellScalarFieldEnum[]
-  }
-
-  /**
    * Row without action
    */
   export type RowDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12116,1102 +11964,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: RowInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model Cell
-   */
-
-  export type AggregateCell = {
-    _count: CellCountAggregateOutputType | null
-    _avg: CellAvgAggregateOutputType | null
-    _sum: CellSumAggregateOutputType | null
-    _min: CellMinAggregateOutputType | null
-    _max: CellMaxAggregateOutputType | null
-  }
-
-  export type CellAvgAggregateOutputType = {
-    colNum: number | null
-    numVal: number | null
-  }
-
-  export type CellSumAggregateOutputType = {
-    colNum: number | null
-    numVal: number | null
-  }
-
-  export type CellMinAggregateOutputType = {
-    id: string | null
-    colNum: number | null
-    val: string | null
-    numVal: number | null
-    rowId: string | null
-  }
-
-  export type CellMaxAggregateOutputType = {
-    id: string | null
-    colNum: number | null
-    val: string | null
-    numVal: number | null
-    rowId: string | null
-  }
-
-  export type CellCountAggregateOutputType = {
-    id: number
-    colNum: number
-    val: number
-    numVal: number
-    rowId: number
-    _all: number
-  }
-
-
-  export type CellAvgAggregateInputType = {
-    colNum?: true
-    numVal?: true
-  }
-
-  export type CellSumAggregateInputType = {
-    colNum?: true
-    numVal?: true
-  }
-
-  export type CellMinAggregateInputType = {
-    id?: true
-    colNum?: true
-    val?: true
-    numVal?: true
-    rowId?: true
-  }
-
-  export type CellMaxAggregateInputType = {
-    id?: true
-    colNum?: true
-    val?: true
-    numVal?: true
-    rowId?: true
-  }
-
-  export type CellCountAggregateInputType = {
-    id?: true
-    colNum?: true
-    val?: true
-    numVal?: true
-    rowId?: true
-    _all?: true
-  }
-
-  export type CellAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Cell to aggregate.
-     */
-    where?: CellWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Cells to fetch.
-     */
-    orderBy?: CellOrderByWithRelationInput | CellOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: CellWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Cells from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Cells.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Cells
-    **/
-    _count?: true | CellCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: CellAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: CellSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: CellMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: CellMaxAggregateInputType
-  }
-
-  export type GetCellAggregateType<T extends CellAggregateArgs> = {
-        [P in keyof T & keyof AggregateCell]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateCell[P]>
-      : GetScalarType<T[P], AggregateCell[P]>
-  }
-
-
-
-
-  export type CellGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: CellWhereInput
-    orderBy?: CellOrderByWithAggregationInput | CellOrderByWithAggregationInput[]
-    by: CellScalarFieldEnum[] | CellScalarFieldEnum
-    having?: CellScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: CellCountAggregateInputType | true
-    _avg?: CellAvgAggregateInputType
-    _sum?: CellSumAggregateInputType
-    _min?: CellMinAggregateInputType
-    _max?: CellMaxAggregateInputType
-  }
-
-  export type CellGroupByOutputType = {
-    id: string
-    colNum: number
-    val: string
-    numVal: number | null
-    rowId: string
-    _count: CellCountAggregateOutputType | null
-    _avg: CellAvgAggregateOutputType | null
-    _sum: CellSumAggregateOutputType | null
-    _min: CellMinAggregateOutputType | null
-    _max: CellMaxAggregateOutputType | null
-  }
-
-  type GetCellGroupByPayload<T extends CellGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<CellGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof CellGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], CellGroupByOutputType[P]>
-            : GetScalarType<T[P], CellGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type CellSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    colNum?: boolean
-    val?: boolean
-    numVal?: boolean
-    rowId?: boolean
-    row?: boolean | RowDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["cell"]>
-
-  export type CellSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    colNum?: boolean
-    val?: boolean
-    numVal?: boolean
-    rowId?: boolean
-    row?: boolean | RowDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["cell"]>
-
-  export type CellSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    colNum?: boolean
-    val?: boolean
-    numVal?: boolean
-    rowId?: boolean
-    row?: boolean | RowDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["cell"]>
-
-  export type CellSelectScalar = {
-    id?: boolean
-    colNum?: boolean
-    val?: boolean
-    numVal?: boolean
-    rowId?: boolean
-  }
-
-  export type CellOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "colNum" | "val" | "numVal" | "rowId", ExtArgs["result"]["cell"]>
-  export type CellInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    row?: boolean | RowDefaultArgs<ExtArgs>
-  }
-  export type CellIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    row?: boolean | RowDefaultArgs<ExtArgs>
-  }
-  export type CellIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    row?: boolean | RowDefaultArgs<ExtArgs>
-  }
-
-  export type $CellPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Cell"
-    objects: {
-      row: Prisma.$RowPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: string
-      colNum: number
-      val: string
-      numVal: number | null
-      rowId: string
-    }, ExtArgs["result"]["cell"]>
-    composites: {}
-  }
-
-  type CellGetPayload<S extends boolean | null | undefined | CellDefaultArgs> = $Result.GetResult<Prisma.$CellPayload, S>
-
-  type CellCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<CellFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: CellCountAggregateInputType | true
-    }
-
-  export interface CellDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Cell'], meta: { name: 'Cell' } }
-    /**
-     * Find zero or one Cell that matches the filter.
-     * @param {CellFindUniqueArgs} args - Arguments to find a Cell
-     * @example
-     * // Get one Cell
-     * const cell = await prisma.cell.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends CellFindUniqueArgs>(args: SelectSubset<T, CellFindUniqueArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one Cell that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {CellFindUniqueOrThrowArgs} args - Arguments to find a Cell
-     * @example
-     * // Get one Cell
-     * const cell = await prisma.cell.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends CellFindUniqueOrThrowArgs>(args: SelectSubset<T, CellFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Cell that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellFindFirstArgs} args - Arguments to find a Cell
-     * @example
-     * // Get one Cell
-     * const cell = await prisma.cell.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends CellFindFirstArgs>(args?: SelectSubset<T, CellFindFirstArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first Cell that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellFindFirstOrThrowArgs} args - Arguments to find a Cell
-     * @example
-     * // Get one Cell
-     * const cell = await prisma.cell.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends CellFindFirstOrThrowArgs>(args?: SelectSubset<T, CellFindFirstOrThrowArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more Cells that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Cells
-     * const cells = await prisma.cell.findMany()
-     * 
-     * // Get first 10 Cells
-     * const cells = await prisma.cell.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const cellWithIdOnly = await prisma.cell.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends CellFindManyArgs>(args?: SelectSubset<T, CellFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a Cell.
-     * @param {CellCreateArgs} args - Arguments to create a Cell.
-     * @example
-     * // Create one Cell
-     * const Cell = await prisma.cell.create({
-     *   data: {
-     *     // ... data to create a Cell
-     *   }
-     * })
-     * 
-     */
-    create<T extends CellCreateArgs>(args: SelectSubset<T, CellCreateArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many Cells.
-     * @param {CellCreateManyArgs} args - Arguments to create many Cells.
-     * @example
-     * // Create many Cells
-     * const cell = await prisma.cell.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends CellCreateManyArgs>(args?: SelectSubset<T, CellCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many Cells and returns the data saved in the database.
-     * @param {CellCreateManyAndReturnArgs} args - Arguments to create many Cells.
-     * @example
-     * // Create many Cells
-     * const cell = await prisma.cell.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many Cells and only return the `id`
-     * const cellWithIdOnly = await prisma.cell.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends CellCreateManyAndReturnArgs>(args?: SelectSubset<T, CellCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a Cell.
-     * @param {CellDeleteArgs} args - Arguments to delete one Cell.
-     * @example
-     * // Delete one Cell
-     * const Cell = await prisma.cell.delete({
-     *   where: {
-     *     // ... filter to delete one Cell
-     *   }
-     * })
-     * 
-     */
-    delete<T extends CellDeleteArgs>(args: SelectSubset<T, CellDeleteArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one Cell.
-     * @param {CellUpdateArgs} args - Arguments to update one Cell.
-     * @example
-     * // Update one Cell
-     * const cell = await prisma.cell.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends CellUpdateArgs>(args: SelectSubset<T, CellUpdateArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more Cells.
-     * @param {CellDeleteManyArgs} args - Arguments to filter Cells to delete.
-     * @example
-     * // Delete a few Cells
-     * const { count } = await prisma.cell.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends CellDeleteManyArgs>(args?: SelectSubset<T, CellDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Cells.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Cells
-     * const cell = await prisma.cell.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends CellUpdateManyArgs>(args: SelectSubset<T, CellUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Cells and returns the data updated in the database.
-     * @param {CellUpdateManyAndReturnArgs} args - Arguments to update many Cells.
-     * @example
-     * // Update many Cells
-     * const cell = await prisma.cell.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more Cells and only return the `id`
-     * const cellWithIdOnly = await prisma.cell.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends CellUpdateManyAndReturnArgs>(args: SelectSubset<T, CellUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one Cell.
-     * @param {CellUpsertArgs} args - Arguments to update or create a Cell.
-     * @example
-     * // Update or create a Cell
-     * const cell = await prisma.cell.upsert({
-     *   create: {
-     *     // ... data to create a Cell
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Cell we want to update
-     *   }
-     * })
-     */
-    upsert<T extends CellUpsertArgs>(args: SelectSubset<T, CellUpsertArgs<ExtArgs>>): Prisma__CellClient<$Result.GetResult<Prisma.$CellPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of Cells.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellCountArgs} args - Arguments to filter Cells to count.
-     * @example
-     * // Count the number of Cells
-     * const count = await prisma.cell.count({
-     *   where: {
-     *     // ... the filter for the Cells we want to count
-     *   }
-     * })
-    **/
-    count<T extends CellCountArgs>(
-      args?: Subset<T, CellCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], CellCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Cell.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends CellAggregateArgs>(args: Subset<T, CellAggregateArgs>): Prisma.PrismaPromise<GetCellAggregateType<T>>
-
-    /**
-     * Group by Cell.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {CellGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends CellGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: CellGroupByArgs['orderBy'] }
-        : { orderBy?: CellGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, CellGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCellGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the Cell model
-   */
-  readonly fields: CellFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Cell.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__CellClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    row<T extends RowDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RowDefaultArgs<ExtArgs>>): Prisma__RowClient<$Result.GetResult<Prisma.$RowPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the Cell model
-   */
-  interface CellFieldRefs {
-    readonly id: FieldRef<"Cell", 'String'>
-    readonly colNum: FieldRef<"Cell", 'Int'>
-    readonly val: FieldRef<"Cell", 'String'>
-    readonly numVal: FieldRef<"Cell", 'Int'>
-    readonly rowId: FieldRef<"Cell", 'String'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * Cell findUnique
-   */
-  export type CellFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * Filter, which Cell to fetch.
-     */
-    where: CellWhereUniqueInput
-  }
-
-  /**
-   * Cell findUniqueOrThrow
-   */
-  export type CellFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * Filter, which Cell to fetch.
-     */
-    where: CellWhereUniqueInput
-  }
-
-  /**
-   * Cell findFirst
-   */
-  export type CellFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * Filter, which Cell to fetch.
-     */
-    where?: CellWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Cells to fetch.
-     */
-    orderBy?: CellOrderByWithRelationInput | CellOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Cells.
-     */
-    cursor?: CellWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Cells from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Cells.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Cells.
-     */
-    distinct?: CellScalarFieldEnum | CellScalarFieldEnum[]
-  }
-
-  /**
-   * Cell findFirstOrThrow
-   */
-  export type CellFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * Filter, which Cell to fetch.
-     */
-    where?: CellWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Cells to fetch.
-     */
-    orderBy?: CellOrderByWithRelationInput | CellOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Cells.
-     */
-    cursor?: CellWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Cells from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Cells.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Cells.
-     */
-    distinct?: CellScalarFieldEnum | CellScalarFieldEnum[]
-  }
-
-  /**
-   * Cell findMany
-   */
-  export type CellFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * Filter, which Cells to fetch.
-     */
-    where?: CellWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Cells to fetch.
-     */
-    orderBy?: CellOrderByWithRelationInput | CellOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Cells.
-     */
-    cursor?: CellWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Cells from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Cells.
-     */
-    skip?: number
-    distinct?: CellScalarFieldEnum | CellScalarFieldEnum[]
-  }
-
-  /**
-   * Cell create
-   */
-  export type CellCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Cell.
-     */
-    data: XOR<CellCreateInput, CellUncheckedCreateInput>
-  }
-
-  /**
-   * Cell createMany
-   */
-  export type CellCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Cells.
-     */
-    data: CellCreateManyInput | CellCreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * Cell createManyAndReturn
-   */
-  export type CellCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * The data used to create many Cells.
-     */
-    data: CellCreateManyInput | CellCreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Cell update
-   */
-  export type CellUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Cell.
-     */
-    data: XOR<CellUpdateInput, CellUncheckedUpdateInput>
-    /**
-     * Choose, which Cell to update.
-     */
-    where: CellWhereUniqueInput
-  }
-
-  /**
-   * Cell updateMany
-   */
-  export type CellUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Cells.
-     */
-    data: XOR<CellUpdateManyMutationInput, CellUncheckedUpdateManyInput>
-    /**
-     * Filter which Cells to update
-     */
-    where?: CellWhereInput
-    /**
-     * Limit how many Cells to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * Cell updateManyAndReturn
-   */
-  export type CellUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * The data used to update Cells.
-     */
-    data: XOR<CellUpdateManyMutationInput, CellUncheckedUpdateManyInput>
-    /**
-     * Filter which Cells to update
-     */
-    where?: CellWhereInput
-    /**
-     * Limit how many Cells to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * Cell upsert
-   */
-  export type CellUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Cell to update in case it exists.
-     */
-    where: CellWhereUniqueInput
-    /**
-     * In case the Cell found by the `where` argument doesn't exist, create a new Cell with this data.
-     */
-    create: XOR<CellCreateInput, CellUncheckedCreateInput>
-    /**
-     * In case the Cell was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<CellUpdateInput, CellUncheckedUpdateInput>
-  }
-
-  /**
-   * Cell delete
-   */
-  export type CellDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
-    /**
-     * Filter which Cell to delete.
-     */
-    where: CellWhereUniqueInput
-  }
-
-  /**
-   * Cell deleteMany
-   */
-  export type CellDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Cells to delete
-     */
-    where?: CellWhereInput
-    /**
-     * Limit how many Cells to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * Cell without action
-   */
-  export type CellDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Cell
-     */
-    select?: CellSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Cell
-     */
-    omit?: CellOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: CellInclude<ExtArgs> | null
   }
 
 
@@ -15533,17 +14285,6 @@ export namespace Prisma {
   export type RowScalarFieldEnum = (typeof RowScalarFieldEnum)[keyof typeof RowScalarFieldEnum]
 
 
-  export const CellScalarFieldEnum: {
-    id: 'id',
-    colNum: 'colNum',
-    val: 'val',
-    numVal: 'numVal',
-    rowId: 'rowId'
-  };
-
-  export type CellScalarFieldEnum = (typeof CellScalarFieldEnum)[keyof typeof CellScalarFieldEnum]
-
-
   export const FilterScalarFieldEnum: {
     id: 'id',
     viewId: 'viewId',
@@ -16279,7 +15020,6 @@ export namespace Prisma {
     rowNum?: IntFilter<"Row"> | number
     tableId?: StringFilter<"Row"> | string
     cellsFlat?: JsonFilter<"Row">
-    cells?: CellListRelationFilter
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }
 
@@ -16288,7 +15028,6 @@ export namespace Prisma {
     rowNum?: SortOrder
     tableId?: SortOrder
     cellsFlat?: SortOrder
-    cells?: CellOrderByRelationAggregateInput
     table?: TableOrderByWithRelationInput
   }
 
@@ -16300,7 +15039,6 @@ export namespace Prisma {
     rowNum?: IntFilter<"Row"> | number
     tableId?: StringFilter<"Row"> | string
     cellsFlat?: JsonFilter<"Row">
-    cells?: CellListRelationFilter
     table?: XOR<TableScalarRelationFilter, TableWhereInput>
   }, "id">
 
@@ -16324,63 +15062,6 @@ export namespace Prisma {
     rowNum?: IntWithAggregatesFilter<"Row"> | number
     tableId?: StringWithAggregatesFilter<"Row"> | string
     cellsFlat?: JsonWithAggregatesFilter<"Row">
-  }
-
-  export type CellWhereInput = {
-    AND?: CellWhereInput | CellWhereInput[]
-    OR?: CellWhereInput[]
-    NOT?: CellWhereInput | CellWhereInput[]
-    id?: StringFilter<"Cell"> | string
-    colNum?: IntFilter<"Cell"> | number
-    val?: StringFilter<"Cell"> | string
-    numVal?: IntNullableFilter<"Cell"> | number | null
-    rowId?: StringFilter<"Cell"> | string
-    row?: XOR<RowScalarRelationFilter, RowWhereInput>
-  }
-
-  export type CellOrderByWithRelationInput = {
-    id?: SortOrder
-    colNum?: SortOrder
-    val?: SortOrder
-    numVal?: SortOrderInput | SortOrder
-    rowId?: SortOrder
-    row?: RowOrderByWithRelationInput
-  }
-
-  export type CellWhereUniqueInput = Prisma.AtLeast<{
-    id?: string
-    AND?: CellWhereInput | CellWhereInput[]
-    OR?: CellWhereInput[]
-    NOT?: CellWhereInput | CellWhereInput[]
-    colNum?: IntFilter<"Cell"> | number
-    val?: StringFilter<"Cell"> | string
-    numVal?: IntNullableFilter<"Cell"> | number | null
-    rowId?: StringFilter<"Cell"> | string
-    row?: XOR<RowScalarRelationFilter, RowWhereInput>
-  }, "id">
-
-  export type CellOrderByWithAggregationInput = {
-    id?: SortOrder
-    colNum?: SortOrder
-    val?: SortOrder
-    numVal?: SortOrderInput | SortOrder
-    rowId?: SortOrder
-    _count?: CellCountOrderByAggregateInput
-    _avg?: CellAvgOrderByAggregateInput
-    _max?: CellMaxOrderByAggregateInput
-    _min?: CellMinOrderByAggregateInput
-    _sum?: CellSumOrderByAggregateInput
-  }
-
-  export type CellScalarWhereWithAggregatesInput = {
-    AND?: CellScalarWhereWithAggregatesInput | CellScalarWhereWithAggregatesInput[]
-    OR?: CellScalarWhereWithAggregatesInput[]
-    NOT?: CellScalarWhereWithAggregatesInput | CellScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Cell"> | string
-    colNum?: IntWithAggregatesFilter<"Cell"> | number
-    val?: StringWithAggregatesFilter<"Cell"> | string
-    numVal?: IntNullableWithAggregatesFilter<"Cell"> | number | null
-    rowId?: StringWithAggregatesFilter<"Cell"> | string
   }
 
   export type FilterWhereInput = {
@@ -17044,7 +15725,6 @@ export namespace Prisma {
     id?: string
     rowNum: number
     cellsFlat: JsonNullValueInput | InputJsonValue
-    cells?: CellCreateNestedManyWithoutRowInput
     table: TableCreateNestedOneWithoutRowsInput
   }
 
@@ -17053,14 +15733,12 @@ export namespace Prisma {
     rowNum: number
     tableId: string
     cellsFlat: JsonNullValueInput | InputJsonValue
-    cells?: CellUncheckedCreateNestedManyWithoutRowInput
   }
 
   export type RowUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     cellsFlat?: JsonNullValueInput | InputJsonValue
-    cells?: CellUpdateManyWithoutRowNestedInput
     table?: TableUpdateOneRequiredWithoutRowsNestedInput
   }
 
@@ -17069,7 +15747,6 @@ export namespace Prisma {
     rowNum?: IntFieldUpdateOperationsInput | number
     tableId?: StringFieldUpdateOperationsInput | string
     cellsFlat?: JsonNullValueInput | InputJsonValue
-    cells?: CellUncheckedUpdateManyWithoutRowNestedInput
   }
 
   export type RowCreateManyInput = {
@@ -17090,61 +15767,6 @@ export namespace Prisma {
     rowNum?: IntFieldUpdateOperationsInput | number
     tableId?: StringFieldUpdateOperationsInput | string
     cellsFlat?: JsonNullValueInput | InputJsonValue
-  }
-
-  export type CellCreateInput = {
-    id?: string
-    colNum: number
-    val: string
-    numVal?: number | null
-    row: RowCreateNestedOneWithoutCellsInput
-  }
-
-  export type CellUncheckedCreateInput = {
-    id?: string
-    colNum: number
-    val: string
-    numVal?: number | null
-    rowId: string
-  }
-
-  export type CellUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
-    row?: RowUpdateOneRequiredWithoutCellsNestedInput
-  }
-
-  export type CellUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
-    rowId?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type CellCreateManyInput = {
-    id?: string
-    colNum: number
-    val: string
-    numVal?: number | null
-    rowId: string
-  }
-
-  export type CellUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type CellUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
-    rowId?: StringFieldUpdateOperationsInput | string
   }
 
   export type FilterCreateInput = {
@@ -17867,16 +16489,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type CellListRelationFilter = {
-    every?: CellWhereInput
-    some?: CellWhereInput
-    none?: CellWhereInput
-  }
-
-  export type CellOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type RowCountOrderByAggregateInput = {
     id?: SortOrder
     rowNum?: SortOrder
@@ -17928,45 +16540,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedJsonFilter<$PrismaModel>
     _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type RowScalarRelationFilter = {
-    is?: RowWhereInput
-    isNot?: RowWhereInput
-  }
-
-  export type CellCountOrderByAggregateInput = {
-    id?: SortOrder
-    colNum?: SortOrder
-    val?: SortOrder
-    numVal?: SortOrder
-    rowId?: SortOrder
-  }
-
-  export type CellAvgOrderByAggregateInput = {
-    colNum?: SortOrder
-    numVal?: SortOrder
-  }
-
-  export type CellMaxOrderByAggregateInput = {
-    id?: SortOrder
-    colNum?: SortOrder
-    val?: SortOrder
-    numVal?: SortOrder
-    rowId?: SortOrder
-  }
-
-  export type CellMinOrderByAggregateInput = {
-    id?: SortOrder
-    colNum?: SortOrder
-    val?: SortOrder
-    numVal?: SortOrder
-    rowId?: SortOrder
-  }
-
-  export type CellSumOrderByAggregateInput = {
-    colNum?: SortOrder
-    numVal?: SortOrder
   }
 
   export type EnumFilterTypeFilter<$PrismaModel = never> = {
@@ -18600,38 +17173,10 @@ export namespace Prisma {
     deleteMany?: SortScalarWhereInput | SortScalarWhereInput[]
   }
 
-  export type CellCreateNestedManyWithoutRowInput = {
-    create?: XOR<CellCreateWithoutRowInput, CellUncheckedCreateWithoutRowInput> | CellCreateWithoutRowInput[] | CellUncheckedCreateWithoutRowInput[]
-    connectOrCreate?: CellCreateOrConnectWithoutRowInput | CellCreateOrConnectWithoutRowInput[]
-    createMany?: CellCreateManyRowInputEnvelope
-    connect?: CellWhereUniqueInput | CellWhereUniqueInput[]
-  }
-
   export type TableCreateNestedOneWithoutRowsInput = {
     create?: XOR<TableCreateWithoutRowsInput, TableUncheckedCreateWithoutRowsInput>
     connectOrCreate?: TableCreateOrConnectWithoutRowsInput
     connect?: TableWhereUniqueInput
-  }
-
-  export type CellUncheckedCreateNestedManyWithoutRowInput = {
-    create?: XOR<CellCreateWithoutRowInput, CellUncheckedCreateWithoutRowInput> | CellCreateWithoutRowInput[] | CellUncheckedCreateWithoutRowInput[]
-    connectOrCreate?: CellCreateOrConnectWithoutRowInput | CellCreateOrConnectWithoutRowInput[]
-    createMany?: CellCreateManyRowInputEnvelope
-    connect?: CellWhereUniqueInput | CellWhereUniqueInput[]
-  }
-
-  export type CellUpdateManyWithoutRowNestedInput = {
-    create?: XOR<CellCreateWithoutRowInput, CellUncheckedCreateWithoutRowInput> | CellCreateWithoutRowInput[] | CellUncheckedCreateWithoutRowInput[]
-    connectOrCreate?: CellCreateOrConnectWithoutRowInput | CellCreateOrConnectWithoutRowInput[]
-    upsert?: CellUpsertWithWhereUniqueWithoutRowInput | CellUpsertWithWhereUniqueWithoutRowInput[]
-    createMany?: CellCreateManyRowInputEnvelope
-    set?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    disconnect?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    delete?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    connect?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    update?: CellUpdateWithWhereUniqueWithoutRowInput | CellUpdateWithWhereUniqueWithoutRowInput[]
-    updateMany?: CellUpdateManyWithWhereWithoutRowInput | CellUpdateManyWithWhereWithoutRowInput[]
-    deleteMany?: CellScalarWhereInput | CellScalarWhereInput[]
   }
 
   export type TableUpdateOneRequiredWithoutRowsNestedInput = {
@@ -18640,34 +17185,6 @@ export namespace Prisma {
     upsert?: TableUpsertWithoutRowsInput
     connect?: TableWhereUniqueInput
     update?: XOR<XOR<TableUpdateToOneWithWhereWithoutRowsInput, TableUpdateWithoutRowsInput>, TableUncheckedUpdateWithoutRowsInput>
-  }
-
-  export type CellUncheckedUpdateManyWithoutRowNestedInput = {
-    create?: XOR<CellCreateWithoutRowInput, CellUncheckedCreateWithoutRowInput> | CellCreateWithoutRowInput[] | CellUncheckedCreateWithoutRowInput[]
-    connectOrCreate?: CellCreateOrConnectWithoutRowInput | CellCreateOrConnectWithoutRowInput[]
-    upsert?: CellUpsertWithWhereUniqueWithoutRowInput | CellUpsertWithWhereUniqueWithoutRowInput[]
-    createMany?: CellCreateManyRowInputEnvelope
-    set?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    disconnect?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    delete?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    connect?: CellWhereUniqueInput | CellWhereUniqueInput[]
-    update?: CellUpdateWithWhereUniqueWithoutRowInput | CellUpdateWithWhereUniqueWithoutRowInput[]
-    updateMany?: CellUpdateManyWithWhereWithoutRowInput | CellUpdateManyWithWhereWithoutRowInput[]
-    deleteMany?: CellScalarWhereInput | CellScalarWhereInput[]
-  }
-
-  export type RowCreateNestedOneWithoutCellsInput = {
-    create?: XOR<RowCreateWithoutCellsInput, RowUncheckedCreateWithoutCellsInput>
-    connectOrCreate?: RowCreateOrConnectWithoutCellsInput
-    connect?: RowWhereUniqueInput
-  }
-
-  export type RowUpdateOneRequiredWithoutCellsNestedInput = {
-    create?: XOR<RowCreateWithoutCellsInput, RowUncheckedCreateWithoutCellsInput>
-    connectOrCreate?: RowCreateOrConnectWithoutCellsInput
-    upsert?: RowUpsertWithoutCellsInput
-    connect?: RowWhereUniqueInput
-    update?: XOR<XOR<RowUpdateToOneWithWhereWithoutCellsInput, RowUpdateWithoutCellsInput>, RowUncheckedUpdateWithoutCellsInput>
   }
 
   export type ViewCreateNestedOneWithoutFiltersInput = {
@@ -19499,14 +18016,12 @@ export namespace Prisma {
     id?: string
     rowNum: number
     cellsFlat: JsonNullValueInput | InputJsonValue
-    cells?: CellCreateNestedManyWithoutRowInput
   }
 
   export type RowUncheckedCreateWithoutTableInput = {
     id?: string
     rowNum: number
     cellsFlat: JsonNullValueInput | InputJsonValue
-    cells?: CellUncheckedCreateNestedManyWithoutRowInput
   }
 
   export type RowCreateOrConnectWithoutTableInput = {
@@ -19819,30 +18334,6 @@ export namespace Prisma {
     creationDate?: DateTimeFilter<"Sort"> | Date | string
   }
 
-  export type CellCreateWithoutRowInput = {
-    id?: string
-    colNum: number
-    val: string
-    numVal?: number | null
-  }
-
-  export type CellUncheckedCreateWithoutRowInput = {
-    id?: string
-    colNum: number
-    val: string
-    numVal?: number | null
-  }
-
-  export type CellCreateOrConnectWithoutRowInput = {
-    where: CellWhereUniqueInput
-    create: XOR<CellCreateWithoutRowInput, CellUncheckedCreateWithoutRowInput>
-  }
-
-  export type CellCreateManyRowInputEnvelope = {
-    data: CellCreateManyRowInput | CellCreateManyRowInput[]
-    skipDuplicates?: boolean
-  }
-
   export type TableCreateWithoutRowsInput = {
     id?: string
     name: string
@@ -19870,33 +18361,6 @@ export namespace Prisma {
   export type TableCreateOrConnectWithoutRowsInput = {
     where: TableWhereUniqueInput
     create: XOR<TableCreateWithoutRowsInput, TableUncheckedCreateWithoutRowsInput>
-  }
-
-  export type CellUpsertWithWhereUniqueWithoutRowInput = {
-    where: CellWhereUniqueInput
-    update: XOR<CellUpdateWithoutRowInput, CellUncheckedUpdateWithoutRowInput>
-    create: XOR<CellCreateWithoutRowInput, CellUncheckedCreateWithoutRowInput>
-  }
-
-  export type CellUpdateWithWhereUniqueWithoutRowInput = {
-    where: CellWhereUniqueInput
-    data: XOR<CellUpdateWithoutRowInput, CellUncheckedUpdateWithoutRowInput>
-  }
-
-  export type CellUpdateManyWithWhereWithoutRowInput = {
-    where: CellScalarWhereInput
-    data: XOR<CellUpdateManyMutationInput, CellUncheckedUpdateManyWithoutRowInput>
-  }
-
-  export type CellScalarWhereInput = {
-    AND?: CellScalarWhereInput | CellScalarWhereInput[]
-    OR?: CellScalarWhereInput[]
-    NOT?: CellScalarWhereInput | CellScalarWhereInput[]
-    id?: StringFilter<"Cell"> | string
-    colNum?: IntFilter<"Cell"> | number
-    val?: StringFilter<"Cell"> | string
-    numVal?: IntNullableFilter<"Cell"> | number | null
-    rowId?: StringFilter<"Cell"> | string
   }
 
   export type TableUpsertWithoutRowsInput = {
@@ -19932,50 +18396,6 @@ export namespace Prisma {
     numViews?: IntFieldUpdateOperationsInput | number
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
     views?: ViewUncheckedUpdateManyWithoutTableNestedInput
-  }
-
-  export type RowCreateWithoutCellsInput = {
-    id?: string
-    rowNum: number
-    cellsFlat: JsonNullValueInput | InputJsonValue
-    table: TableCreateNestedOneWithoutRowsInput
-  }
-
-  export type RowUncheckedCreateWithoutCellsInput = {
-    id?: string
-    rowNum: number
-    tableId: string
-    cellsFlat: JsonNullValueInput | InputJsonValue
-  }
-
-  export type RowCreateOrConnectWithoutCellsInput = {
-    where: RowWhereUniqueInput
-    create: XOR<RowCreateWithoutCellsInput, RowUncheckedCreateWithoutCellsInput>
-  }
-
-  export type RowUpsertWithoutCellsInput = {
-    update: XOR<RowUpdateWithoutCellsInput, RowUncheckedUpdateWithoutCellsInput>
-    create: XOR<RowCreateWithoutCellsInput, RowUncheckedCreateWithoutCellsInput>
-    where?: RowWhereInput
-  }
-
-  export type RowUpdateToOneWithWhereWithoutCellsInput = {
-    where?: RowWhereInput
-    data: XOR<RowUpdateWithoutCellsInput, RowUncheckedUpdateWithoutCellsInput>
-  }
-
-  export type RowUpdateWithoutCellsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    rowNum?: IntFieldUpdateOperationsInput | number
-    cellsFlat?: JsonNullValueInput | InputJsonValue
-    table?: TableUpdateOneRequiredWithoutRowsNestedInput
-  }
-
-  export type RowUncheckedUpdateWithoutCellsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    rowNum?: IntFieldUpdateOperationsInput | number
-    tableId?: StringFieldUpdateOperationsInput | string
-    cellsFlat?: JsonNullValueInput | InputJsonValue
   }
 
   export type ViewCreateWithoutFiltersInput = {
@@ -20298,14 +18718,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     cellsFlat?: JsonNullValueInput | InputJsonValue
-    cells?: CellUpdateManyWithoutRowNestedInput
   }
 
   export type RowUncheckedUpdateWithoutTableInput = {
     id?: StringFieldUpdateOperationsInput | string
     rowNum?: IntFieldUpdateOperationsInput | number
     cellsFlat?: JsonNullValueInput | InputJsonValue
-    cells?: CellUncheckedUpdateManyWithoutRowNestedInput
   }
 
   export type RowUncheckedUpdateManyWithoutTableInput = {
@@ -20403,34 +18821,6 @@ export namespace Prisma {
     columnIndex?: IntFieldUpdateOperationsInput | number
     type?: EnumSortTypeFieldUpdateOperationsInput | $Enums.SortType
     creationDate?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type CellCreateManyRowInput = {
-    id?: string
-    colNum: number
-    val: string
-    numVal?: number | null
-  }
-
-  export type CellUpdateWithoutRowInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type CellUncheckedUpdateWithoutRowInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
-  }
-
-  export type CellUncheckedUpdateManyWithoutRowInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    colNum?: IntFieldUpdateOperationsInput | number
-    val?: StringFieldUpdateOperationsInput | string
-    numVal?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
 
