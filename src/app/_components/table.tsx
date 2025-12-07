@@ -673,7 +673,8 @@ const { rows: tableRows } = tanTable.getRowModel();
                       boxShadow: (header.column.columnDef.meta as { second?: boolean })?.second ? "inset -4px 0 4px -4px rgba(0, 0, 0, 0.4)" : "none",
                       height: "32px", 
                       width: (header.column.columnDef.meta as { first: number }) ? "50px" : "180px", 
-                      fontSize: "12.5px",
+                      fontSize: "13px",
+                      fontWeight: 600
                     }}
                       key={header.id}
                   >
@@ -737,7 +738,7 @@ const { rows: tableRows } = tanTable.getRowModel();
                           boxShadow: (cell.column.columnDef.meta as { second?: boolean })?.second ? "inset -4px 0 4px -4px rgba(0, 0, 0, 0.4)" : "none",
                           width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "180px", 
                           textAlign: (cell.column.columnDef.meta as { first: number }) ? "center" : "left",
-                          fontSize: "12.5px", 
+                          fontSize: "13px", 
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Tab") {

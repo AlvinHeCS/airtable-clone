@@ -42,6 +42,7 @@
     "next-auth": "5.0.0-beta.25",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
+    "react-select": "^5.10.2",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.4.0",

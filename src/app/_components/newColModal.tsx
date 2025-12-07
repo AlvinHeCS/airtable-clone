@@ -4,6 +4,15 @@ import { useState } from "react"
 import { api } from "~/trpc/react"
 import type { View, HeaderType } from "~/types/types";
 import "./newColModal.css";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "src/components/ui/select"
 
 interface prop {
     tableId: string;
@@ -83,11 +92,18 @@ export default function NewColModal(NewColModalProp: prop) {
     return (
         <div style={{padding: "5px", border: "solid rgba(220, 220, 220, 1) 1px", position: "fixed", width: "400px", background: "white", display: "flex", flexDirection: "column", gap: "15px", zIndex: "1000", left: `${NewColModalProp.position.left + 615}px`, top: `${NewColModalProp.position.top + 35}px`}}>
             <div style={{padding: "5px", display: "flex", flexDirection: "column", gap: "15px" }}>
-              <input className="colTitle" placeholder="field name (optional)" style={{width: "100%", height: "35px", fontSize: "12px", borderRadius: "5px", padding: "5px"}} type="text" value={newHeaderVal} onChange={(e) => setNewHeaderVal(e.target.value)}></input>
-              <select style={{width: "100%", fontSize: "12px", border: "solid rgba(220, 220, 220, 1) 1px", borderRadius: "5px", height: "35px"}} value={newHeaderType} onChange={(e) => setNewHeaderType(e.target.value as HeaderType)}>
-                  <option value="string">Single line text</option>
-                  <option value="number">Number</option>
-              </select>
+              <input className="colTitle" placeholder="field name (optional)" style={{width: "100%", height: "35px", fontSize: "12px", borderRadius: "5px", paddingLeft: "10px"}} type="text" value={newHeaderVal} onChange={(e) => setNewHeaderVal(e.target.value)}></input>
+            <Select value={newHeaderType} onValueChange={(val: HeaderType) => setNewHeaderType(val)}>
+              <SelectTrigger className="w-[100%] text-xs h-[35px]">
+                <SelectValue/>
+              </SelectTrigger>
+              <SelectContent className="z-[2000]">
+                <SelectGroup>
+                  <SelectItem value="string"><img src="/letter.svg" style={{width: "10px", height: "10px"}}></img>Single line text</SelectItem>
+                  <SelectItem value="number"><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Number</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
               <div style={{display: "flex", justifyContent: "space-between"}}>
                 <button className="greyHover" style={{display: "flex", justifyContent: "center", alignItems: "center", gap: "5px", paddingLeft: "10px", paddingRight: "10px", paddingTop: "5px", paddingBottom: "5px", borderRadius: "5px"}}>
                   <img src="/plus2.svg" style={{width: "13px", height: "13px"}}></img>
