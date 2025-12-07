@@ -656,6 +656,7 @@ const { rows: tableRows } = tanTable.getRowModel();
                 {headerGroup.headers.map(header => (
                   // header cells for data
                   <th
+                    className="headerCell"
                     style={{ 
                       zIndex: (header.column.columnDef.meta as { first: boolean, second: boolean }).first ||(header.column.columnDef.meta as { first: boolean, second: boolean }).second ? 101 : 100, 
                       background: "white", 

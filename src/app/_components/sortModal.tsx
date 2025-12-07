@@ -221,12 +221,12 @@ export default function SortModal(SortModalProps: prop) {
                             </select>
                             {SortModalProps.tableHeaderTypes[sort.columnIndex] === "number"?
                                 <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
-                                    <option key={0} value="sort1_9">1-9</option>
-                                    <option key={1} value="sort9_1">9-1</option>
+                                    <option key={0} value="sort1_9">1 - 9</option>
+                                    <option key={1} value="sort9_1">9 - 1</option>
                                 </select> : 
                                 <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
-                                    <option key={0} value="sortA_Z">A-Z</option>
-                                    <option key={1} value="sortZ_A">Z-A</option>
+                                    <option key={0} value="sortA_Z">A - Z</option>
+                                    <option key={1} value="sortZ_A">Z - A</option>
                                 </select>
                             }
                             <button className="deleteButton" onClick={() => (deleteSort(sort.id))}><img src="/cross.svg" style={{width: "15px", height: "15px"}}></img></button>

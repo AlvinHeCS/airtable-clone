@@ -18,3 +18,7 @@
     background: white !important
 }
 
+.headerCell:hover {
+    background-color: #F7F8FC !important;
+}
+
