@@ -6,6 +6,7 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
+import { viewRouter } from "./view";
 
 export const tableRouter = createTRPCRouter({
 
@@ -303,7 +304,6 @@ deleteColumn:protectedProcedure
   const newHeaderTypes = [...prevTable.headerTypes];
   // remove the index
   newHeader.splice(input.colIndex, 1)
-  console.log("this is new")
   newHeaderTypes.splice(input.colIndex, 1)
   await ctx.db.table.update({
     where: {id: input.tableId},
@@ -319,21 +319,22 @@ deleteColumn:protectedProcedure
   if (!views || !views[0]) throw new Error("no views founds")
   const newShowing = views[0].showing
   newShowing.splice(input.colIndex, 1)
-  console.log("this is new Showing: ", newShowing)
   const viewsUpdated = await ctx.db.view.updateMany({
     where: {tableId: input.tableId},
     data: {
       showing: newShowing
     }
   })
-  console.log("updated this many views: ", viewsUpdated)
   // update filters and sorts
-  await ctx.db.filter.deleteMany({
-    where: {columnIndex: input.colIndex}
-  })
-  await ctx.db.sort.deleteMany({
-    where: {columnIndex: input.colIndex}
-  })
+  for (let view of views) {
+    await ctx.db.filter.deleteMany({
+      where: {columnIndex: input.colIndex, viewId: view.id}
+    })
+    await ctx.db.sort.deleteMany({
+      where: {columnIndex: input.colIndex, viewId: view.id}
+    })
+  }
+
   // update rows need to update all the cellsflat
     // cellsFlat
   // this is not return 
@@ -342,9 +343,135 @@ deleteColumn:protectedProcedure
     SET "cellsFlat" = COALESCE("cellsFlat", '[]'::jsonb) - ${input.colIndex}::int
     WHERE "tableId" = ${input.tableId};
   `;
-
-  console.log("Rows updated:", result);
-
   return result;
+  }),
+  duplicateCol: protectedProcedure
+  .input(z.object({colIndex: z.number(), tableId: z.string()}))
+  .mutation(async ({ctx, input}) => {
+    // update table --> header and tableHeaders
+    const table = await ctx.db.table.findUnique({
+      where: {id: input.tableId},
+    })
+
+    if (!table) throw new Error("table not found")
+    const newHeaders = [...table.headers];
+    const newHeaderTypes = [...table.headerTypes];
+    const newHeader = table.headers[input.colIndex];
+    const newHeaderType = table.headerTypes[input.colIndex];
+    if (!newHeader || !newHeaderType) throw new Error ("target column for duplicate header and headerType dont exist");
+    newHeaders.splice(input.colIndex, 0, newHeader);
+    newHeaderTypes.splice(input.colIndex, 0, newHeaderType);
+    await ctx.db.table.update({
+      where: {id: input.tableId},
+      data: {
+        headers: newHeaders,
+        headerTypes: newHeaderTypes
+      }
+    })
+    // update views --> showing
+    const view = await ctx.db.view.findFirst({
+      where: {tableId: input.tableId}
+    })
+    if (!view) throw new Error("table has no views")
+    const newShowings = [...view.showing]
+    newShowings.splice(input.colIndex, 0, true)
+    await ctx.db.view.updateMany({
+      where: {tableId: input.tableId},
+      data: {
+        showing: newShowings
+      }
+    })
+    // update rows
+    const colIndex = input.colIndex;
+
+    return await ctx.db.$executeRawUnsafe(`
+      UPDATE "Row"
+      SET "cellsFlat" = (
+        SELECT jsonb_agg(elem)
+        FROM (
+          SELECT elem 
+          FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
+          WHERE ord <= ${colIndex}::int
+
+          UNION ALL
+
+          SELECT (COALESCE("cellsFlat",'[]') -> ${colIndex}::int) AS elem  -- duplicate element
+
+          UNION ALL
+
+          SELECT elem 
+          FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
+          WHERE ord > ${colIndex}::int
+        ) q
+      )
+      WHERE "tableId" = '${input.tableId}';
+    `);
+  }),
+  editHeaderCol: protectedProcedure
+  .input(z.object({colIndex: z.number(), tableId: z.string(), newHeaderName: z.string(), newHeaderType: z.enum([
+        "string",
+        "number"
+      ])}))
+  .mutation(async ({ctx, input}) => {
+    // change table header
+    const table = await ctx.db.table.findUnique({
+      where: {id: input.tableId},
+    })
+    if (!table) throw new Error("table not found")
+    const newHeaders = [...table.headers];
+    newHeaders.splice(input.colIndex, 1, input.newHeaderName)
+    const newHeaderTypes = [...table.headerTypes]
+    if (input.newHeaderType !== table.headerTypes[input.colIndex]) {
+      newHeaderTypes.splice(input.colIndex, 1, input.newHeaderType)
+      // reset the col values
+      // for that index 
+      const newCellFlatVal = input.newHeaderType === "string" ? '""':'null'
+      if (input.newHeaderType === "number") {
+        return await ctx.db.$executeRaw`
+          UPDATE "Row"
+          SET "cellsFlat" = (
+            SELECT jsonb_agg(elem)
+            FROM (
+              SELECT elem 
+              FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
+              WHERE ord < ${input.colIndex + 1}::int
+
+              UNION ALL
+
+              SELECT ${newCellFlatVal}::jsonb as elem
+
+              UNION ALL
+
+              SELECT elem 
+              FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
+              WHERE ord > ${input.colIndex + 1}::int
+            ) q
+          )
+          WHERE "tableId" = ${input.tableId};
+        `;
+      }
+    }
+    await ctx.db.table.update({
+        where: {id: input.tableId},
+        data: {
+          headers: newHeaders,
+          headerTypes: newHeaderTypes,
+        }
+    })
+
+    // delete all the filters and sorts on that column
+    const views = await ctx.db.view.findMany({
+      where: {tableId: input.tableId}
+    })
+    if (!views) return new Error("no views")
+    
+    for (let view of views) {
+      await ctx.db.filter.deleteMany({
+        where: {viewId: view.id, columnIndex: input.colIndex}
+      })
+      await ctx.db.sort.deleteMany({
+        where: {viewId: view.id, columnIndex: input.colIndex}
+      })
+    }
   })
 })

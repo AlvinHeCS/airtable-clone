@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react";
-import type { View } from "~/types/types";
+import type { View, HeaderType } from "~/types/types";
 import { api } from "~/trpc/react";
 
 interface prop {
@@ -16,6 +16,11 @@ export default function HeaderModal(HeaderModalProp: prop) {
     const modalRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils()
     const { mutateAsync: deleteColAsync } = api.table.deleteColumn.useMutation({
+        onSuccess: () => {
+            utils.table.rowsAhead.reset({tableId: HeaderModalProp.tableId, viewId: HeaderModalProp.view.id})
+        }
+    })
+    const { mutateAsync: duplicateColAsync } = api.table.duplicateCol.useMutation({
         onSuccess: () => {
             utils.table.rowsAhead.reset({tableId: HeaderModalProp.tableId, viewId: HeaderModalProp.view.id})
         }
@@ -72,10 +77,50 @@ export default function HeaderModal(HeaderModalProp: prop) {
         HeaderModalProp.setModal(false);
     }
     
+    async function duplicateCol(colIndex: number) {
+        // on backend need to create a newCol but make cellFlat a copy of that one 
+        // update backend
+        await duplicateColAsync({colIndex: colIndex, tableId: HeaderModalProp.tableId})
+        // update view and update table
+        utils.table.getViews.setData({tableId: HeaderModalProp.tableId}, (prev) => {
+            if (!prev) return prev
+            return prev.map((view) => {
+                const newShowing = [...view.showing];
+                newShowing.splice(colIndex, 0, true)
+                return {
+                    ...view,
+                    showing: newShowing,
+                }
+            })
+        })
+        // for table need to update headers and headerType
+        utils.table.getTable.setData({tableId: HeaderModalProp.tableId}, (prev) => {
+            if (!prev) return prev;
+            const newHeaders = [...prev.headers];
+            newHeaders.splice(colIndex, 0, newHeaders[colIndex] || "");
+            const newHeaderTypes = [...prev.headerTypes];
+            newHeaderTypes.splice(colIndex, 0, newHeaderTypes[colIndex] || "string");
+            return {
+                ...prev,
+                headers: newHeaders,
+                headerTypes: newHeaderTypes,
+            }
+        })        
+
+        HeaderModalProp.setModal(false);
+    }
+
+    async function editCol(newName: string, newType: HeaderType) {
+        // on backend
+
+    }
+
     return(
         <div ref={modalRef} style={{zIndex: 1111, top: "170px", position: "fixed", display: "flex", width: "200px", height: "200px", border: "solid rgba(218, 218, 218, 1) 1px", background: "white"}}>
             {HeaderModalProp.headerCol}
             <button onClick={() => deleteCol(Number(HeaderModalProp.headerCol))}>Delete Column</button>
+            <button onClick={() => duplicateCol(Number(HeaderModalProp.headerCol))}>Duplicate Column</button>
+            <button>Edit Field</button>
         </div>
     )
 }
