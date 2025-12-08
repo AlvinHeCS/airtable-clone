@@ -19,6 +19,7 @@ import "./table.css";
 import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat } from "~/types/types";
 import CopyAugment from "./copyAugment";
 import { faker } from '@faker-js/faker';
+import HeaderModal from "./headerModal";
 
 interface prop {
    tableId: string
@@ -41,10 +42,11 @@ export default function Table(tableProp: prop) {
     const [showHideButtonPos, setShowHideButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [filterButtonPos, setFilterButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [sortButtonPos, setSortButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
-    const [newColButtonPos, setNewColButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [searchButtonPos, setSearchButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [rowHeightButtonPos, setRowHeightButtonPos] = useState<{top: number, left: number}>({top: 0, left: 0});
     const [scrollingContainerPos, setScrollingContainerPos] = useState<{top: number, left: number}>({top: 0, left: 0});
+    const [headerRightClickModal, setHeaderRightClickModal] = useState<boolean>(false);
+    const [selectedHeader, setSelectedHeader] = useState<number>(0);
     const { data: table } = api.table.getTable.useQuery({tableId: tableProp.tableId});
     const { data: views } = api.table.getViews.useQuery({tableId: tableProp.tableId});
     const { mutate: mutateRow, mutateAsync: mutateAsyncRow } = api.table.addRow.useMutation();
@@ -67,6 +69,12 @@ export default function Table(tableProp: prop) {
         }
       }
     }, [tableProp.tableId, views ?? []])
+
+  const handleHeaderRightClick = (event: React.MouseEvent, headerCol: number) => {
+    event.preventDefault(); 
+    setSelectedHeader(headerCol);
+    setHeaderRightClickModal(true);
+  };
 
     const {data: rowsAhead, fetchNextPage, hasNextPage, isFetchingNextPage} = api.table.rowsAhead.useInfiniteQuery(
       // need to define selectedView.id on render as it checks the arguments but will only fire the query when selectedView is defined due to enable
@@ -128,7 +136,7 @@ export default function Table(tableProp: prop) {
 
       let dataCols: ColumnDef<TableRow, string>[] = table.headers.map((header, i) => ({
         // acessorKey must match a key in my row object 
-        accessorKey: String(i),
+        accessorKey: String(i), //header Id from table.getHeaderGroups() is auto genereated based on accessorkey
         header: () => {
           return (
             <div style={{ color: "#1D1F26", display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px", }}>
@@ -300,14 +308,12 @@ const { rows: tableRows } = tanTable.getRowModel();
     const showHideRect = showHideButtonRef.current.getBoundingClientRect();
     const filterRect = filterButtonRef.current.getBoundingClientRect();
     const sortRect = sortButtonRef.current.getBoundingClientRect();
-    const newColRect = newColButtonRef.current.getBoundingClientRect();
     const searchRect = searchButtonRef.current.getBoundingClientRect();
     const rowHeightRect = rowHeightButtonRef.current.getBoundingClientRect();
     const tableContainerRect = scrollingRef.current.getBoundingClientRect();
     setShowHideButtonPos({top: showHideRect.top, left: showHideRect.left});
     setFilterButtonPos({top: filterRect.top, left: filterRect.left});
     setSortButtonPos({top: sortRect.top, left: sortRect.left});
-    setNewColButtonPos({top: newColRect.top, left: newColRect.left});
     setSearchButtonPos({top: searchRect.top, left: searchRect.left});
     setRowHeightButtonPos({top: rowHeightRect.top, left: rowHeightRect.left});
     setScrollingContainerPos({top: tableContainerRect.top, left: tableContainerRect.left})
@@ -645,6 +651,7 @@ const { rows: tableRows } = tanTable.getRowModel();
     <div style={{display: "flex", height: "100%" }}>
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
       <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh", background: "#F7F8FC"}}>
+        {headerRightClickModal && <HeaderModal view={selectedView} views={views} setModal={setHeaderRightClickModal} headerCol={selectedHeader} tableId={table.id}/>}
         {!rowsAhead 
         ? (<div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading rows<CircularProgress size="20px"/></div>) 
         : 
@@ -656,6 +663,7 @@ const { rows: tableRows } = tanTable.getRowModel();
                 {headerGroup.headers.map(header => (
                   // header cells for data
                   <th
+                    onContextMenu={(e) => (handleHeaderRightClick(e, Number(header.id,)))}
                     className="headerCell"
                     style={{ 
                       zIndex: (header.column.columnDef.meta as { first: boolean, second: boolean }).first ||(header.column.columnDef.meta as { first: boolean, second: boolean }).second ? 101 : 100, 
@@ -736,7 +744,7 @@ const { rows: tableRows } = tanTable.getRowModel();
                           borderTop: "solid #DEE0E2 1px", borderBottom: "solid #DEE0E2 1px",   
                           borderRight: (cell.column.columnDef.meta as { first: boolean }).first ? "none" : "solid #DEE0E2 1px", 
                           height: `${virtualRow.size}px`, 
-                          boxShadow: (cell.column.columnDef.meta as { second?: boolean })?.second ? "inset -4px 0 4px -4px rgba(0, 0, 0, 0.4)" : "none",
+                          boxShadow: (cell.column.columnDef.meta as { second?: boolean })?.second ? "inset -2px 0 2px -2px rgba(0, 0, 0, 0.4)" : "none",
                           width: (cell.column.columnDef.meta as { first: number }).first ? "50px" : "180px", 
                           textAlign: (cell.column.columnDef.meta as { first: number }) ? "center" : "left",
                           fontSize: "13px", 

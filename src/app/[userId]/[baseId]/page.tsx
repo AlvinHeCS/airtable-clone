@@ -79,7 +79,7 @@ export default function BasePage() {
                       height: isSelected ? "100%" : "60%",
                       justifyContent: "center",
                       background: isSelected ? "white" : "transparent",
-                      borderRight: "solid grey 0.5px",
+                      borderRight: "solid #E4E4E4 0.5px",
                       fontWeight: isSelected ? "600" : "400"
                     }}
                     onClick={() => setSelectedTableId(table.id)}

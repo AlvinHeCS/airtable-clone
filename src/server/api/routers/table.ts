@@ -158,7 +158,7 @@ addRow: protectedProcedure
     return await tx.row.create({
       data: {
         id: input.rowId, 
-        rowNum: input.rowNum,
+        rowNum: input.rowNum + 1,
         tableId: input.tableId,
         cellsFlat: input.cellsFlat,
       },
@@ -196,8 +196,6 @@ addCol: protectedProcedure
       },
       data: { showing: { push: true }}
     });
-
-    const newColNum = table.headers.length - 1;
 
     const newCellFlatVal = input.type === "string" ? '""' : 'null';
     return await ctx.db.$executeRaw`
@@ -293,4 +291,60 @@ add100kRow: protectedProcedure
     data: { numRows: numRows + NUM_TO_ADD },
   });
 }),
+deleteColumn:protectedProcedure
+.input(z.object({tableId: z.string(), colIndex: z.number()}))
+.mutation(async({ctx, input}) => {
+  // update table
+  const prevTable = await ctx.db.table.findUnique({
+    where: {id: input.tableId}
+  })
+  if (!prevTable) throw new Error("Table not found");
+  const newHeader = [...prevTable.headers];
+  const newHeaderTypes = [...prevTable.headerTypes];
+  // remove the index
+  newHeader.splice(input.colIndex, 1)
+  console.log("this is new")
+  newHeaderTypes.splice(input.colIndex, 1)
+  await ctx.db.table.update({
+    where: {id: input.tableId},
+    data: {
+      headers: newHeader,
+      headerTypes: newHeaderTypes
+    }
+  })
+  // update views
+  const views = await ctx.db.view.findMany({
+    where: {tableId: input.tableId}
+  })
+  if (!views || !views[0]) throw new Error("no views founds")
+  const newShowing = views[0].showing
+  newShowing.splice(input.colIndex, 1)
+  console.log("this is new Showing: ", newShowing)
+  const viewsUpdated = await ctx.db.view.updateMany({
+    where: {tableId: input.tableId},
+    data: {
+      showing: newShowing
+    }
+  })
+  console.log("updated this many views: ", viewsUpdated)
+  // update filters and sorts
+  await ctx.db.filter.deleteMany({
+    where: {columnIndex: input.colIndex}
+  })
+  await ctx.db.sort.deleteMany({
+    where: {columnIndex: input.colIndex}
+  })
+  // update rows need to update all the cellsflat
+    // cellsFlat
+  // this is not return 
+  const result = await ctx.db.$executeRaw`
+    UPDATE "Row"
+    SET "cellsFlat" = COALESCE("cellsFlat", '[]'::jsonb) - ${input.colIndex}::int
+    WHERE "tableId" = ${input.tableId};
+  `;
+
+  console.log("Rows updated:", result);
+
+  return result;
+  })
 })
