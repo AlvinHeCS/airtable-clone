@@ -22,3 +22,34 @@
     background-color: #F7F8FC !important;
 }
 
+.semiCircleButtonLeft {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 35px;
+    width: 45px;
+    border-right: solid #E4E4E4 1px;
+    border-radius: 150px 0 0 150px;
+    /* border: solid red 1px; */
+    background-color: white;
+}
+
+.semiCircleButtonLeft:hover {
+    background-color: #E4E4E4;
+}
+
+.semiCircleButtonRight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    height: 35px;
+    width: 85px;
+    border-radius: 0 150px 150px 0;
+    background-color: white;
+    font-size: 14px;
+}
+
+.semiCircleButtonRight:hover {
+    background-color: #E4E4E4;
+}

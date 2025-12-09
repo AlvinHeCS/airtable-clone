@@ -652,6 +652,10 @@ const { rows: tableRows } = tanTable.getRowModel();
       <GridBar tableId={table.id} view={selectedView} views={views} setSelectedView={setSelectedView} />
       <div ref={scrollingRef} style={{ flex: 1, overflow: "auto", width: "60vw", height: "82vh", background: "#F7F8FC"}}>
         {headerRightClickModal && <HeaderModal view={selectedView} views={views} setModal={setHeaderRightClickModal} headerCol={selectedHeader} tableId={table.id}/>}
+        <div style={{borderRadius: "150px", border: "solid #E4E4E4 1px", marginLeft: "10px", bottom: 30, position: "absolute", display: "flex", zIndex: 99999, background: "none"}}>
+          <button className="semiCircleButtonLeft"><img style={{width: "15px", height: "15px"}} src="/plus2.svg"></img></button>
+          <button className="semiCircleButtonRight"><img style={{width: "13px", height: "13px"}} src="/pen.svg"></img>Add...</button>    
+        </div>
         {!rowsAhead 
         ? (<div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading rows<CircularProgress size="20px"/></div>) 
         : 
