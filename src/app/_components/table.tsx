@@ -107,6 +107,7 @@ export default function Table(tableProp: prop) {
     const columns = useMemo<ColumnDef<TableRow, string>[]>(() => {
       if (!table || !views || !selectedView) return [];
       // intial row number column
+      console.log("columns is being regenerated this is the new column Headers: ", table.headers);
       const rowNumberCol: ColumnDef<TableRow, string> = {
         id: "rowNumber",
         header: () => {
@@ -731,6 +732,7 @@ const { rows: tableRows } = tanTable.getRowModel();
 
                     return (
                       <td
+                        className="cell"
                         key={cell.id}
                         data-row={row.index}
                         data-col={(cell.column.columnDef.meta as { colIndex: number }).colIndex}

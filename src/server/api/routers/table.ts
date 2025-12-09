@@ -422,35 +422,36 @@ deleteColumn:protectedProcedure
     newHeaders.splice(input.colIndex, 1, input.newHeaderName)
     const newHeaderTypes = [...table.headerTypes]
     if (input.newHeaderType !== table.headerTypes[input.colIndex]) {
+      console.log("header types did not match")
       newHeaderTypes.splice(input.colIndex, 1, input.newHeaderType)
       // reset the col values
       // for that index 
       const newCellFlatVal = input.newHeaderType === "string" ? '""':'null'
-      if (input.newHeaderType === "number") {
-        return await ctx.db.$executeRaw`
-          UPDATE "Row"
-          SET "cellsFlat" = (
-            SELECT jsonb_agg(elem)
-            FROM (
-              SELECT elem 
-              FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
-              WHERE ord < ${input.colIndex + 1}::int
+      console.log("this is newCellFlatVal: ", newCellFlatVal)
+      await ctx.db.$executeRaw`
+      UPDATE "Row"
+      SET "cellsFlat" = (
+        SELECT jsonb_agg(elem)
+        FROM (
+          SELECT elem 
+          FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
+          WHERE ord < ${input.colIndex + 1}::int
 
-              UNION ALL
+          UNION ALL
 
-              SELECT ${newCellFlatVal}::jsonb as elem
+          SELECT ${newCellFlatVal}::jsonb as elem
 
-              UNION ALL
+          UNION ALL
 
-              SELECT elem 
-              FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
-              WHERE ord > ${input.colIndex + 1}::int
-            ) q
-          )
-          WHERE "tableId" = ${input.tableId};
-        `;
-      }
+          SELECT elem 
+          FROM jsonb_array_elements(COALESCE("cellsFlat",'[]')) WITH ORDINALITY AS t(elem, ord)
+          WHERE ord > ${input.colIndex + 1}::int
+        ) q
+      )
+      WHERE "tableId" = ${input.tableId};
+    `;
     }
+    console.log("this is new headerTypes: ", newHeaderTypes)
     await ctx.db.table.update({
         where: {id: input.tableId},
         data: {
