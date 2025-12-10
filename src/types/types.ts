@@ -6,6 +6,7 @@ export const filterTypes = [
   "lt",
   "empty",
   "not_empty",
+  "is"
 ] as const;
 
 export type OperatorType = typeof filterTypes[number];
@@ -24,6 +25,8 @@ export const sortTypes = [
   "sortZ_A",
   "sort1_9",
   "sort9_1",
+  "sortCheck_NotCheck",
+  "sortNotCheck_Check"
 ] as const;
 
 export type SortType = typeof sortTypes[number];
@@ -39,7 +42,8 @@ export type Sort = {
 
 export const headerType = [
   "string",
-  "number"
+  "number",
+  "checkBox",
 ] as const
 
 export type HeaderType = typeof headerType[number]
@@ -53,6 +57,10 @@ export type Table = {
   numViews: number;
   name: string;
 };
+
+// string for key value
+// string for idVal which must be included because of the & {id: string}
+// Record for object containg cellVal and then highlightCellBool
 
 export type TableRow = Record<string, Record<string, string | boolean> | string> & { id: string };
 
@@ -86,7 +94,7 @@ export type Filtered = {
   filterNames: string;
 }
 
-export type CellsFlat = (number | string | null)[]; 
+export type CellsFlat = (number | string | boolean | null)[]; 
 
 export type Row = { 
   id: string; 

@@ -21,6 +21,7 @@ export const viewRouter = createTRPCRouter({
         "lt",
         "empty",
         "not_empty",
+        "is"
       ]),
     })
   )
@@ -43,6 +44,7 @@ export const viewRouter = createTRPCRouter({
         "lt",
         "empty",
         "not_empty",
+        "is"
     ])}))
   .mutation(async ({ctx, input}) => {
     return await ctx.db.filter.update({
@@ -63,6 +65,7 @@ export const viewRouter = createTRPCRouter({
         "lt",
         "empty",
         "not_empty",
+        "is"
     ])}))
     .mutation(async ({ctx, input}) => {
         return await ctx.db.filter.update({
@@ -99,6 +102,8 @@ export const viewRouter = createTRPCRouter({
         "sortZ_A",
         "sort1_9",
         "sort9_1",
+        "sortCheck_NotCheck",
+        "sortNotCheck_Check"
       ]),
     })
   ) 
@@ -124,6 +129,8 @@ export const viewRouter = createTRPCRouter({
         "sortZ_A",
         "sort1_9",
         "sort9_1",
+        "sortCheck_NotCheck",
+        "sortNotCheck_Check"
       ]),}))
   .mutation(async ({ctx, input}) => {
     return await ctx.db.sort.update({
@@ -139,6 +146,8 @@ export const viewRouter = createTRPCRouter({
         "sortZ_A",
         "sort1_9",
         "sort9_1",
+        "sortCheck_NotCheck",
+        "sortNotCheck_Check"
       ])}))
   .mutation(async ({ctx, input}) => {
     return await ctx.db.sort.update({

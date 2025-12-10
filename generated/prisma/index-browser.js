@@ -244,7 +244,8 @@ exports.Prisma.JsonNullValueFilter = {
 };
 exports.HeaderType = exports.$Enums.HeaderType = {
   string: 'string',
-  number: 'number'
+  number: 'number',
+  checkBox: 'checkBox'
 };
 
 exports.Height = exports.$Enums.Height = {
@@ -260,14 +261,17 @@ exports.FilterType = exports.$Enums.FilterType = {
   gt: 'gt',
   lt: 'lt',
   empty: 'empty',
-  not_empty: 'not_empty'
+  not_empty: 'not_empty',
+  is: 'is'
 };
 
 exports.SortType = exports.$Enums.SortType = {
   sortA_Z: 'sortA_Z',
   sortZ_A: 'sortZ_A',
   sort1_9: 'sort1_9',
-  sort9_1: 'sort9_1'
+  sort9_1: 'sort9_1',
+  sortCheck_NotCheck: 'sortCheck_NotCheck',
+  sortNotCheck_Check: 'sortNotCheck_Check'
 };
 
 exports.Prisma.ModelName = {

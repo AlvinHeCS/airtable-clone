@@ -6,7 +6,6 @@ import {
   createTRPCRouter,
   protectedProcedure,
 } from "~/server/api/trpc";
-import { viewRouter } from "./view";
 
 export const tableRouter = createTRPCRouter({
 
@@ -60,7 +59,8 @@ rowsAhead: protectedProcedure
       const formattedFilters = view.filters.map((filter) => {
         const header = table.headerTypes[filter.columnIndex] === "number"
         ? `("cellsFlat"->>${filter.columnIndex})::int` 
-        : `"cellsFlat"->>${filter.columnIndex}` 
+        : table.headerTypes[filter.columnIndex] === "string" ? `"cellsFlat"->>${filter.columnIndex}` 
+        : `("cellsFlat"->>${filter.columnIndex})::boolean` 
         let sqlWhere = `${header} LIKE '%${filter.value}%'`
         switch (filter.type) {
           case "contains": 
@@ -87,6 +87,9 @@ rowsAhead: protectedProcedure
             if (!filter.value) return ""
             sqlWhere = `${header} < ${filter.value}::int`
             break
+          case "is":
+            if (!filter.value) return ""
+            sqlWhere = `${header} = ${filter.value}::boolean`
         }
         return sqlWhere
       })
@@ -114,9 +117,11 @@ rowsAhead: protectedProcedure
     let orderByClause = `"rowNum" ASC`;
     if (view.sorts.length !== 0) {
       const formattedSorts = view.sorts.map(sort => {
-        const direction = (sort.type === "sort1_9" || sort.type === "sortA_Z") ? "ASC" : "DESC";
+        const direction = (sort.type === "sort1_9" || sort.type === "sortA_Z" || sort.type === "sortNotCheck_Check") ? "ASC" : "DESC";
         return table.headerTypes[sort.columnIndex] === "number"
           ? `("cellsFlat"->>${sort.columnIndex})::int ${direction}`
+          : table.headerTypes[sort.columnIndex] === "string"
+          ? `"cellsFlat"->>${sort.columnIndex} ${direction}`
           : `"cellsFlat"->>${sort.columnIndex} ${direction}`;
       });
       formattedSorts.reverse()
@@ -146,15 +151,14 @@ rowsAhead: protectedProcedure
   }),
 
 addRow: protectedProcedure
-.input(z.object({tableId: z.string(), rowNum: z.number(), cellsFlat: z.array(z.union([z.string(), z.number(), z.null()])), rowId: z.string()}))
+.input(z.object({tableId: z.string(), rowNum: z.number(), cellsFlat: z.array(z.union([z.string(), z.number(), z.null(), z.boolean()])), rowId: z.string()}))
 .mutation(async ({ ctx, input }) => {
   return await ctx.db.$transaction(async (tx) => {
-    const table = await tx.table.update({
+    await tx.table.update({
       where: { id: input.tableId },
       data: { numRows: { increment: 1 } },
       select: { numRows: true, headers: true, headerTypes: true },
     });
-
 
     return await tx.row.create({
       data: {
@@ -170,7 +174,8 @@ addRow: protectedProcedure
 addCol: protectedProcedure
 .input(z.object({ tableId: z.string(), type: z.enum([
         "string",
-        "number"
+        "number",
+        "checkBox"
       ]), header: z.string(), viewName: z.string() }))
 .mutation(async ({ ctx, input }) => {
     const table = await ctx.db.table.update({
@@ -198,7 +203,7 @@ addCol: protectedProcedure
       data: { showing: { push: true }}
     });
 
-    const newCellFlatVal = input.type === "string" ? '""' : 'null';
+    const newCellFlatVal = input.type === "string" ? '""' : input.type === "number" ? 'null' : 'false'
     return await ctx.db.$executeRaw`
       UPDATE "Row"
       SET "cellsFlat" = COALESCE("cellsFlat", '[]'::jsonb) || ${newCellFlatVal}::jsonb
@@ -225,9 +230,15 @@ addCol: protectedProcedure
       })
       if (!table) throw new Error("Table not found");
       // update cellsFlat
-      const newCellsFlat = [...row.cellsFlat as (string | number | null)[]]
+      const newCellsFlat = [...row.cellsFlat as (string | number | boolean | null)[]]
       if (table.headerTypes[input.col] === "string") {
         newCellsFlat[input.col] = input.newVal;
+      } else if (table.headerTypes[input.col] === "checkBox") {
+        if (input.newVal === "true") {
+           newCellsFlat[input.col] = true;
+        } else {
+          newCellsFlat[input.col] = false;
+        }
       } else {
         const newValNum = isNaN(Number(input.newVal)) ? null : Number(input.newVal);
         newCellsFlat[input.col] = newValNum;
@@ -254,13 +265,14 @@ add100kRow: protectedProcedure
   const { numRows, headers, headerTypes } = table;
   const NUM_TO_ADD = 100000;
   const NUM_COLUMNS = headers.length; 
-  
   const ROW_BATCH_SIZE = 5000; 
 
+  // add 5000 rows per loop
   for (let i = 0; i < NUM_TO_ADD; i += ROW_BATCH_SIZE) {
     
     const batchRowsData = [];
 
+    // not really necessary but in case num to add is changed
     const currentBatchSize = Math.min(ROW_BATCH_SIZE, NUM_TO_ADD - i);
 
     for (let j = 0; j < currentBatchSize; j++) {
@@ -268,16 +280,13 @@ add100kRow: protectedProcedure
         
         const rowId = `row_${rowIdx}_${crypto.randomUUID()}`;
         const rowNum = numRows + rowIdx;
-        const cellsFlat: (string | number | null)[] = [];
-
+        const cellsFlat: (string | number | boolean | null)[] = [];
+        // make cells Flat
         for (let k = 0; k < NUM_COLUMNS; k++) {
-            const isString = headerTypes[k] === "string";
             
-            const val = isString 
-                ? faker.person.fullName() 
-                : String(faker.number.int({ min: 1, max: 100 }));
+            const val = headerTypes[k] === "string" ? faker.person.fullName() : headerTypes[k] === "number" ? String(faker.number.int({ min: 1, max: 100 })) : false;
             
-            const numVal = isString ? null : Number(val);
+            const numVal = headerTypes[k] === "number" ?  Number(val): null;
 
             cellsFlat.push(numVal ?? val);
         }
@@ -410,7 +419,8 @@ deleteColumn:protectedProcedure
   editHeaderCol: protectedProcedure
   .input(z.object({colIndex: z.number(), tableId: z.string(), newHeaderName: z.string(), newHeaderType: z.enum([
         "string",
-        "number"
+        "number",
+        "checkBox",
       ])}))
   .mutation(async ({ctx, input}) => {
     // change table header

@@ -20,7 +20,7 @@ import type { Augments, Table, TableRow, View, Filtered, Row, CellsFlat } from "
 import CopyAugment from "./copyAugment";
 import { faker } from '@faker-js/faker';
 import HeaderModal from "./headerModal";
-
+import CheckBoxCell from "./checkBoxCell";
 interface prop {
    tableId: string
 }
@@ -53,7 +53,7 @@ export default function Table(tableProp: prop) {
     const { mutateAsync: mutateAsyncRow100k, isPending: pending100k } = api.table.add100kRow.useMutation({
       onSuccess: () => {
         if (selectedView) {
-        utils.table.rowsAhead.reset({ tableId: tableProp.tableId, viewId: selectedView.id});
+          utils.table.rowsAhead.reset({ tableId: tableProp.tableId, viewId: selectedView.id});
         }
       }
     });
@@ -71,9 +71,11 @@ export default function Table(tableProp: prop) {
     }, [tableProp.tableId, views ?? []])
 
   const handleHeaderRightClick = (event: React.MouseEvent, headerCol: number) => {
-    event.preventDefault(); 
-    setSelectedHeader(headerCol);
-    setHeaderRightClickModal(true);
+    if (headerCol >= 0) {
+      event.preventDefault(); 
+      setSelectedHeader(headerCol);
+      setHeaderRightClickModal(true);
+    }
   };
 
     const {data: rowsAhead, fetchNextPage, hasNextPage, isFetchingNextPage} = api.table.rowsAhead.useInfiniteQuery(
@@ -104,10 +106,11 @@ export default function Table(tableProp: prop) {
     }, [rowsAhead, selectedView]);
 
     // Table Columns
+    // ColumnDef<TData, TValue>
+    // 
     const columns = useMemo<ColumnDef<TableRow, string>[]>(() => {
       if (!table || !views || !selectedView) return [];
       // intial row number column
-      console.log("columns is being regenerated this is the new column Headers: ", table.headers);
       const rowNumberCol: ColumnDef<TableRow, string> = {
         id: "rowNumber",
         header: () => {
@@ -136,13 +139,14 @@ export default function Table(tableProp: prop) {
       })
 
       let dataCols: ColumnDef<TableRow, string>[] = table.headers.map((header, i) => ({
-        // acessorKey must match a key in my row object 
+        // accessorFn: (tableRow) => tableRow[String(i)], 
+        // id: String(i),
         accessorKey: String(i), //header Id from table.getHeaderGroups() is auto genereated based on accessorkey
         header: () => {
           return (
             <div style={{ color: "#1D1F26", display: "flex", justifyContent: "flex-start", alignItems: "center", gap: "4px", padding: "5px", }}>
               <img
-                src={table.headerTypes[i] === "string" ? "/letter.svg" : "/hashtag.svg"}
+                src={table.headerTypes[i] === "string" ? "/letter.svg" : table.headerTypes[i] === "number" ? "/hashtag.svg" : "/tickedCheckBox.svg"}
                 alt="icon"
                 style={{ width: "14px", height: "14px" }}
               />
@@ -158,7 +162,8 @@ export default function Table(tableProp: prop) {
         // info.row.original
         cell: (info: CellContext<TableRow, string>) => {
           if (table.headerTypes[i] === "string") return <StringCell views={views} viewId={selectedView.id} info={info} tableId={table.id}/>;
-          else return <NumCell views={views} info={info} tableId={table.id} viewId={selectedView.id}/>;
+          else if (table.headerTypes[i] === "number") return <NumCell views={views} info={info} tableId={table.id} viewId={selectedView.id}/>;
+          else return <CheckBoxCell views={views} info={info} tableId={table.id} viewId={selectedView.id}/>;
         },
       }));
       // filter data cols based on view showings
@@ -169,22 +174,22 @@ export default function Table(tableProp: prop) {
     }, [table?.headerTypes, table?.headers, views, selectedView]);
 
 
-  // create TanStack table instance
-  const tanTable = useReactTable<TableRow>({
-    data: rows,
-    columns: columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
+    // create TanStack table instance
+    const tanTable = useReactTable<TableRow>({
+      data: rows,
+      columns: columns,
+      getCoreRowModel: getCoreRowModel(),
+    });
 
-const { rows: tableRows } = tanTable.getRowModel();
+    const { rows: tableRows } = tanTable.getRowModel();
 
     const scrollingRef = useRef<HTMLDivElement>(null);
     const virtualizer = useVirtualizer({
+      // + 1 is the invlisible loading row so that users can see that more rows are loading rather then just abruptly not showing
       count: hasNextPage ? rows.length + 1 : rows.length,
       getScrollElement: () => scrollingRef.current ?? null,
       estimateSize: () => {
         if (selectedView) {
-          
           if (selectedView.cellHeight === "small") {
             return 32
           } else if (selectedView.cellHeight === "medium") {
@@ -330,12 +335,11 @@ const { rows: tableRows } = tanTable.getRowModel();
     // create cells
     table.headers.forEach((_, i) => {
       if (table.headerTypes[i] === "string") {
-        const val = faker.person.fullName();
-        cellsFlat.push(val)
+        cellsFlat.push(faker.person.fullName())
+      } else if (table.headerTypes[i] === "checkBox"){
+        cellsFlat.push(false) 
       } else {
-        const numVal = faker.number.int({ min: 1, max: 100 });
-        const val = String(numVal);
-        cellsFlat.push(numVal)
+        cellsFlat.push(faker.number.int({ min: 1, max: 100 }))
       }
     });
     // create row first
@@ -661,6 +665,7 @@ const { rows: tableRows } = tanTable.getRowModel();
         ? (<div style={{height: "70vh", display: "flex", width: "100%", justifyContent: "center", alignItems: "center", gap: "10px", color: "rgb(156, 156, 156)"}}>Loading rows<CircularProgress size="20px"/></div>) 
         : 
         <div style={{paddingBottom: "50px", paddingRight: "70px", width: "fit-content", minWidth: "100%"}}>
+        {/* stop columns from compressing rather then just extending over and allowing scrolling */}
         <table style={{ minWidth: "max-content"}}>
           <thead>
             {tanTable.getHeaderGroups().map(headerGroup => (
@@ -721,12 +726,14 @@ const { rows: tableRows } = tanTable.getRowModel();
                 <tr key={`loading-${virtualRow.index}`} className="row">
                   <td className="row" style={{height: `${virtualRow.size}px`, display: "flex", width: "100%", justifyContent: "center", alignItems: "center"}}><CircularProgress size="20px"/></td>
                 </tr>
-                );
+              );
               return(
                 <tr key={row.id} className="row" style={{height: `${virtualRow.size}px`}}>
                   {row.getVisibleCells().map(cell => {
                     // body cells for data
+                    // accessorKey created in column "0", "1", "2"
                     const accessorKey = cell.column.id;
+                    // row.original is what formatted row looks like e.g [{"id": string, "0": Record<string, string | boolean>, "1":},...]
                     const cellData = row.original[accessorKey];
                     const isSearchHighlight = (cellData as Record<string, string | boolean>)?.searchHighlight as boolean || false;
 

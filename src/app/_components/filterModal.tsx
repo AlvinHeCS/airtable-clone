@@ -18,89 +18,6 @@ interface prop {
 
 export default function FilterModal(FilterModalProps: prop) {
 
-
-    function sortRows(newRows: Row[], sorts: Sort[]) {
-        for (const s of sorts) {
-            switch(s.type) {
-                case "sort1_9": 
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (Number(aComparison) - Number(bComparison))
-                })
-                break;
-                case "sort9_1":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (Number(bComparison) - Number(aComparison))
-                })
-                break;
-                case "sortA_Z":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (String(aComparison).localeCompare(String(bComparison)))
-                })
-                break;
-                case "sortZ_A":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (String(bComparison).localeCompare(String(aComparison)))
-                })
-                break;
-            }
-        }
-        return newRows
-    }
-
-    // function filterRows(newRows: Row[], filters: Filter[]) {
-    //     return newRows.filter((row) => {
-    //         let passed = true
-    //         for (const f of filters) {
-    //             if (f.value === "" && f.type !== "empty" && f.type !== "not_empty") continue;
-    //             switch(f.type) {
-    //                 case "contains":
-    //                     if (!(row.cells[f.columnIndex]!.val.includes(f.value))) {
-    //                         passed = false;
-    //                     }
-    //                     break
-    //                 case "not_contains":
-    //                     if (row.cells[f.columnIndex]!.val.includes(f.value)) {
-    //                         passed = false;
-    //                     }
-    //                     break
-    //                 case "empty":
-    //                     if (row.cells[f.columnIndex]!.val !== "") {
-    //                         passed = false;
-    //                     }
-    //                     break
-    //                 case "not_empty":
-    //                     if (row.cells[f.columnIndex]!.val === "") {
-    //                         passed = false;
-    //                     }
-    //                     break
-    //                 case "eq":
-    //                     if (row.cells[f.columnIndex]!.val !== f.value) {
-    //                         passed = false;
-    //                     }
-    //                     break
-    //                 case "gt":
-    //                     if ((row.cells[f.columnIndex]!.numVal ?? Infinity) <= Number(f.value)) {
-    //                         passed = false
-    //                     }
-    //                     break
-    //                 case "lt":
-    //                     if ((row.cells[f.columnIndex]!.numVal ?? -Infinity) >= Number(f.value)) {
-    //                         passed = false
-    //                     }
-    //                     break
-    //             }
-    //         }
-    //         return (passed)
-    //     })
-    // }
     const textInputRef = useRef<HTMLInputElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
     const utils = api.useUtils();    
@@ -188,9 +105,14 @@ export default function FilterModal(FilterModalProps: prop) {
             newVal = "";
             if (FilterModalProps.tableHeaderTypes[newHeaderCol] === "string") {
                 newType = "contains";
-            } else {
+            } else if (FilterModalProps.tableHeaderTypes[newHeaderCol] === "number") {
                 newType = "eq";
+            } else {
+                newType = "is";
             }
+        }
+        if (FilterModalProps.tableHeaderTypes[newHeaderCol] === "checkBox") {
+            newVal = "true"
         }
 
         const newFilter = await editFilterHeaderAsync({filterId: filterId, newHeaderColIndex: newHeaderCol, newType: newType, newValue: newVal});
@@ -239,7 +161,7 @@ export default function FilterModal(FilterModalProps: prop) {
         })
     }
 
-    async function editFilterVal(filterId: string, val: string, filterOperator: OperatorType, filterColumnIndex: number, filterViewId: string) {
+    async function editFilterVal(filterId: string, val: string) {
         const newFilter = await editFilterValAsync({filterId: filterId, newFilterVal: val});
 
         utils.table.getViews.setData({tableId: FilterModalProps.tableId}, (prev) => {
@@ -280,23 +202,32 @@ export default function FilterModal(FilterModalProps: prop) {
                             return(<option key={i} value={i}>{header}</option>)
                         })}
                     </select>
-                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] === "number" ?
-                        <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => (editFilterType(filter.id, e.target.value as OperatorType))} value={filter.type}>                             
+                    {FilterModalProps.tableHeaderTypes[filter.columnIndex] === "number" 
+                        ? <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => (editFilterType(filter.id, e.target.value as OperatorType))} value={filter.type}>                             
                             <option key={0} value="eq">=</option>
                             <option key={1} value="gt">&gt;</option>
                             <option key={2} value="lt">&lt;</option>
-                        </select> : 
-                        <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => (editFilterType(filter.id, e.target.value as OperatorType))} value={filter.type}>                             
+                        </select> 
+                        : FilterModalProps.tableHeaderTypes[filter.columnIndex] === "string" 
+                        ? <select style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}} onChange={(e) => (editFilterType(filter.id, e.target.value as OperatorType))} value={filter.type}>                             
                             <option key={0} value="eq">is</option>
                             <option key={1} value="contains">contains...</option>
                             <option key={2} value="not_contains">does not contain...</option>
                             <option key={3} value="empty">is empty</option>
                             <option key={4} value="not_empty">is not empty</option>
                         </select>
+                        : <div style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "130px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px"}}>
+                            is
+                        </div>
                     }
                     {FilterModalProps.tableHeaderTypes[filter.columnIndex] === "number"
-                    ? <input ref={textInputRef} type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>
-                    : <input ref={textInputRef} style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value, filter.type, filter.columnIndex, filter.viewId)}></input>}
+                    ? <input ref={textInputRef} type="number" style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value)}></input>
+                    : FilterModalProps.tableHeaderTypes[filter.columnIndex] === "string" 
+                    ? <input ref={textInputRef} style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", fontSize: "14px"}} defaultValue={filter.value} placeholder={filter.value === "" ? "Enter a value": undefined} onBlur={(e) => editFilterVal(filter.id, e.target.value)}></input>
+                    : <div style={{ border: "solid rgba(222, 222, 222, 1) 1px", width: "140px", height: "30px", padding: "10px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px"}} >
+                        <input ref={textInputRef} type="checkbox" style={{width: "15px", height: "15px"}} checked={filter.value === "true"} onChange={(e) => editFilterVal(filter.id, String(e.target.checked))}></input>
+                    </div>
+                    }
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}onClick={() => (deleteFilter(filter.id))}><img src="/trash.svg" style={{width: "15px", height: "15px"}}></img></button>
                     <button style={{border: "solid rgba(222, 222, 222, 1) 1px", width: "30px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center"}}><img src="/dots.svg" style={{width: "15px", height: "15px"}}></img></button>
                 </div>)

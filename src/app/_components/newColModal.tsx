@@ -100,6 +100,7 @@ export default function NewColModal(NewColModalProp: prop) {
                 <SelectGroup>
                   <SelectItem value="string"><img src="/letter.svg" style={{width: "10px", height: "10px"}}></img>Single line text</SelectItem>
                   <SelectItem value="number"><img src="/hashtag.svg" style={{width: "10px", height: "10px"}}></img>Number</SelectItem>
+                  {/* <SelectItem value="checkBox"><img src="/tickedCheckBox.svg" style={{width: "10px", height: "10px"}}></img>Checkbox</SelectItem> */}
                 </SelectGroup>
               </SelectContent>
             </Select>

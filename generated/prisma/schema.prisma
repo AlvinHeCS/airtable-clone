@@ -87,6 +87,7 @@ model Base {
 enum HeaderType {
   string
   number
+  checkBox
 }
 
 model Table {
@@ -141,6 +142,7 @@ enum FilterType {
   lt
   empty
   not_empty
+  is
 }
 
 model Filter {
@@ -158,6 +160,8 @@ enum SortType {
   sortZ_A
   sort1_9
   sort9_1
+  sortCheck_NotCheck
+  sortNotCheck_Check
 }
 
 model Sort {

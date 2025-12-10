@@ -75,7 +75,8 @@ export type Sort = $Result.DefaultSelection<Prisma.$SortPayload>
 export namespace $Enums {
   export const HeaderType: {
   string: 'string',
-  number: 'number'
+  number: 'number',
+  checkBox: 'checkBox'
 };
 
 export type HeaderType = (typeof HeaderType)[keyof typeof HeaderType]
@@ -97,7 +98,8 @@ export const FilterType: {
   gt: 'gt',
   lt: 'lt',
   empty: 'empty',
-  not_empty: 'not_empty'
+  not_empty: 'not_empty',
+  is: 'is'
 };
 
 export type FilterType = (typeof FilterType)[keyof typeof FilterType]
@@ -107,7 +109,9 @@ export const SortType: {
   sortA_Z: 'sortA_Z',
   sortZ_A: 'sortZ_A',
   sort1_9: 'sort1_9',
-  sort9_1: 'sort9_1'
+  sort9_1: 'sort9_1',
+  sortCheck_NotCheck: 'sortCheck_NotCheck',
+  sortNotCheck_Check: 'sortNotCheck_Check'
 };
 
 export type SortType = (typeof SortType)[keyof typeof SortType]

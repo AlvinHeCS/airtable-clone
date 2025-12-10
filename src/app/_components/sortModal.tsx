@@ -71,45 +71,13 @@ export default function SortModal(SortModalProps: prop) {
             utils.table.rowsAhead.reset({tableId: SortModalProps.tableId, viewId: SortModalProps.view.id})
         }
     });
-    
-    function sortRows(newRows: Row[], sorts: Sort[]) {
-        for (const s of sorts) {
-            switch(s.type) {
-                case "sort1_9": 
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (Number(aComparison) - Number(bComparison))
-                })
-                break;
-                case "sort9_1":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (Number(bComparison) - Number(aComparison))
-                })
-                break;
-                case "sortA_Z":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (String(aComparison).localeCompare(String(bComparison)))
-                })
-                break;
-                case "sortZ_A":
-                newRows.sort((a, b) => {
-                    const aComparison = (a.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    const bComparison = (b.cellsFlat as (string | number | null)[])[s.columnIndex]
-                    return (String(bComparison).localeCompare(String(aComparison)))
-                })
-                break;
-            }
-        }
-        return newRows
-    }
 
     async function addSort(col: number) {
-        const newSortType: SortType = (SortModalProps.tableHeaderTypes[col] === "string") ? "sortA_Z" : "sort1_9"
+        const newSortType: SortType = (SortModalProps.tableHeaderTypes[col] === "string") 
+        ? "sortA_Z" 
+        : (SortModalProps.tableHeaderTypes[col] === "number") 
+        ? "sort1_9"
+        : "sortCheck_NotCheck"
         // backend 
         const newSort = await addSortAsync({viewId: SortModalProps.view.id, colNum: col, sortType: newSortType});
         // update trpc cache for views
@@ -156,7 +124,11 @@ export default function SortModal(SortModalProps: prop) {
         // edit sort backend
         let newSortType = sortType;
         if (SortModalProps.tableHeaderTypes[newSortColIndex] !== SortModalProps.tableHeaderTypes[oldCol]) {
-            newSortType = SortModalProps.tableHeaderTypes[newSortColIndex] === "string" ? "sortA_Z" : "sort1_9";
+            newSortType = SortModalProps.tableHeaderTypes[newSortColIndex] === "string" 
+            ? "sortA_Z" : 
+            SortModalProps.tableHeaderTypes[newSortColIndex] === "number" 
+            ? "sort1_9"
+            : "sortCheck_NotCheck";
         }
         const newSort = await editSortHeaderAsync({sortId: sortId, sortColIndex: newSortColIndex, sortType: newSortType});
         utils.table.getViews.setData({tableId: SortModalProps.tableId}, (prev) => {
@@ -223,10 +195,15 @@ export default function SortModal(SortModalProps: prop) {
                                 <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
                                     <option key={0} value="sort1_9">1 - 9</option>
                                     <option key={1} value="sort9_1">9 - 1</option>
-                                </select> : 
-                                <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
+                                </select> 
+                                : SortModalProps.tableHeaderTypes[sort.columnIndex] === "string"
+                                ? <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "13px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
                                     <option key={0} value="sortA_Z">A - Z</option>
                                     <option key={1} value="sortZ_A">Z - A</option>
+                                </select>
+                                : <select style={{borderRadius: "5px", border: "solid grey 1px", width: "150px", height: "30px", display: "flex", alignItems: "center", fontSize: "16px" }} onChange={(e) => (changeSortType(sort.id, e.target.value as SortType))} value={sort.type}>                             
+                                    <option key={0} value="sortNotCheck_Check">◻ - ☑︎</option>
+                                    <option key={1} value="sortCheck_NotCheck">☑ - ◻</option>
                                 </select>
                             }
                             <button className="deleteButton" onClick={() => (deleteSort(sort.id))}><img src="/cross.svg" style={{width: "15px", height: "15px"}}></img></button>
@@ -242,9 +219,11 @@ export default function SortModal(SortModalProps: prop) {
                     <div ref={selectNewSortRef} style={{overflow: "scroll", position: "absolute", width: "450px", height: "200px", background: "white", zIndex: "999", display: "flex", flexDirection: "column", alignItems: "flex-start", border: "solid rgba(196, 196, 196, 1) 0.5px"}}>
                         <span style={{width: "100%", padding: "5px", color: "grey", fontSize: "14px", position: "sticky", top: 0, background: "white"}}>Find a field</span>
                         {SortModalProps.tableHeaders.map((header, i) => {
-                            return (SortModalProps.tableHeaderTypes[i] === "number" ? 
-                            <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/hashtag.svg" style={{width: "15px", height: "15px"}}></img>{header}</button> :
-                            <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/letter.svg" style={{width: "15px", height: "15px"}}></img>{header}</button>
+                            return (SortModalProps.tableHeaderTypes[i] === "number"
+                            ? <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/hashtag.svg" style={{width: "15px", height: "15px"}}></img>{header}</button>
+                            : SortModalProps.tableHeaderTypes[i] === "string"
+                            ? <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/letter.svg" style={{width: "15px", height: "15px"}}></img>{header}</button>
+                            : <button className="selectNewHeader" onClick={() => (addSort(i))} style={{padding: "5px", display: "flex", width: "100%", alignItems: "center", gap: "5px", fontSize: "14px"}}key={i} value={i}><img src="/tickedCheckBox.svg" style={{width: "15px", height: "15px"}}></img>{header}</button>
                         )
                         })}           
                     </div>
